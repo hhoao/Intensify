@@ -1,0 +1,49 @@
+{
+  "advancements": [
+    {
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "criteria": {
+          "has_stone": {
+            "conditions": {
+              "items": [
+                {
+                  "items": [
+                    "intensify:strengthening_stone"
+                  ]
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          }
+        },
+        "display": {
+          "announce_to_chat": true,
+          "description": {
+            "translate": "intensify.advancement.intensify.strengthening.description"
+          },
+          "frame": "task",
+          "hidden": false,
+          "icon": {
+            "item": "minecraft:diamond"
+          },
+          "show_toast": true,
+          "title": {
+            "translate": "intensify.advancement.intensify.strengthening.title"
+          }
+        },
+        "requirements": [
+          [
+            "has_stone"
+          ]
+        ],
+        "sends_telemetry_event": false
+      },
+      "conditions": [
+        {
+          "type": "forge:true"
+        }
+      ]
+    }
+  ]
+}

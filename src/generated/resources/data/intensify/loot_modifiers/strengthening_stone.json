@@ -1,0 +1,9 @@
+{
+  "type": "intensify:intensify_stone",
+  "conditions": [
+    {
+      "condition": "intensify:mineral_destruction",
+      "intensifyStoneType": "STRENGTHENING_STONE"
+    }
+  ]
+}

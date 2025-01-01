@@ -1,0 +1,36 @@
+[sword]
+enable = true
+
+[[sword.attributes]]
+type = "generic.attack_damage"
+
+[sword.attributes.eneng]
+enable = true
+value = [1.0, 4.0]
+
+[[sword.attributes.grows]]
+type = "fixed"
+range = [1, 5]
+value = 1.0
+
+[[sword.attributes.grows]]
+type = "proportional"
+range = [6, -1]
+value = 0.1
+
+[[sword.attributes]]
+type = "generic.attack_speed"
+
+[sword.attributes.eneng]
+enable = true
+value = [0.1, 1.0]
+
+[[sword.attributes.grows]]
+type = "fixed"
+range = [1, 3]
+value = 0.1
+
+[[sword.attributes.grows]]
+type = "proportional"
+range = [4, -1]
+value = 0.05

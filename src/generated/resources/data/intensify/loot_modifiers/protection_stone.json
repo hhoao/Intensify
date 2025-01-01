@@ -1,0 +1,10 @@
+{
+  "type": "intensify:intensify_stone",
+  "conditions": [
+    {
+      "condition": "intensify:mineral_destruction",
+      "intensifyStoneType": "PROTECTION_STONE"
+    }
+  ],
+  "intensifyItemStoneType": "protection_stone"
+}

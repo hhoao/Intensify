@@ -1,0 +1,17 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:true"
+        }
+      ],
+      "recipe": {
+        "type": "intensify:intensify_stone",
+        "cookingtime": 5,
+        "experience": 100.0
+      }
+    }
+  ]
+}

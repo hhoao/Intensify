@@ -1,0 +1,56 @@
+# 弓箭
+# draw_speed 远程武器充能速度
+# arrow_damage 箭矢伤害
+# arrow_velocity 箭矢速度
+# generic.attack_knockback 击退
+
+# 近战武器
+# generic.attack_speed 攻击速度
+
+
+# 武器通用
+# generic.attack_damage 攻击伤害
+# armor_pierce 护甲穿透
+# armor_shred 百分比护甲穿透
+# cold_damage 寒冰伤害
+# crit_chance 暴击几率
+# crit_damage 暴击伤害
+# current_hp_damage 当前生命百分比伤害
+# fire_damage 火焰伤害
+# life_steal 生命吸取
+# overheal 物理攻击转化为吸收生命值的百分比
+# prot_pierce 护甲穿透防护
+# prot_shred 百分比护甲穿透防护
+
+
+# 工具通用
+# mining_speed 挖掘速度
+# experience_gained 经验获取
+
+
+# 护甲通用
+# ghost_health 当没有受到伤害时，额外的生命值恢复
+# healing_received 治疗效果
+# dodge_chance 闪避几率
+# generic.max_health 最大生命值
+# generic.knockback_resistance 击退抵抗
+# generic.movement_speed 移动速度
+
+
+# generic.armor 护甲
+# generic.armor_toughness 韧性
+
+
+# 钓鱼
+# generic.luck 幸运值
+
+
+# 飞行
+# generic.flying_speed 飞行速度
+# elytra_flight 鞘翅飞行
+# creative_flight 创造模式飞行
+
+# 其他
+# horse.jump_strength 马跳跃力量
+# zombie.spawn_reinforcements 僵尸支援
+# generic.follow_range 跟随距离
