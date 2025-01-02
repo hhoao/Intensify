@@ -1,0 +1,29 @@
+shield:
+  enable: true
+  attributes:
+    # 护甲
+    - type: generic.armor
+      eneng:
+        enable: true
+        value: [5.0, 8.0] # 初始护甲值为5-8
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 1.0 # 每级固定增加1点护甲
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增长5%
+    # 击退抵抗
+    - type: generic.knockback_resistance
+      eneng:
+        enable: true
+        value: [0.2, 0.5] # 初始击退抵抗为20%-50%
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.05 # 每级增加5%
+        - type: proportional
+          range: [6, -1]
+          value: 0.03 # 每级额外增加3%

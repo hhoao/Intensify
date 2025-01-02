@@ -1,0 +1,114 @@
+crossbow:
+  enable: true
+  attributes:
+    # 弩伤害
+    - type: arrow_damage
+      eneng:
+        enable: true
+        value: [7.0, 12.0] # 初始弩伤害为7-12
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 3.0 # 每级增加3点弩伤害
+        - type: proportional
+          range: [6, -1]
+          value: 0.1 # 每级额外增加10%
+
+    # 充能速度
+    - type: draw_speed
+      eneng:
+        enable: true
+        value: [1.5, 3.0] # 初始充能速度为1.5-3.0
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.2 # 每级增加0.2充能速度
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增加5%
+
+    # 箭矢速度
+    - type: arrow_velocity
+      eneng:
+        enable: true
+        value: [1.0, 2.5] # 初始箭矢速度为1.0-2.5
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.3 # 每级增加0.3箭矢速度
+        - type: proportional
+          range: [6, -1]
+          value: 0.1 # 每级额外增加10%
+
+    # 暴击几率
+    - type: crit_chance
+      eneng:
+        enable: true
+        value: [0.05, 0.25] # 初始暴击几率为5%-25%
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.05 # 每级增加5%暴击几率
+        - type: proportional
+          range: [6, -1]
+          value: 0.01 # 每级额外增加1%
+
+    # 暴击伤害
+    - type: crit_damage
+      eneng:
+        enable: true
+        value: [1.5, 3.0] # 初始暴击伤害为1.5-3.0倍
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.15 # 每级增加0.15倍暴击伤害
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增加5%
+
+    # 击退
+    - type: generic.attack_knockback
+      eneng:
+        enable: true
+        value: [0.2, 0.5] # 初始击退为20%-50%
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.1 # 每级增加10%击退
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增加5%
+
+    # 火焰伤害
+    - type: fire_damage
+      eneng:
+        enable: true
+        value: [0.5, 2.5] # 初始火焰伤害为0.5-2.5
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.3 # 每级增加0.3火焰伤害
+        - type: proportional
+          range: [6, -1]
+          value: 0.1 # 每级额外增加10%
+
+    # 生命吸取
+    - type: life_steal
+      eneng:
+        enable: true
+        value: [0.02, 0.08] # 初始生命吸取为2%-8%
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.02 # 每级增加2%生命吸取
+        - type: proportional
+          range: [6, -1]
+          value: 0.01 # 每级额外增加1%

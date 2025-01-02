@@ -1,0 +1,27 @@
+fishing_rod:
+  enable: true
+  attributes:
+    - type: generic.luck  # 幸运值
+      eneng:
+        enable: true
+        value: [ 1.0, 3.0 ]
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.5
+        - type: proportional
+          range: [6, -1]
+          value: 0.1
+    - type: experience_gained  # 经验获取
+      eneng:
+        enable: true
+        value: [ 1.0, 2.0 ]
+      grow:
+        - type: fixed
+          range: [ 1, 5 ]
+          speed: 1
+          value: 0.2
+        - type: proportional
+          range: [ 6, -1 ]
+          value: 0.05

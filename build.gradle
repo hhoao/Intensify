@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
@@ -13,6 +16,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+    id("com.diffplug.spotless") version "6.25.0"
 }
 
 apply plugin: 'org.spongepowered.mixin'
@@ -145,6 +149,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    implementation 'org.yaml:snakeyaml:2.0'
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
@@ -206,4 +211,17 @@ tasks.named('jar', Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+spotless {
+    java {
+        googleJavaFormat().style("AOSP")
+        formatAnnotations()
+        var licenseBuilder = new StringBuilder("/*\n")
+        for (final def line in Files.readAllLines(Paths.get(rootProject.projectDir.absolutePath, "LICENSE.txt")) ) {
+            licenseBuilder.append(" * ${line}\n")
+        }
+        licenseBuilder.append(" */\n\n")
+        licenseHeader(licenseBuilder.toString())
+    }
 }

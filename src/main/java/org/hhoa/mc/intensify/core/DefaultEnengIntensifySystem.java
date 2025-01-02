@@ -37,7 +37,9 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
         }
         CompoundTag orCreateTag = itemStack.getOrCreateTag();
         orCreateTag.putBoolean(ENENGED_TAG_ID, true);
-        player.sendSystemMessage(Component.literal("物品启能完毕!!"));
+        if (player != null) {
+            player.sendSystemMessage(Component.literal("物品启能完毕!!"));
+        }
     }
 
 

@@ -15,31 +15,41 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
-import net.minecraftforge.common.ForgeConfigSpec;
-import org.hhoa.mc.intensify.Intensify;
-import org.hhoa.mc.intensify.recipes.IntensifyRecipe;
 import org.hhoa.mc.intensify.util.ConfigLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ToolIntensifyConfig {
     public static final HashMap<String, Class<? extends Item>> TOOL_NAME_CLASS_MAPPING = new HashMap<>();
+    public static final HashMap<String, ArmorItem.Type> ARMOR_NAME_CLASS_MAPPING = new HashMap<>();
 
     static {
-        TOOL_NAME_CLASS_MAPPING.put("sword", SwordItem.class);
+        // tool
         TOOL_NAME_CLASS_MAPPING.put("hoe", HoeItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("axe", AxeItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("shovel", ShovelItem.class);
         TOOL_NAME_CLASS_MAPPING.put("pickaxe", PickaxeItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("shovel", ShovelItem.class);
+
+        // tool and weapon
+        TOOL_NAME_CLASS_MAPPING.put("axe", AxeItem.class);
+
+        // weapon
+        TOOL_NAME_CLASS_MAPPING.put("sword", SwordItem.class);
         TOOL_NAME_CLASS_MAPPING.put("bow", BowItem.class);
         TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class);
         TOOL_NAME_CLASS_MAPPING.put("shield", ShieldItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("fish_rod", FishingRodItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("armor", ArmorItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("fishing_rod", FishingRodItem.class);
+
+        // armor
+        ARMOR_NAME_CLASS_MAPPING.put("leggings", ArmorItem.Type.LEGGINGS);
+        ARMOR_NAME_CLASS_MAPPING.put("boots", ArmorItem.Type.BOOTS);
+        ARMOR_NAME_CLASS_MAPPING.put("helmet", ArmorItem.Type.HELMET);
+        ARMOR_NAME_CLASS_MAPPING.put("chestplate", ArmorItem.Type.CHESTPLATE);
     }
 
+    private static HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap;
     private static List<ToolIntensifyConfig> toolIntensifyConfigs;
     private static HashMap<Class<? extends Item>, ToolIntensifyConfig> classToolIntensifyConfigHashMap;
     private String name;
@@ -50,16 +60,45 @@ public class ToolIntensifyConfig {
         toolIntensifyConfigs=
             ConfigLoader.loadToolIntensifyConfigFromDir("config/intensify");
         classToolIntensifyConfigHashMap = new HashMap<>();
+        armorClassConfigMap = new HashMap<>();
         for (ToolIntensifyConfig toolIntensifyConfig : toolIntensifyConfigs) {
             if (toolIntensifyConfig.enable) {
                 Class<? extends Item> aClass = TOOL_NAME_CLASS_MAPPING.get(toolIntensifyConfig.name);
-                classToolIntensifyConfigHashMap.put(aClass, toolIntensifyConfig);
+                if (aClass == null) {
+                    ArmorItem.Type type = ARMOR_NAME_CLASS_MAPPING.get(toolIntensifyConfig.name);
+                    if (type == null) {
+                        throw new RuntimeException(toolIntensifyConfig.name);
+                    }
+                    armorClassConfigMap.put(type, toolIntensifyConfig);
+                } else {
+                    classToolIntensifyConfigHashMap.put(aClass, toolIntensifyConfig);
+                }
             }
         }
     }
 
-    public static HashMap<Class<? extends Item>, ToolIntensifyConfig> getClassConfigMap() {
+    public static HashMap<Class<? extends Item>, ToolIntensifyConfig> getToolWeaponClassConfigMap() {
         return classToolIntensifyConfigHashMap;
+    }
+
+    public static HashMap<ArmorItem.Type, ToolIntensifyConfig> getArmorClassConfigMap() {
+        return armorClassConfigMap;
+    }
+
+    public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
+        HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap = ToolIntensifyConfig.getArmorClassConfigMap();
+        if (item instanceof ArmorItem) {
+            ArmorItem armorItem = (ArmorItem) item;
+            return armorClassConfigMap.get(armorItem.getType());
+        } else {
+            HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap = ToolIntensifyConfig.getToolWeaponClassConfigMap();
+            for (Map.Entry<Class<? extends Item>, ToolIntensifyConfig> classToolIntensifyConfigEntry : configsMap.entrySet()) {
+                if (classToolIntensifyConfigEntry.getKey().isInstance(item)) {
+                    return classToolIntensifyConfigEntry.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     public boolean isEnable() {
@@ -143,6 +182,7 @@ public class ToolIntensifyConfig {
         private GrowTypeEnum type;
         private Range<Integer> range;
         private Double value;
+        private int speed;
 
         public GrowTypeEnum getType() {
             return type;
@@ -171,6 +211,14 @@ public class ToolIntensifyConfig {
 
         public void setValue(Double value) {
             this.value = value;
+        }
+
+        public int getSpeed() {
+            return speed;
+        }
+
+        public void setSpeed(int speed) {
+            this.speed = speed;
         }
     }
     public enum GrowTypeEnum {

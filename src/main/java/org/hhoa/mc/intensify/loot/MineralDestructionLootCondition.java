@@ -40,7 +40,7 @@ public class MineralDestructionLootCondition implements LootItemCondition {
 
         Double probability = stoneDropoutProbability.get(blockState.getBlock());
 
-        if (probability == null) {
+        if (probability == null || !lootContext.hasParam(LootContextParams.TOOL)) {
             return false;
         }
 

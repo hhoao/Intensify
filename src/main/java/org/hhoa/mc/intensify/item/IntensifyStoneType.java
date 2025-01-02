@@ -1,5 +1,7 @@
 package org.hhoa.mc.intensify.item;
 
+import java.util.List;
+
 public enum IntensifyStoneType {
     INTENSIFY_STONE("intensify_stone"),
     ENENG_STONE("eneng_stone"),
@@ -14,7 +16,7 @@ public enum IntensifyStoneType {
         this.identifier = identifier;
     }
 
-    public String getIdentifier() {
+    public List<String> getIdentifier() {
         return identifier;
     }
 }

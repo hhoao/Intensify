@@ -1,0 +1,27 @@
+pickaxe:
+  enable: true
+  attributes:
+    - type: mining_speed  # 挖掘速度
+      eneng:
+        enable: true
+        value: [ 4.0, 6.0 ]
+      grow:
+        - type: fixed
+          range: [1, 10]
+          speed: 2
+          value: 0.5
+        - type: proportional
+          range: [11, -1]
+          value: 0.1
+    - type: experience_gained  # 经验获取
+      eneng:
+        enable: true
+        value: [ 1.0, 2.0 ]
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.2
+        - type: proportional
+          range: [6, -1]
+          value: 0.05

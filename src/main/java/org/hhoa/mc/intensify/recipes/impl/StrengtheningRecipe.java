@@ -31,7 +31,7 @@ public class StrengtheningRecipe extends IntensifyRecipe {
         ItemStack toolItemStack = container.getItem(0);
 
         Item toolItem = container.getItem(0).getItem();
-        ToolIntensifyConfig toolItemIntensifyConfig = getToolItemIntensifyConfig(toolItem);
+        ToolIntensifyConfig toolItemIntensifyConfig = ToolIntensifyConfig.getToolIntensifyConfig(toolItem);
         if (toolItemIntensifyConfig == null) {
             return false;
         }

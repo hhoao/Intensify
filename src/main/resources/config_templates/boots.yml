@@ -1,0 +1,68 @@
+boots:
+  enable: true
+  attributes:
+    # 移动速度
+    - type: generic.movement_speed
+      eneng:
+        enable: true
+        value: [0.03, 0.05] # 初始增加3%-5%的移动速度
+      grow:
+        - type: fixed
+          range: [1, 10]
+          speed: 2
+          value: 0.01 # 每2级增加1%
+        - type: proportional
+          range: [11, -1]
+          value: 0.02 # 每级额外增长2%
+    # 闪避几率
+    - type: dodge_chance
+      eneng:
+        enable: true
+        value: [0.05, 0.1] # 初始闪避几率为5%-10%
+      grow:
+        - type: fixed
+          range: [1, 8]
+          speed: 2
+          value: 0.02 # 每2级增加2%
+        - type: proportional
+          range: [9, -1]
+          value: 0.01 # 每级额外增长1%
+    # 最大生命值
+    - type: generic.max_health
+      eneng:
+        enable: true
+        value: [2.0, 4.0] # 初始增加2-4点生命值
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 1.0 # 每级固定增加1点生命值
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增长5%
+    # 护甲
+    - type: generic.armor
+      eneng:
+        enable: true
+        value: [1.0, 3.0] # 初始护甲为1-3
+      grow:
+        - type: fixed
+          range: [1, 10]
+          speed: 1
+          value: 0.5 # 每级固定增加0.5点护甲
+        - type: proportional
+          range: [11, -1]
+          value: 0.02 # 每级额外增长2%
+    # 击退抵抗
+    - type: generic.knockback_resistance
+      eneng:
+        enable: true
+        value: [0.0, 0.1] # 初始击退抵抗为0%-10%
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.02 # 每级固定增长2%
+        - type: proportional
+          range: [6, -1]
+          value: 0.01 # 每级额外增长1%

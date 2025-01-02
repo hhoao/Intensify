@@ -1,4 +1,4 @@
-# 弓箭
+# 远程武器
 # draw_speed 远程武器充能速度
 # arrow_damage 箭矢伤害
 # arrow_velocity 箭矢速度
@@ -6,7 +6,6 @@
 
 # 近战武器
 # generic.attack_speed 攻击速度
-
 
 # 武器通用
 # generic.attack_damage 攻击伤害
@@ -19,8 +18,6 @@
 # fire_damage 火焰伤害
 # life_steal 生命吸取
 # overheal 物理攻击转化为吸收生命值的百分比
-# prot_pierce 护甲穿透防护
-# prot_shred 百分比护甲穿透防护
 
 
 # 工具通用
@@ -35,6 +32,8 @@
 # generic.max_health 最大生命值
 # generic.knockback_resistance 击退抵抗
 # generic.movement_speed 移动速度
+# prot_pierce 护甲穿透防护
+# prot_shred 百分比护甲穿透防护
 
 
 # generic.armor 护甲

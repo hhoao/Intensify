@@ -1,0 +1,68 @@
+helmet:
+  enable: true
+  attributes:
+    # 护甲
+    - type: generic.armor
+      eneng:
+        enable: true
+        value: [2.0, 4.0] # 初始护甲值为2-4
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 1.0 # 每级固定增加1点护甲
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增长5%
+    # 护甲韧性
+    - type: generic.armor_toughness
+      eneng:
+        enable: true
+        value: [1.0, 2.0] # 初始韧性为1-2
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 2
+          value: 0.5 # 每2级增加0.5点韧性
+        - type: proportional
+          range: [6, -1]
+          value: 0.02 # 每级额外增长2%
+    # 最大生命值
+    - type: generic.max_health
+      eneng:
+        enable: true
+        value: [2.0, 4.0] # 初始增加2-4点生命值
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 1.0 # 每级固定增加1点生命值
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增长5%
+    # 闪避几率
+    - type: dodge_chance
+      eneng:
+        enable: true
+        value: [0.05, 0.10] # 初始闪避几率为5%-10%
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.02 # 每级增加2%
+        - type: proportional
+          range: [6, -1]
+          value: 0.01 # 每级额外增加1%
+    # 治疗效果
+    - type: healing_received
+      eneng:
+        enable: true
+        value: [0.05, 0.10] # 初始治疗效果为5%-10%
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.02 # 每级增加2%
+        - type: proportional
+          range: [6, -1]
+          value: 0.01 # 每级额外增加1%

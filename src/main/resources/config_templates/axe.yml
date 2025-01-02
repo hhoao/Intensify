@@ -1,0 +1,94 @@
+axe:
+  enable: true
+  attributes:
+    # 攻击伤害
+    - type: generic.attack_damage
+      eneng:
+        enable: true
+        value: [7.0, 12.0] # 初始攻击伤害为7到12随机
+      grow:
+        - type: fixed
+          range: [1, 8]
+          speed: 1
+          value: 2.0 # 每级固定增长2点伤害
+        - type: proportional
+          range: [9, -1]
+          value: 0.1 # 每级额外增长10%
+    # 攻击速度（偏低）
+    - type: generic.attack_speed
+      eneng:
+        enable: true
+        value: [0.8, 1.2] # 初始攻速为0.8到1.2随机
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.1 # 每级固定增长0.1
+        - type: proportional
+          range: [6, -1]
+          value: 0.02 # 每级额外增长2%
+    # 暴击几率
+    - type: crit_chance
+      eneng:
+        enable: true
+        value: [0.15, 0.25] # 初始暴击率15%到25%
+      grow:
+        - type: fixed
+          range: [1, 10]
+          speed: 2
+          value: 0.03 # 每2级增长3%
+        - type: proportional
+          range: [11, -1]
+          value: 0.02 # 每级额外增长2%
+    # 暴击伤害
+    - type: crit_damage
+      eneng:
+        enable: true
+        value: [2.0, 3.0] # 初始暴击伤害为200%到300%
+      grow:
+        - type: fixed
+          range: [1, 8]
+          speed: 1
+          value: 0.5 # 每级固定增长50%
+        - type: proportional
+          range: [9, -1]
+          value: 0.1 # 每级额外增长10%
+    # 护甲穿透
+    - type: armor_pierce
+      eneng:
+        enable: true
+        value: [2.0, 5.0] # 初始护甲穿透为2到5
+      grow:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 1.0 # 每级固定增长1
+        - type: proportional
+          range: [6, -1]
+          value: 0.05 # 每级额外增长5%
+    # 百分比护甲穿透
+    - type: armor_shred
+      eneng:
+        enable: true
+        value: [0.1, 0.2] # 初始百分比护甲穿透10%-20%
+      grow:
+        - type: fixed
+          range: [1, 10]
+          speed: 2
+          value: 0.02 # 每2级增长2%
+        - type: proportional
+          range: [11, -1]
+          value: 0.01 # 每级额外增长1%
+    # 击退
+    - type: generic.attack_knockback
+      eneng:
+        enable: true
+        value: [0.5, 1.5] # 初始击退为0.5到1.5
+      grow:
+        - type: fixed
+          range: [1, 6]
+          speed: 1
+          value: 0.2 # 每级固定增长0.2
+        - type: proportional
+          range: [7, -1]
+          value: 0.05 # 每级额外增长5%

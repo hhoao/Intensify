@@ -58,8 +58,19 @@ public class ConfigLoader {
         if (attributes != null) {
             for (Config attrNode : attributes) {
                 ToolIntensifyConfig.AttributeConfig attributeConfig = new ToolIntensifyConfig.AttributeConfig();
-                ResourceLocation resourceLocation = new ResourceLocation(attrNode.get("type"));
+                String type = attrNode.get("type");
+                if (type == null) {
+                    throw new RuntimeException(String.format("Attribute type %s not set", attrNode));
+                }
+                ResourceLocation resourceLocation = new ResourceLocation(type);
                 Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(resourceLocation);
+                if (attribute == null) {
+                    resourceLocation = new ResourceLocation("attributeslib", type);
+                    attribute = ForgeRegistries.ATTRIBUTES.getValue(resourceLocation);
+                }
+                if (attribute == null) {
+                    throw new RuntimeException(String.format("Attribute type %s not register", type));
+                }
                 attributeConfig.setType(attribute);
 
                 getAndSetEneng(attrNode, attributeConfig);
@@ -80,6 +91,10 @@ public class ConfigLoader {
                 growConfig.setType(growNode.getEnum("type", ToolIntensifyConfig.GrowTypeEnum.class));
                 growConfig.setRange(growNode.get("range"));
                 growConfig.setValue(growNode.get("value"));
+                Integer speed = growNode.get("speed");
+                if (speed != null) {
+                    growConfig.setSpeed(speed);
+                }
                 attributeConfig.getGrows().add(growConfig);
             }
         }

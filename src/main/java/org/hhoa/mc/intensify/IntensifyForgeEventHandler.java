@@ -19,6 +19,7 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.hhoa.mc.intensify.config.Config;
@@ -26,9 +27,7 @@ import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class IntensifyForgeEventHandler {
@@ -40,6 +39,12 @@ public class IntensifyForgeEventHandler {
             Player player = event.getEntity();
             persistentData.putString(IntensifyConstants.FURNACE_OWNER_TAG_ID, player.getName().getString());
         }
+
+    }
+
+    @SubscribeEvent
+    public void on(FurnaceFuelBurnTimeEvent event) {
+
     }
 
     @SubscribeEvent
@@ -60,45 +65,46 @@ public class IntensifyForgeEventHandler {
     }
 
     @SubscribeEvent
-    public void onItemTooltip(ItemTooltipEvent event) throws IOException {
+    public void onItemTooltip(ItemTooltipEvent event) {
         ResourceLocation registryName =
             ForgeRegistries.ITEMS.getKey(event.getItemStack().getItem());
         List<Component> toolTip = event.getToolTip();
         if (registryName != null) {
-            try {
-                ItemStack itemStack = event.getItemStack();
-                for (Map.Entry<Class<? extends Item>, ToolIntensifyConfig> classToolIntensifyConfigEntry : ToolIntensifyConfig.getClassConfigMap().entrySet()) {
-                    if (itemStack.getItem().getClass().isAssignableFrom(classToolIntensifyConfigEntry.getKey())){
-                        int level = Config.getEnhancementIntensifySystem().getLevel(itemStack);
-                        boolean eneng = Config.getEnengIntensifySystem().isEneng(itemStack);
-                        Component component = toolTip.get(0);
-                        if (level > 0) {
-                            List<Component> siblings = component.getSiblings();
-                            siblings.add(Component.literal(" +" + level));
-                        } else if (eneng) {
-                            List<Component> siblings = component.getSiblings();
-                            siblings.add(Component.literal(" *"));
-                        }
-                        if (component instanceof MutableComponent) {
-                            MutableComponent mutableComponent = (MutableComponent) component;
-                            Style newStyle = mutableComponent.getStyle();
-                            if (level >= 30) {
-                                newStyle = component.getStyle().withColor(ChatFormatting.RED);
-                            } else if (level >= 20) {
-                                newStyle = component.getStyle().withColor(ChatFormatting.LIGHT_PURPLE);
-                            } else if (level >= 15) {
-                                newStyle = component.getStyle().withColor(ChatFormatting.YELLOW);
-                            } else if (level >= 10) {
-                                newStyle =component.getStyle().withColor(ChatFormatting.BLUE);
-                            } else if (level > 0 && eneng) {
-                                newStyle = component.getStyle().withColor(ChatFormatting.GREEN);
-                            }
-                            mutableComponent.setStyle(newStyle);
-                        }
-                    }
-                }
-            } catch (Exception ignored) {
+            ItemStack itemStack = event.getItemStack();
+            ToolIntensifyConfig toolIntensifyConfig = ToolIntensifyConfig.getToolIntensifyConfig(itemStack.getItem());
+            if (toolIntensifyConfig != null) {
+                modifyToolTip(itemStack, toolTip);
             }
+
+        }
+    }
+
+    private static void modifyToolTip(ItemStack itemStack, List<Component> toolTip) {
+        int level = Config.getEnhancementIntensifySystem().getLevel(itemStack);
+        boolean eneng = Config.getEnengIntensifySystem().isEneng(itemStack);
+        Component component = toolTip.get(0);
+        if (level > 0) {
+            List<Component> siblings = component.getSiblings();
+            siblings.add(Component.literal("+" + level));
+        } else if (eneng) {
+            List<Component> siblings = component.getSiblings();
+            siblings.add(Component.literal("*"));
+        }
+        if (component instanceof MutableComponent) {
+            MutableComponent mutableComponent = (MutableComponent) component;
+            Style newStyle = mutableComponent.getStyle();
+            if (level >= 30) {
+                newStyle = component.getStyle().withColor(ChatFormatting.RED);
+            } else if (level >= 20) {
+                newStyle = component.getStyle().withColor(ChatFormatting.LIGHT_PURPLE);
+            } else if (level >= 15) {
+                newStyle = component.getStyle().withColor(ChatFormatting.YELLOW);
+            } else if (level >= 10) {
+                newStyle = component.getStyle().withColor(ChatFormatting.BLUE);
+            } else if (level > 0 && eneng) {
+                newStyle = component.getStyle().withColor(ChatFormatting.GREEN);
+            }
+            mutableComponent.setStyle(newStyle);
         }
     }
 
