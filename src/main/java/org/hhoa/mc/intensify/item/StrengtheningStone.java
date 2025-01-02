@@ -156,6 +156,10 @@ package org.hhoa.mc.intensify.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import org.hhoa.mc.intensify.config.Config;
+import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class StrengtheningStone extends IntensifyStone {
     public StrengtheningStone(Properties properties) {
@@ -169,11 +173,16 @@ public class StrengtheningStone extends IntensifyStone {
 
     @Override
     public Component getDescriptionText() {
-        return Component.literal("用于在熔炉中强化装备, 初次强化装备需要先进行启能，强化后的装备将更加强大");
+        return TranslatableTexts.STRENGTHENING_STONE_DESCRIPTION.component();
     }
 
     @Override
     public IntensifyStoneType getIdentifier() {
         return IntensifyStoneType.STRENGTHENING_STONE;
+    }
+
+    @Override
+    public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
+        return Config.STRENGTHEN_STONE_BURN_TIME;
     }
 }

@@ -168,6 +168,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
+import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
 import org.hhoa.mc.intensify.util.PlayerUtils;
@@ -175,28 +176,22 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySystem {
     private final double baseSuccessProbability; // 初始基础成功概率
-    private final double baseDowngradeProbability; // 初始基础降级概率
     private final double probabilityIncreaseOnFailure; // 每次失败增加的成功概率
     private final double maxSuccessProbability; // 最大成功概率
-    private final double maxFailedProbability;
+    private final double failedDowngradeMinLevel; // 失败降级的最低等级
     private final double alpha; // 控制成功概率下降的速度
-    private final double beta; // 降级概率公式控制参数
 
     public DefaultEnhancementIntensifySystem(
             double baseSuccessProbability,
             double probabilityIncreaseOnFailure,
             double maxSuccessProbability,
-            double maxFailedProbability,
-            double baseDowngradeProbability,
-            double beta,
+            double failedDowngradeMinLevel,
             double alpha) {
-        this.maxFailedProbability = maxFailedProbability;
+        this.failedDowngradeMinLevel = failedDowngradeMinLevel;
         this.alpha = alpha;
         this.baseSuccessProbability = baseSuccessProbability;
         this.probabilityIncreaseOnFailure = probabilityIncreaseOnFailure;
         this.maxSuccessProbability = maxSuccessProbability;
-        this.baseDowngradeProbability = baseDowngradeProbability;
-        this.beta = beta;
     }
 
     /**
@@ -224,8 +219,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
             setFailuresCount(itemStack.getOrCreateTag(), currentFailuresCount + 1);
             sendMessage(
                     player,
-                    String.format(
-                            "强化失败!!!，保留等级，当前等级为: %s, 当前失败次数为: %s",
+                    TranslatableTexts.STRENGTHENING_UNCHANGED.get(
                             currentLevel, currentFailuresCount + 1));
         }
 
@@ -240,8 +234,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                 setFailuresCount(itemStack.getOrCreateTag(), currentFailuresCount + 1);
                 sendMessage(
                         player,
-                        String.format(
-                                "强化失败!!!，等级被保护，当前等级为: %s, 当前失败次数为: %s",
+                        TranslatableTexts.STRENGTHENING_PROTECTED.get(
                                 currentLevel, currentFailuresCount + 1));
             } else {
                 List<ToolIntensifyConfig.AttributeConfig> attributes =
@@ -269,15 +262,15 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                     int nextLevel = currentLevel + 1;
                     setLevel(itemStack.getOrCreateTag(), nextLevel);
                     setFailuresCount(itemStack.getOrCreateTag(), 0);
-                    sendMessage(player, "强化成功!!!，等级提升, 当前等级为 :" + (currentLevel + 1));
+                    sendMessage(
+                            player, TranslatableTexts.STRENGTHENING_UPGRADE.get(currentLevel + 1));
                 } else if (enhanceResult == EnhanceResult.DOWNGRADE) {
                     int nextLevel = currentLevel - 1;
                     setLevel(itemStack.getOrCreateTag(), nextLevel);
                     setFailuresCount(itemStack.getOrCreateTag(), currentFailuresCount + 1);
                     sendMessage(
                             player,
-                            String.format(
-                                    "强化失败!!!，降低等级，当前等级为: %s, 当前失败次数为: %s",
+                            TranslatableTexts.STRENGTHENING_DOWNGRADE.get(
                                     nextLevel, currentFailuresCount + 1));
                 }
             }
@@ -385,17 +378,17 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
      * @return 强化是否成功
      */
     EnhanceResult enhance(int level, int failuresCount) {
-        double successProbability = calculateSuccessProbability(level, failuresCount);
-        double downgradeProbability = calculateDowngradeProbability(level);
+        double successAndFailedProbability = calculateSuccessProbability(level, failuresCount);
+        System.out.println(successAndFailedProbability);
 
         double randomValue = Math.random();
 
-        if (randomValue < successProbability) {
+        if (randomValue < successAndFailedProbability) {
             return EnhanceResult.UPGRADE;
         }
 
         randomValue = Math.random();
-        if (randomValue < downgradeProbability) {
+        if (randomValue < successAndFailedProbability && level > failedDowngradeMinLevel) {
             return EnhanceResult.DOWNGRADE;
         } else {
             return EnhanceResult.NOT_CHANGE;
@@ -406,14 +399,5 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         UPGRADE,
         NOT_CHANGE,
         DOWNGRADE
-    }
-
-    /**
-     * 计算当前强化的降级概率
-     *
-     * @return 当前强化的降级概率
-     */
-    private double calculateDowngradeProbability(int level) {
-        return Math.min(maxFailedProbability, baseDowngradeProbability * Math.pow(1 + level, beta));
     }
 }

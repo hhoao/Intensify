@@ -165,11 +165,23 @@ import org.hhoa.mc.intensify.core.EnhancementIntensifySystem;
 
 public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    static final ForgeConfigSpec SPEC = BUILDER.build();
     private static DefaultEnengIntensifySystem defaultEnengIntensifySystem;
     private static DefaultEnhancementIntensifySystem defaultEnhancementIntensifySystem;
-    public static final int BURN_TIME = 5;
+
+    public static final ForgeConfigSpec.ConfigValue<Double>
+            ENHANCEMENT_SUCCESS_PROBABILITY_DOWN_RATE =
+                    BUILDER.define("enhancementSuccessProbabilityDownRate", 10.0);
+
+    static final ForgeConfigSpec SPEC = BUILDER.build();
     private static StoneDropoutProbabilityConfig stoneDropoutProbabilityConfig;
+
+    public static final Integer DEFAULT_INTENSIFY_STONE_BURN_TIME = 100;
+
+    public static final Integer ENENG_BURN_TIME = 100;
+
+    public static final Integer STRENGTHEN_STONE_BURN_TIME = 100;
+
+    public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
 
     public static StoneDropoutProbabilityConfig getStoneDropoutProbabilityConfig() {
         return stoneDropoutProbabilityConfig;
@@ -195,6 +207,6 @@ public class Config {
         stoneDropoutProbabilityConfig = configSpecStoneDropoutProbabilityConfigPair.getRight();
         defaultEnengIntensifySystem = new DefaultEnengIntensifySystem();
         defaultEnhancementIntensifySystem =
-                new DefaultEnhancementIntensifySystem(0.8, 0.03, 0.9, 0.6, 0.1, 0.6, 0.5);
+                new DefaultEnhancementIntensifySystem(1, 0.005, 1, 4, 10);
     }
 }

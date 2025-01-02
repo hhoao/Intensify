@@ -157,11 +157,12 @@ package org.hhoa.mc.intensify.core;
 public class DefaultEnhancementIntensifySystemTest {
     public static void main(String[] args) {
         DefaultEnhancementIntensifySystem system =
-                new DefaultEnhancementIntensifySystem(0.8, 0.03, 0.9, 0.6, 0.1, 0.6, 0.5);
+                new DefaultEnhancementIntensifySystem(1, 0.005, 1, 3, 0);
+
         int level = 0;
         int failuresCount = 0;
 
-        for (int i = 1; i <= 64; i++) {
+        for (int i = 1; i <= 640; i++) {
             DefaultEnhancementIntensifySystem.EnhanceResult enhance =
                     system.enhance(level, failuresCount);
             if (enhance == DefaultEnhancementIntensifySystem.EnhanceResult.UPGRADE) {

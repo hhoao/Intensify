@@ -154,18 +154,34 @@
 
 package org.hhoa.mc.intensify.config;
 
-import org.hhoa.mc.intensify.Intensify;
-
 public class TranslatableTexts {
-    public static final String STRENGTHENING_TITLE =
-            withModId("advancement.intensify.strengthening.title");
-    public static final String STRENGTHENING_DESCRIPTION =
-            withModId("advancement.intensify.strengthening.description");
-    public static final String ENENG_TITLE = withModId("advancement.intensify.eneng.title");
-    public static final String ENENG_DESCRIPTION =
-            withModId("advancement.intensify.eneng.description");
+    public static final TranslatableText STRENGTHENING_ADVANCEMENT_TITLE =
+            text("advancement.intensify.strengthening.title");
+    public static final TranslatableText STRENGTHENING_ADVANCEMENT_DESCRIPTION =
+            text("advancement.intensify.strengthening.description");
+    public static final TranslatableText ENENG_ADVANCEMENT_TITLE =
+            text("advancement.intensify.eneng.title");
+    public static final TranslatableText ENENG_ADVANCEMENT_DESCRIPTION =
+            text("advancement.intensify.eneng.description");
 
-    public static String withModId(String string) {
-        return Intensify.MODID + "." + string;
+    public static final TranslatableText STRENGTHENING_STONE_DESCRIPTION =
+            text("item.intensify.strengthening_stone.description");
+    public static final TranslatableText ENENG_STONE_DESCRIPTION =
+            text("item.intensify.eneng_stone.description");
+    public static final TranslatableText PROTECTION_STONE_DESCRIPTION =
+            text("item.intensify.protection_stone.description");
+    public static final TranslatableText ETERNAL_STONE_DESCRIPTION =
+            text("item.intensify.eternal_stone.description");
+
+    public static final TranslatableText ENENG_SUCCESS = text("eneng.success");
+    public static final TranslatableText STRENGTHENING_UPGRADE = text("strengthening.upgrade");
+    public static final TranslatableText STRENGTHENING_UNCHANGED = text("strengthening.unchanged");
+    public static final TranslatableText STRENGTHENING_PROTECTED = text("strengthening.protected");
+    public static final TranslatableText STRENGTHENING_DOWNGRADE = text("strengthening.downgrade");
+    public static final TranslatableText ETERNAL_SUCCESS = text("eternal.success");
+    public static final TranslatableText INTENSIFY_ITEM_TIP = text("item.intensify.stone.tip");
+
+    public static TranslatableText text(String string) {
+        return new TranslatableText(string);
     }
 }

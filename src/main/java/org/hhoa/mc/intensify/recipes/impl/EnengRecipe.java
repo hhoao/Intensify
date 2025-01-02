@@ -170,7 +170,8 @@ import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class EnengRecipe extends IntensifyRecipe {
     public static final IntensifyRecipeSerializer<EnengRecipe> SERIALIZER =
-            new IntensifyRecipeSerializer<>(EnengRecipe::new, Config.BURN_TIME);
+            new IntensifyRecipeSerializer<>(
+                    EnengRecipe::new, Config.DEFAULT_INTENSIFY_STONE_BURN_TIME);
 
     public EnengRecipe(ResourceLocation resourceLocation, float experience, int cookingTime) {
         super(resourceLocation, experience, cookingTime);

@@ -9,8 +9,8 @@
       ],
       "recipe": {
         "type": "intensify:eneng_stone",
-        "cookingtime": 5,
-        "experience": 100.0
+        "cookingtime": 100,
+        "experience": 5.0
       }
     }
   ]

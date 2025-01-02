@@ -7,18 +7,18 @@
 
 		[helmet.attributes.eneng]
 			enable = true
-			value = [2.0, 4.0]
+			value = [1.0, 2.0]
 
-		[[helmet.attributes.grow]]
-			range = [1, 5]
+		[[helmet.attributes.grows]]
+			range = [1, 10]
 			type = "fixed"
-			value = 1.0
+			value = 0.3
 			speed = 1
 
-		[[helmet.attributes.grow]]
-			range = [6, -1]
+		[[helmet.attributes.grows]]
+			range = [11, -1]
 			type = "proportional"
-			value = 0.05
+			value = 0.02
 
 	[[helmet.attributes]]
 		type = "generic.armor_toughness"
@@ -27,13 +27,13 @@
 			enable = true
 			value = [1.0, 2.0]
 
-		[[helmet.attributes.grow]]
+		[[helmet.attributes.grows]]
 			range = [1, 5]
 			type = "fixed"
 			value = 0.5
 			speed = 2
 
-		[[helmet.attributes.grow]]
+		[[helmet.attributes.grows]]
 			range = [6, -1]
 			type = "proportional"
 			value = 0.02
@@ -45,13 +45,13 @@
 			enable = true
 			value = [2.0, 4.0]
 
-		[[helmet.attributes.grow]]
+		[[helmet.attributes.grows]]
 			range = [1, 5]
 			type = "fixed"
 			value = 1.0
 			speed = 1
 
-		[[helmet.attributes.grow]]
+		[[helmet.attributes.grows]]
 			range = [6, -1]
 			type = "proportional"
 			value = 0.05
@@ -63,16 +63,17 @@
 			enable = true
 			value = [0.05, 0.1]
 
-		[[helmet.attributes.grow]]
+		[[helmet.attributes.grows]]
 			range = [1, 5]
 			type = "fixed"
 			value = 0.02
 			speed = 1
 
-		[[helmet.attributes.grow]]
-			range = [6, -1]
+		[[helmet.attributes.grows]]
+			range = [6, 30]
 			type = "proportional"
 			value = 0.01
+			speed = 2
 
 	[[helmet.attributes]]
 		type = "healing_received"
@@ -81,14 +82,27 @@
 			enable = true
 			value = [0.05, 0.1]
 
-		[[helmet.attributes.grow]]
+		[[helmet.attributes.grows]]
 			range = [1, 5]
 			type = "fixed"
 			value = 0.02
 			speed = 1
 
-		[[helmet.attributes.grow]]
+		[[helmet.attributes.grows]]
 			range = [6, -1]
 			type = "proportional"
 			value = 0.01
+
+	[[helmet.attributes]]
+		type = "experience_gained"
+
+		[helmet.attributes.eneng]
+			enable = true
+			value = [0.03, 0.07]
+
+		[[helmet.attributes.grows]]
+			range = [1, -1]
+			type = "fixed"
+			value = 0.02
+			speed = 1
 

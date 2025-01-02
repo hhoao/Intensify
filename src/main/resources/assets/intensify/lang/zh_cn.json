@@ -4,5 +4,17 @@
   "item.intensify.strengthening_stone": "强化石",
   "item.intensify.eneng_stone": "启能石",
   "item.intensify.protection_stone": "守护石",
-  "item.intensify.eternal_stone": "永恒石"
+  "item.intensify.eternal_stone": "永恒石",
+  "item.intensify.strengthening_stone.description": "通过熔炉中强化装备, 强化后的装备有更高的属性。",
+  "item.intensify.strengthening_stone.description.tip": "初次强化前装备需要先进行启能。",
+  "item.intensify.eneng_stone.description": "给装备赋予初始属性，让装备可强化。",
+  "item.intensify.protection_stone.description": "背包中的此物品可保证装备不降级。",
+  "item.intensify.eternal_stone.description": "让装备变得不可破坏。",
+  "item.intensify.stone.tip": "(强化非耐久物品无任何作用且会被消耗!)",
+  "eneng.success": "物品启能成功!!",
+  "strengthening.upgrade": "强化成功!!!，等级提升, 当前等级为 : %s",
+  "strengthening.unchanged": "强化失败!!!，保留等级，当前等级为: %s, 当前失败次数为: %s",
+  "strengthening.protected": "强化失败!!!，保护等级，当前等级为: %s, 当前失败次数为: %s",
+  "strengthening.downgrade": "强化失败!!!，降低等级，当前等级为: %s, 当前失败次数为: %s",
+  "eternal.success": "物品将不可破坏!!"
 }

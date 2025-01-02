@@ -4,5 +4,17 @@
   "item.intensify.strengthening_stone": "Enhancement Stone",
   "item.intensify.eneng_stone": "Eneng Stone",
   "item.intensify.protection_stone": "Protection Stone",
-  "item.intensify.eternal_stone": "Eternal Stone"
+  "item.intensify.eternal_stone": "Eternal Stone",
+  "item.intensify.strengthening_stone.description": "Used for strengthening equipment in the furnace. The first enhancement requires enabling the equipment. Enhanced equipment will become more powerful.",
+  "item.intensify.strengthening_stone.description.tip": "The equipment needs to be energized before first strengthening.",
+  "item.intensify.eneng_stone.description": "This item is used to enable equipment for the first time. Once enabled, the equipment will gain initial attributes and can start being enhanced.",
+  "item.intensify.protection_stone.description": "When enhancement fails, this item in the inventory prevents the equipment level from dropping.",
+  "item.intensify.eternal_stone.description": "Equipment enhanced with this item will become unbreakable.",
+  "item.intensify.stone.tip": "Fortifying non-durable items has no effect and is consumed",
+  "eneng.success": "Item enabled successfully!!",
+  "strengthening.upgrade": "Enhancement successful!!! Level up! Current level: %s",
+  "strengthening.unchanged": "Enhancement failed!!! Level unchanged. Current level: %s, Current fail count: %s",
+  "strengthening.protected": "Enhancement failed!!! Level protected. Current level: %s, Current fail count: %s",
+  "strengthening.downgrade": "Enhancement failed!!! Level decreased. Current level: %s, Current fail count: %s",
+  "eternal.success": "The item is now unbreakable!!"
 }

@@ -156,6 +156,7 @@ package org.hhoa.mc.intensify.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class ProtectionStone extends IntensifyStone {
     public ProtectionStone(Properties properties) {
@@ -169,7 +170,7 @@ public class ProtectionStone extends IntensifyStone {
 
     @Override
     public Component getDescriptionText() {
-        return Component.literal("当装备强化失败时，背包中的此物品可保证装备失败后不降低等级");
+        return TranslatableTexts.PROTECTION_STONE_DESCRIPTION.component();
     }
 
     @Override

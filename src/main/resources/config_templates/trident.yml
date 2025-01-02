@@ -1,52 +1,32 @@
-axe:
+trident:
   enable: true
   attributes:
     # 攻击伤害
     - type: generic.attack_damage
       eneng:
         enable: true
-        value: [2.0, 4.0]
+        value: [ 2.0, 4.0 ]
       grows:
         - type: fixed
-          range: [1, 8]
+          range: [ 1, 8 ]
           speed: 1
           value: 1.5
         - type: proportional
-          range: [9, -1]
+          range: [ 9, -1 ]
           value: 0.12
-    # 攻击速度（偏低）
+    # 攻击速度
     - type: generic.attack_speed
       eneng:
         enable: true
-        value: [0.2, 0.5]
+        value: [ 0.5, 1.0 ] # 初始攻速为2到4随机
       grows:
         - type: fixed
-          range: [1, 5]
+          range: [ 1, 5 ]
           speed: 1
-          value: 0.1
+          value: 0.5
         - type: proportional
-          range: [6, -1]
-          value: 0.02
-    # 暴击几率
-    - type: crit_chance
-      eneng:
-        enable: true
-        value: [0.04, 0.12]
-      grows:
-        - type: fixed
-          range: [5, 40]
-          speed: 2
+          range: [ 6, -1 ]
           value: 0.03
-    # 暴击伤害
-    - type: crit_damage
-      eneng:
-        enable: true
-        value: [ 0.2, 0.4 ]
-      grows:
-        - type: fixed
-          range: [ 1, -1 ]
-          speed: 2
-          value: 0.1
     # 护甲穿透
     - type: armor_pierce
       eneng:
@@ -70,22 +50,30 @@ axe:
           range: [1, 10]
           speed: 2
           value: 0.2
-    - type: generic.attack_knockback
+    # 暴击几率
+    - type: crit_chance
       eneng:
         enable: true
-        value: [0.5, 1.5]
+        value: [0.03, 0.09]
       grows:
         - type: fixed
-          range: [1, 6]
-          speed: 1
-          value: 0.2
-    # 挖掘速度
-    - type: mining_speed
+          range: [5, 40]
+          speed: 2
+          value: 0.028
+    # 暴击伤害
+    - type: crit_damage
       eneng:
         enable: true
-        value: [ 0.1, 0.2 ]
+        value: [ 0.21, 0.38 ]
       grows:
         - type: fixed
           range: [ 1, -1 ]
           speed: 2
-          value: 0.1
+          value: 0.9
+    # 生命偷取
+    - type: life_steal
+      grows:
+        - type: fixed
+          range: [ 5, -1 ]
+          speed: 1
+          value: 0.02

@@ -166,6 +166,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
@@ -173,7 +174,7 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
-import org.hhoa.mc.intensify.util.ConfigLoader;
+import net.minecraft.world.item.TridentItem;
 
 public class ToolIntensifyConfig {
     public static final HashMap<String, Class<? extends Item>> TOOL_NAME_CLASS_MAPPING =
@@ -188,6 +189,7 @@ public class ToolIntensifyConfig {
 
         // tool and weapon
         TOOL_NAME_CLASS_MAPPING.put("axe", AxeItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("elytra", ElytraItem.class);
 
         // weapon
         TOOL_NAME_CLASS_MAPPING.put("sword", SwordItem.class);
@@ -195,6 +197,7 @@ public class ToolIntensifyConfig {
         TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class);
         TOOL_NAME_CLASS_MAPPING.put("shield", ShieldItem.class);
         TOOL_NAME_CLASS_MAPPING.put("fishing_rod", FishingRodItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("trident", TridentItem.class);
 
         // armor
         ARMOR_NAME_CLASS_MAPPING.put("leggings", ArmorItem.Type.LEGGINGS);

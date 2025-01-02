@@ -222,12 +222,6 @@ public class MineralDestructionLootCondition implements LootItemCondition {
                 JsonObject jsonObject,
                 MineralDestructionLootCondition lootCondition,
                 JsonSerializationContext jsonSerializationContext) {
-            //            Map<String, Double> blocks = lootCondition.blocks.entrySet()
-            //                .stream()
-            //                .collect(Collectors.toMap(
-            //                    blockFloatEntry ->
-            // ForgeRegistries.BLOCKS.getKey(blockFloatEntry.getKey()).toString(),
-            //                    Map.Entry::getValue));
             jsonObject.add(
                     "intensifyStoneType",
                     jsonSerializationContext.serialize(lootCondition.intensifyStoneType));
@@ -236,15 +230,6 @@ public class MineralDestructionLootCondition implements LootItemCondition {
         @Override
         public MineralDestructionLootCondition deserialize(
                 JsonObject jsonObject, JsonDeserializationContext context) {
-            //            Map<String, Double> blockLocationWithProbabilitySet =
-            // context.deserialize(jsonObject.get("blockProbabilities"), Map.class);
-            //            Map<Block, Double> blockSet = blockLocationWithProbabilitySet.entrySet()
-            //                .stream()
-            //                .collect(Collectors.toMap(blockLocationWithProbability ->
-            //                        ForgeRegistries.BLOCKS.getValue(new
-            // ResourceLocation(blockLocationWithProbability.getKey())),
-            //                    Map.Entry::getValue));
-            //            return new MineralDestructionLootCondition(blockSet);
             IntensifyStoneType intensifyStoneType =
                     context.deserialize(
                             jsonObject.get("intensifyStoneType"), IntensifyStoneType.class);

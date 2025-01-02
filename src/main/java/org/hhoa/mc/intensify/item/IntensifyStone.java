@@ -165,6 +165,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.hhoa.mc.intensify.config.Config;
+import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class IntensifyStone extends Item {
@@ -179,7 +180,7 @@ public abstract class IntensifyStone extends Item {
 
     @Override
     public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
-        return Config.BURN_TIME;
+        return Config.DEFAULT_INTENSIFY_STONE_BURN_TIME;
     }
 
     @Override
@@ -198,7 +199,7 @@ public abstract class IntensifyStone extends Item {
         if (description != null) {
             components.add(description);
         }
-        components.add(Component.literal("(请勿使用强化石强化非装备物品!!)"));
+        components.add(TranslatableTexts.INTENSIFY_ITEM_TIP.component());
         super.appendHoverText(itemStack, level, components, tooltipFlag);
     }
 

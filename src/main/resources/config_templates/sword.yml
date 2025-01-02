@@ -5,90 +5,85 @@ sword:
     - type: generic.attack_damage
       eneng:
         enable: true
-        value: [4.0, 8.0] # 初始攻击伤害为4到8随机
-      grow:
+        value: [1.0, 3.0]
+      grows:
         - type: fixed
           range: [1, 10]
           speed: 1
-          value: 1.0 # 每级固定增长1
+          value: 1.0
         - type: proportional
           range: [11, -1]
-          value: 0.05 # 每级额外增长5%
+          value: 0.1 # 每级额外增长5%
     # 攻击速度
     - type: generic.attack_speed
       eneng:
         enable: true
-        value: [2.0, 4.0] # 初始攻速为2到4随机
-      grow:
+        value: [0.5, 1.0] # 初始攻速为2到4随机
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 0.5 # 每级固定增长0.5
+          value: 0.5
         - type: proportional
           range: [6, -1]
-          value: 0.03 # 每级额外增长3%
-    # 生命吸取
+          value: 0.03
+    # 生命偷取
     - type: life_steal
-      eneng:
-        enable: true
-        value: [0.02, 0.05] # 初始吸取生命值的2%到5%
-      grow:
+      grows:
         - type: fixed
-          range: [1, 8]
+          range: [5, -1]
           speed: 1
-          value: 0.01 # 每级固定增长1%
-        - type: proportional
-          range: [9, -1]
-          value: 0.01 # 每级额外增长1%
-    # 暴击几率
+          value: 0.02
+    # 暴击概率
     - type: crit_chance
       eneng:
         enable: true
-        value: [0.05, 0.1] # 初始暴击率5%到10%
-      grow:
+        value: [0.03, 0.07]
+      grows:
         - type: fixed
-          range: [1, 7]
+          range: [5, 20]
           speed: 2
-          value: 0.02 # 每2级增长2%
-        - type: proportional
-          range: [8, -1]
-          value: 0.01 # 每级额外增长1%
+          value: 0.02
     # 暴击伤害
     - type: crit_damage
       eneng:
         enable: true
-        value: [1.5, 2.0] # 初始暴击伤害为150%到200%
-      grow:
+        value: [ 0.1, 0.2 ]
+      grows:
         - type: fixed
-          range: [1, 5]
-          speed: 1
-          value: 0.5 # 每级固定增长50%
-        - type: proportional
-          range: [6, -1]
-          value: 0.1 # 每级额外增长10%
-    # 当前生命百分比伤害
+          range: [ 1, -1 ]
+          speed: 2
+          value: 0.8
+    # 当前生命值伤害
     - type: current_hp_damage
+      grows:
+        - type: fixed
+          range: [5, 30]
+          speed: 3
+          value: 0.02
+    # 护甲穿透
+    - type: armor_pierce
       eneng:
         enable: true
-        value: [0.03, 0.06] # 初始为目标当前生命值的3%-6%伤害
-      grow:
+        value: [ 1.0, 3.0 ]
+      grows:
         - type: fixed
-          range: [1, 10]
-          speed: 2
-          value: 0.01 # 每2级增长1%
+          range: [ 1, 5 ]
+          speed: 1
+          value: 1.0
         - type: proportional
-          range: [11, -1]
-          value: 0.005 # 每级额外增长0.5%
-    # 过量治疗（物理攻击转化为吸收生命值的百分比）
+          range: [ 6, -1 ]
+          value: 0.04
+    # 伤害转化为护盾
     - type: overheal
       eneng:
         enable: true
-        value: [0.01, 0.03] # 初始过量治疗1%-3%
-      grow:
+        value: [0.01, 0.03]
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 0.005 # 每级增长0.5%
+          value: 0.005
         - type: proportional
           range: [6, -1]
-          value: 0.002 # 每级额外增长0.2%
+          value: 0.002

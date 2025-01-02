@@ -156,6 +156,10 @@ package org.hhoa.mc.intensify.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import org.hhoa.mc.intensify.config.Config;
+import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class EnengStone extends IntensifyStone {
     public EnengStone(Properties properties) {
@@ -168,8 +172,13 @@ public class EnengStone extends IntensifyStone {
     }
 
     @Override
+    public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
+        return Config.ENENG_BURN_TIME;
+    }
+
+    @Override
     public Component getDescriptionText() {
-        return Component.literal("该物品用于给装备初次启能，装备赋能后将拥有一些初始属性，且只有启能后才能开始强化装备.");
+        return TranslatableTexts.ENENG_STONE_DESCRIPTION.component();
     }
 
     @Override

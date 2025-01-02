@@ -20,7 +20,7 @@
         "display": {
           "announce_to_chat": true,
           "description": {
-            "translate": "intensify.advancement.intensify.eneng.description"
+            "translate": "advancement.intensify.eneng.description"
           },
           "frame": "task",
           "hidden": false,
@@ -29,7 +29,7 @@
           },
           "show_toast": true,
           "title": {
-            "translate": "intensify.advancement.intensify.eneng.title"
+            "translate": "advancement.intensify.eneng.title"
           }
         },
         "requirements": [

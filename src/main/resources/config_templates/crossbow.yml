@@ -6,7 +6,7 @@ crossbow:
       eneng:
         enable: true
         value: [7.0, 12.0] # 初始弩伤害为7-12
-      grow:
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
@@ -20,7 +20,7 @@ crossbow:
       eneng:
         enable: true
         value: [1.5, 3.0] # 初始充能速度为1.5-3.0
-      grow:
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
@@ -33,22 +33,19 @@ crossbow:
     - type: arrow_velocity
       eneng:
         enable: true
-        value: [1.0, 2.5] # 初始箭矢速度为1.0-2.5
-      grow:
+        value: [0.1, 0.2] # 初始箭矢速度为1.0-2.0
+      grows:
         - type: fixed
-          range: [1, 5]
+          range: [1, -1]
           speed: 1
-          value: 0.3 # 每级增加0.3箭矢速度
-        - type: proportional
-          range: [6, -1]
-          value: 0.1 # 每级额外增加10%
+          value: 0.02
 
     # 暴击几率
     - type: crit_chance
       eneng:
         enable: true
         value: [0.05, 0.25] # 初始暴击几率为5%-25%
-      grow:
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
@@ -62,7 +59,7 @@ crossbow:
       eneng:
         enable: true
         value: [1.5, 3.0] # 初始暴击伤害为1.5-3.0倍
-      grow:
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
@@ -70,45 +67,20 @@ crossbow:
         - type: proportional
           range: [6, -1]
           value: 0.05 # 每级额外增加5%
-
     # 击退
     - type: generic.attack_knockback
       eneng:
         enable: true
-        value: [0.2, 0.5] # 初始击退为20%-50%
-      grow:
+        value: [0.1, 0.25]
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 0.1 # 每级增加10%击退
-        - type: proportional
-          range: [6, -1]
-          value: 0.05 # 每级额外增加5%
-
-    # 火焰伤害
-    - type: fire_damage
-      eneng:
-        enable: true
-        value: [0.5, 2.5] # 初始火焰伤害为0.5-2.5
-      grow:
-        - type: fixed
-          range: [1, 5]
-          speed: 1
-          value: 0.3 # 每级增加0.3火焰伤害
-        - type: proportional
-          range: [6, -1]
-          value: 0.1 # 每级额外增加10%
-
+          value: 0.04
     # 生命吸取
     - type: life_steal
-      eneng:
-        enable: true
-        value: [0.02, 0.08] # 初始生命吸取为2%-8%
-      grow:
+      grows:
         - type: fixed
-          range: [1, 5]
+          range: [ 10, -1 ]
           speed: 1
-          value: 0.02 # 每级增加2%生命吸取
-        - type: proportional
-          range: [6, -1]
-          value: 0.01 # 每级额外增加1%
+          value: 0.01 # 每级增加1%生命吸取

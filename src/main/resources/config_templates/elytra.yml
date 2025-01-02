@@ -1,0 +1,39 @@
+elytra:
+  enable: true
+  attributes:
+    # 最大生命值
+    - type: generic.max_health
+      eneng:
+        enable: true
+        value: [0.8, 1.6] # 初始增加2-4点生命值
+      grows:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.3 # 每级固定增加1点生命值
+        - type: proportional
+          range: [6, -1]
+          value: 0.03 # 每级额外增长5%
+    # 击退抵抗
+    - type: generic.knockback_resistance
+      eneng:
+        enable: true
+        value: [ 0.1, 0.3 ]
+      grows:
+        - type: fixed
+          range: [ 1, 5 ]
+          speed: 1
+          value: 0.05
+        - type: proportional
+          range: [ 6, -1 ]
+          value: 0.02
+    # 移动速度
+    - type: generic.movement_speed
+      eneng:
+        enable: true
+        value: [ 0.03, 0.05 ]
+      grows:
+        - type: fixed
+          range: [ 1, -1 ]
+          speed: 1
+          value: 0.01

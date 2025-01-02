@@ -160,7 +160,6 @@ import net.minecraft.advancements.FrameType;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -186,18 +185,18 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
                         IntensifyStoneRecipeBuilder.builder(
-                                                100f,
-                                                Config.BURN_TIME,
+                                                Config.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
+                                                Config.STRENGTHEN_STONE_BURN_TIME,
                                                 StrengtheningRecipe.SERIALIZER,
                                                 Advancement.Builder.recipeAdvancement()
                                                         .display(
                                                                 new ItemStack(Items.DIAMOND),
-                                                                Component.translatable(
-                                                                        TranslatableTexts
-                                                                                .STRENGTHENING_TITLE),
-                                                                Component.translatable(
-                                                                        TranslatableTexts
-                                                                                .STRENGTHENING_DESCRIPTION),
+                                                                TranslatableTexts
+                                                                        .STRENGTHENING_ADVANCEMENT_TITLE
+                                                                        .component(),
+                                                                TranslatableTexts
+                                                                        .STRENGTHENING_ADVANCEMENT_DESCRIPTION
+                                                                        .component(),
                                                                 null,
                                                                 FrameType.TASK,
                                                                 true,
@@ -218,18 +217,18 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
                         IntensifyStoneRecipeBuilder.builder(
-                                                100f,
-                                                Config.BURN_TIME,
+                                                Config.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
+                                                Config.ENENG_BURN_TIME,
                                                 EnengRecipe.SERIALIZER,
                                                 Advancement.Builder.recipeAdvancement()
                                                         .display(
                                                                 new ItemStack(Items.DIAMOND),
-                                                                Component.translatable(
-                                                                        TranslatableTexts
-                                                                                .ENENG_TITLE),
-                                                                Component.translatable(
-                                                                        TranslatableTexts
-                                                                                .ENENG_DESCRIPTION),
+                                                                TranslatableTexts
+                                                                        .ENENG_ADVANCEMENT_TITLE
+                                                                        .component(),
+                                                                TranslatableTexts
+                                                                        .ENENG_ADVANCEMENT_DESCRIPTION
+                                                                        .component(),
                                                                 null,
                                                                 FrameType.TASK,
                                                                 true,
@@ -248,18 +247,18 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
                         IntensifyStoneRecipeBuilder.builder(
-                                                100f,
-                                                Config.BURN_TIME,
+                                                Config.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
+                                                Config.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 CommonIntensifyRecipe.SERIALIZER,
                                                 Advancement.Builder.recipeAdvancement()
                                                         .display(
                                                                 new ItemStack(Items.DIAMOND),
-                                                                Component.translatable(
-                                                                        TranslatableTexts
-                                                                                .ENENG_TITLE),
-                                                                Component.translatable(
-                                                                        TranslatableTexts
-                                                                                .ENENG_DESCRIPTION),
+                                                                TranslatableTexts
+                                                                        .ENENG_ADVANCEMENT_TITLE
+                                                                        .component(),
+                                                                TranslatableTexts
+                                                                        .ENENG_ADVANCEMENT_DESCRIPTION
+                                                                        .component(),
                                                                 null,
                                                                 FrameType.TASK,
                                                                 true,

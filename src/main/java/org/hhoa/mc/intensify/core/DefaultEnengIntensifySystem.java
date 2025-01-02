@@ -159,7 +159,6 @@ import static org.hhoa.mc.intensify.config.IntensifyConstants.ENENGED_TAG_ID;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -167,6 +166,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
+import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
 
 public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
@@ -191,7 +191,7 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
         CompoundTag orCreateTag = itemStack.getOrCreateTag();
         orCreateTag.putBoolean(ENENGED_TAG_ID, true);
         if (player != null) {
-            player.sendSystemMessage(Component.literal("物品启能完毕!!"));
+            player.sendSystemMessage(TranslatableTexts.ENENG_SUCCESS.component());
         }
     }
 

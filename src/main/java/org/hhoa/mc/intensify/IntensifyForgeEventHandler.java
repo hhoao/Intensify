@@ -175,7 +175,6 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.hhoa.mc.intensify.config.Config;
@@ -194,9 +193,6 @@ public class IntensifyForgeEventHandler {
                     IntensifyConstants.FURNACE_OWNER_TAG_ID, player.getName().getString());
         }
     }
-
-    @SubscribeEvent
-    public void on(FurnaceFuelBurnTimeEvent event) {}
 
     @SubscribeEvent
     public void onItemFished(ItemFishedEvent event) {
@@ -245,7 +241,7 @@ public class IntensifyForgeEventHandler {
         if (component instanceof MutableComponent) {
             MutableComponent mutableComponent = (MutableComponent) component;
             Style newStyle = mutableComponent.getStyle();
-            if (level >= 30) {
+            if (level >= 25) {
                 newStyle = component.getStyle().withColor(ChatFormatting.RED);
             } else if (level >= 20) {
                 newStyle = component.getStyle().withColor(ChatFormatting.LIGHT_PURPLE);
@@ -255,6 +251,8 @@ public class IntensifyForgeEventHandler {
                 newStyle = component.getStyle().withColor(ChatFormatting.BLUE);
             } else if (level > 0 && eneng) {
                 newStyle = component.getStyle().withColor(ChatFormatting.GREEN);
+            } else if (eneng) {
+                newStyle = component.getStyle().withColor(ChatFormatting.AQUA);
             }
             mutableComponent.setStyle(newStyle);
         }
@@ -263,23 +261,26 @@ public class IntensifyForgeEventHandler {
     @SubscribeEvent
     public void onLivingDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
+        Level level = entity.level();
 
-        if (entity instanceof Mob && event.getSource().getEntity() instanceof Player) {
-            Optional<Item> item =
-                    Config.getStoneDropoutProbabilityConfig()
-                            .dropStone(DropTypeEnum.MOB_KILLED, entity.getType());
-            if (item.isPresent()) {
-                Item stone = item.get();
-                ItemStack stoneItemStack = new ItemStack(stone);
-                ItemEntity itemEntity =
-                        new ItemEntity(
-                                entity.level(),
-                                entity.getX(),
-                                entity.getY(),
-                                entity.getZ(),
-                                stoneItemStack);
+        if (!level.isClientSide) {
+            if (entity instanceof Mob && event.getSource().getEntity() instanceof Player) {
+                Optional<Item> item =
+                        Config.getStoneDropoutProbabilityConfig()
+                                .dropStone(DropTypeEnum.MOB_KILLED, entity.getType());
+                if (item.isPresent()) {
+                    Item stone = item.get();
+                    ItemStack stoneItemStack = new ItemStack(stone);
+                    ItemEntity itemEntity =
+                            new ItemEntity(
+                                    entity.level(),
+                                    entity.getX(),
+                                    entity.getY(),
+                                    entity.getZ(),
+                                    stoneItemStack);
 
-                event.getDrops().add(itemEntity);
+                    event.getDrops().add(itemEntity);
+                }
             }
         }
     }

@@ -5,21 +5,21 @@ leggings:
     - type: generic.armor
       eneng:
         enable: true
-        value: [3.0, 5.0] # 初始护甲值为3-5
-      grow:
+        value: [1.5, 2.5] # 初始护甲值为3-5
+      grows:
         - type: fixed
-          range: [1, 5]
+          range: [ 1, 10 ]
           speed: 1
-          value: 1.0 # 每级固定增加1点护甲
+          value: 0.5
         - type: proportional
-          range: [6, -1]
-          value: 0.05 # 每级额外增长5%
+          range: [ 11, -1 ]
+          value: 0.04 # 每级额外增长5%
     # 护甲韧性
     - type: generic.armor_toughness
       eneng:
         enable: true
         value: [1.0, 2.0] # 初始韧性为1-2
-      grow:
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 2
@@ -31,38 +31,35 @@ leggings:
     - type: generic.knockback_resistance
       eneng:
         enable: true
-        value: [0.1, 0.3] # 初始击退抵抗为10%-30%
-      grow:
+        value: [0.1, 0.3]
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 0.05 # 每级增加5%
+          value: 0.05
         - type: proportional
           range: [6, -1]
-          value: 0.02 # 每级额外增加2%
+          value: 0.02
     # 移动速度
     - type: generic.movement_speed
       eneng:
         enable: true
-        value: [0.05, 0.10] # 初始移动速度加成为5%-10%
-      grow:
+        value: [ 0.03, 0.05 ]
+      grows:
         - type: fixed
-          range: [1, 5]
+          range: [ 1, -1 ]
           speed: 1
-          value: 0.02 # 每级增加2%
-        - type: proportional
-          range: [6, -1]
-          value: 0.01 # 每级额外增加1%
+          value: 0.01
     # 最大生命值
     - type: generic.max_health
       eneng:
         enable: true
-        value: [2.0, 4.0] # 初始增加2-4点生命值
-      grow:
+        value: [1.2, 2.4] # 初始增加2-4点生命值
+      grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 1.0 # 每级固定增加1点生命值
+          value: 0.6 # 每级固定增加1点生命值
         - type: proportional
           range: [6, -1]
           value: 0.05 # 每级额外增长5%

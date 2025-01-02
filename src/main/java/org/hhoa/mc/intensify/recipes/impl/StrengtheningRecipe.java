@@ -170,8 +170,8 @@ import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class StrengtheningRecipe extends IntensifyRecipe {
     public static final IntensifyRecipeSerializer<StrengtheningRecipe> SERIALIZER =
-            new IntensifyRecipeSerializer<>(StrengtheningRecipe::new, 5);
-    private final float probability = 1f;
+            new IntensifyRecipeSerializer<>(
+                    StrengtheningRecipe::new, Config.DEFAULT_INTENSIFY_STONE_BURN_TIME);
 
     public StrengtheningRecipe(
             ResourceLocation resourceLocation, float experience, int cookingTime) {
