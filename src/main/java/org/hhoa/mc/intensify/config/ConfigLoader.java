@@ -200,18 +200,22 @@ public class ConfigLoader {
             CommentedConfig tomlConfig, String name) {
         ToolIntensifyConfig toolIntensifyConfig = new ToolIntensifyConfig();
         toolIntensifyConfig.setName(name);
-        Config swordNode = tomlConfig.get(name);
-        if (swordNode != null) {
-            for (Config.Entry entry : swordNode.entrySet()) {
-                if (entry.getKey().equals("enable")) {
-                    toolIntensifyConfig.setEnable(entry.getValue());
-                } else if (entry.getKey().equals("attributes")) {
-                    List<Config> attributes = swordNode.get("attributes");
-                    configureAttributes(attributes, toolIntensifyConfig);
-                } else {
-                    throw new RuntimeException(entry.getKey());
+        try {
+            Config swordNode = tomlConfig.get(name);
+            if (swordNode != null) {
+                for (Config.Entry entry : swordNode.entrySet()) {
+                    if (entry.getKey().equals("enable")) {
+                        toolIntensifyConfig.setEnable(entry.getValue());
+                    } else if (entry.getKey().equals("attributes")) {
+                        List<Config> attributes = swordNode.get("attributes");
+                        configureAttributes(attributes, toolIntensifyConfig);
+                    } else {
+                        throw new RuntimeException(entry.getKey());
+                    }
                 }
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading config " + name, e);
         }
         return toolIntensifyConfig;
     }
@@ -227,10 +231,10 @@ public class ConfigLoader {
                     if (key.equals("type")) {
                         String type = attrNode.get("type");
                         configureType(type, attributeConfig);
-                    } else if (key.equals("grows")) {
+                    } else if (key.equals("eneng")) {
                         Config enengNode = attrNode.get("eneng");
                         configureEneng(enengNode, attributeConfig);
-                    } else if (key.equals("eneng")) {
+                    } else if (key.equals("grows")) {
                         List<Config> growNodes = attrNode.get("grows");
                         configureGroups(growNodes, attributeConfig);
                     } else {

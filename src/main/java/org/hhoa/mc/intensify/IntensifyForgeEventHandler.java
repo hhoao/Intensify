@@ -154,9 +154,13 @@
 
 package org.hhoa.mc.intensify;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -171,6 +175,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -180,6 +185,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.hhoa.mc.intensify.config.Config;
 import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
+import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 
 public class IntensifyForgeEventHandler {
@@ -192,6 +198,95 @@ public class IntensifyForgeEventHandler {
             persistentData.putString(
                     IntensifyConstants.FURNACE_OWNER_TAG_ID, player.getName().getString());
         }
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+        dispatcher.register(
+                Commands.literal("intensify")
+                        .then(
+                                Commands.literal("stone_dropout_rate")
+                                        .then(
+                                                Commands.argument(
+                                                                "rate",
+                                                                DoubleArgumentType.doubleArg(
+                                                                        0,
+                                                                        Double.MAX_VALUE)) // 设定倍率范围
+                                                        .executes(
+                                                                context -> {
+                                                                    double rate =
+                                                                            DoubleArgumentType
+                                                                                    .getDouble(
+                                                                                            context,
+                                                                                            "rate");
+                                                                    Config
+                                                                            .getStoneDropoutProbabilityConfig()
+                                                                            .getTotalRate()
+                                                                            .set(rate);
+                                                                    context.getSource()
+                                                                            .sendSuccess(
+                                                                                    () ->
+                                                                                            TranslatableTexts
+                                                                                                    .SET_STONE_DROP_RATE_TIP
+                                                                                                    .component(
+                                                                                                            rate),
+                                                                                    true);
+                                                                    return 1;
+                                                                })))
+                        .then(
+                                Commands.literal("upgrade_multiplier")
+                                        .then(
+                                                Commands.argument(
+                                                                "rate",
+                                                                DoubleArgumentType.doubleArg(
+                                                                        0,
+                                                                        Double.MAX_VALUE)) // 设定倍率范围
+                                                        .executes(
+                                                                context -> {
+                                                                    double rate =
+                                                                            DoubleArgumentType
+                                                                                    .getDouble(
+                                                                                            context,
+                                                                                            "rate");
+                                                                    Config.UPGRADE_MULTIPLIER.set(
+                                                                            rate);
+                                                                    context.getSource()
+                                                                            .sendSuccess(
+                                                                                    () ->
+                                                                                            TranslatableTexts
+                                                                                                    .SET_UPGRADE_MULTIPLIER_TIP
+                                                                                                    .component(
+                                                                                                            rate),
+                                                                                    true);
+                                                                    return 1;
+                                                                })))
+                        .then(
+                                Commands.literal("attribute_multiplier")
+                                        .then(
+                                                Commands.argument(
+                                                                "rate",
+                                                                DoubleArgumentType.doubleArg(
+                                                                        0, Double.MAX_VALUE))
+                                                        .executes(
+                                                                context -> {
+                                                                    double rate =
+                                                                            DoubleArgumentType
+                                                                                    .getDouble(
+                                                                                            context,
+                                                                                            "rate");
+                                                                    Config.ATTRIBUTE_MULTIPLIER.set(
+                                                                            rate);
+                                                                    context.getSource()
+                                                                            .sendSuccess(
+                                                                                    () ->
+                                                                                            TranslatableTexts
+                                                                                                    .SET_ATTRIBUTE_MULTIPLIER_TIP
+                                                                                                    .component(
+                                                                                                            rate),
+                                                                                    true);
+                                                                    return 1;
+                                                                }))));
     }
 
     @SubscribeEvent

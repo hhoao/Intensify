@@ -157,11 +157,9 @@ package org.hhoa.mc.intensify.loot;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -185,28 +183,23 @@ public class MineralDestructionLootCondition implements LootItemCondition {
     @Override
     public boolean test(LootContext lootContext) {
         StoneDropoutProbabilityConfig configValueMap = Config.getStoneDropoutProbabilityConfig();
-        Map<Block, Double> stoneDropoutProbability =
-                (Map<Block, Double>)
-                        configValueMap.getStoneProbabilities(
-                                intensifyStoneType, DropTypeEnum.MINERAL_BLOCK_DESTROYED);
         BlockState blockState = lootContext.getParamOrNull(LootContextParams.BLOCK_STATE);
-        if (blockState == null) {
+        if (blockState == null
+                || !lootContext.hasParam(LootContextParams.TOOL)
+                || EnchantmentHelper.getTagEnchantmentLevel(
+                                Enchantments.SILK_TOUCH,
+                                lootContext.getParam(LootContextParams.TOOL))
+                        > 0) {
             return false;
         }
 
-        Double probability = stoneDropoutProbability.get(blockState.getBlock());
+        Double stoneDropOutProbability =
+                configValueMap.getStoneDropOutProbability(
+                        intensifyStoneType,
+                        DropTypeEnum.MINERAL_BLOCK_DESTROYED,
+                        blockState.getBlock());
 
-        if (probability == null || !lootContext.hasParam(LootContextParams.TOOL)) {
-            return false;
-        }
-
-        if (lootContext.hasParam(LootContextParams.TOOL)) {
-            var tool = lootContext.getParamOrNull(LootContextParams.TOOL);
-            return tool == null
-                    || EnchantmentHelper.getTagEnchantmentLevel(Enchantments.SILK_TOUCH, tool) <= 0;
-        }
-
-        return ThreadLocalRandom.current().nextFloat() < probability;
+        return ThreadLocalRandom.current().nextDouble() < stoneDropOutProbability;
     }
 
     @Override

@@ -154,6 +154,7 @@
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
+import com.electronwill.nightconfig.toml.TomlFormat;
 import com.electronwill.nightconfig.toml.TomlWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -162,6 +163,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.NotFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.hhoa.mc.intensify.Intensify;
 import org.yaml.snakeyaml.Yaml;
 
@@ -175,7 +179,11 @@ public class YamlToTomlConverter {
                         String.format("assets/%s/config/%s", Intensify.MODID, Intensify.MODID));
         FileUtils.deleteDirectory(dist);
         dist.mkdirs();
-        for (File listFile : FileUtils.listFiles(configTemplates, null, true)) {
+        for (File listFile :
+                FileUtils.listFiles(
+                        configTemplates,
+                        new NotFileFilter(new SuffixFileFilter("~")),
+                        TrueFileFilter.TRUE)) {
             Map<String, Object> stringObjectMap = loadYamlConfig(listFile.getAbsolutePath());
             CommentedConfig commentedConfig = convertMapToConfig(stringObjectMap);
             TomlWriter writer = new TomlWriter();
@@ -197,7 +205,7 @@ public class YamlToTomlConverter {
     }
 
     private static CommentedConfig convertMapToConfig(Map<String, ?> map) {
-        CommentedConfig commentedConfig = CommentedConfig.inMemory();
+        CommentedConfig commentedConfig = TomlFormat.newConfig();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();

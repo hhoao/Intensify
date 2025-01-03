@@ -158,7 +158,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.hhoa.mc.intensify.config.Config;
@@ -179,15 +178,8 @@ public class EnengRecipe extends IntensifyRecipe {
 
     @Override
     public boolean matchesInternal(Container container, Level level) {
-        ItemStack fuel = container.getItem(1);
         ItemStack tool = container.getItem(0);
-
-        Item toolItem = container.getItem(0).getItem();
-        ToolIntensifyConfig toolItemIntensifyConfig =
-                ToolIntensifyConfig.getToolIntensifyConfig(toolItem);
-        if (toolItemIntensifyConfig == null) {
-            return false;
-        }
+        ItemStack fuel = container.getItem(1);
 
         boolean eneng = Config.getEnengIntensifySystem().isEneng(tool);
         return fuel.getItem() == ItemRegistry.ENENG_STONE.get() && !eneng;

@@ -154,6 +154,7 @@
 
 package org.hhoa.mc.intensify.config;
 
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -168,18 +169,17 @@ public class Config {
     private static DefaultEnengIntensifySystem defaultEnengIntensifySystem;
     private static DefaultEnhancementIntensifySystem defaultEnhancementIntensifySystem;
 
-    public static final ForgeConfigSpec.ConfigValue<Double>
-            ENHANCEMENT_SUCCESS_PROBABILITY_DOWN_RATE =
-                    BUILDER.define("enhancementSuccessProbabilityDownRate", 10.0);
+    public static final ForgeConfigSpec.ConfigValue<Double> UPGRADE_MULTIPLIER =
+            BUILDER.define("upgrade_multiplier", 1.0);
+
+    public static final ForgeConfigSpec.ConfigValue<Double> ATTRIBUTE_MULTIPLIER =
+            BUILDER.define("attribute_multiplier", 1.0);
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
     private static StoneDropoutProbabilityConfig stoneDropoutProbabilityConfig;
 
-    public static final Integer DEFAULT_INTENSIFY_STONE_BURN_TIME = 100;
-
-    public static final Integer ENENG_BURN_TIME = 100;
-
-    public static final Integer STRENGTHEN_STONE_BURN_TIME = 100;
+    public static final Integer DEFAULT_INTENSIFY_STONE_BURN_TIME =
+            AbstractFurnaceBlockEntity.BURN_TIME_STANDARD;
 
     public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
 

@@ -156,9 +156,6 @@ package org.hhoa.mc.intensify.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
-import org.hhoa.mc.intensify.config.Config;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class StrengtheningStone extends IntensifyStone {
@@ -179,10 +176,5 @@ public class StrengtheningStone extends IntensifyStone {
     @Override
     public IntensifyStoneType getIdentifier() {
         return IntensifyStoneType.STRENGTHENING_STONE;
-    }
-
-    @Override
-    public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
-        return Config.STRENGTHEN_STONE_BURN_TIME;
     }
 }

@@ -44,22 +44,22 @@ leggings:
     - type: generic.movement_speed
       eneng:
         enable: true
-        value: [ 0.03, 0.05 ]
+        value: [0.003, 0.005]
       grows:
         - type: fixed
           range: [ 1, -1 ]
           speed: 1
-          value: 0.01
+          value: 0.001
     # 最大生命值
     - type: generic.max_health
       eneng:
         enable: true
-        value: [1.2, 2.4] # 初始增加2-4点生命值
+        value: [1.2, 2.4]
       grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 0.6 # 每级固定增加1点生命值
+          value: 0.6
         - type: proportional
           range: [6, -1]
-          value: 0.05 # 每级额外增长5%
+          value: 0.05

@@ -175,6 +175,7 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
+import org.hhoa.mc.intensify.util.TypeChecker;
 
 public class ToolIntensifyConfig {
     public static final HashMap<String, Class<? extends Item>> TOOL_NAME_CLASS_MAPPING =
@@ -335,6 +336,7 @@ public class ToolIntensifyConfig {
 
         public void setValue(List<Double> value) {
             Preconditions.checkArgument(!value.isEmpty() && value.size() <= 2);
+            TypeChecker.checkAllElementsOfType(value, Double.class);
             this.value = value;
         }
     }
@@ -343,7 +345,7 @@ public class ToolIntensifyConfig {
         private GrowTypeEnum type;
         private Range<Integer> range;
         private Double value;
-        private int speed;
+        private int speed = 1;
 
         public GrowTypeEnum getType() {
             return type;

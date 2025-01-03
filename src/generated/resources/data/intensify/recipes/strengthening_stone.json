@@ -9,7 +9,7 @@
       ],
       "recipe": {
         "type": "intensify:strengthening_stone",
-        "cookingtime": 100,
+        "cookingtime": 200,
         "experience": 5.0
       }
     }

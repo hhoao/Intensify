@@ -158,7 +158,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.hhoa.mc.intensify.config.Config;
@@ -181,13 +180,6 @@ public class StrengtheningRecipe extends IntensifyRecipe {
     @Override
     public boolean matchesInternal(Container container, Level level) {
         ItemStack toolItemStack = container.getItem(0);
-
-        Item toolItem = container.getItem(0).getItem();
-        ToolIntensifyConfig toolItemIntensifyConfig =
-                ToolIntensifyConfig.getToolIntensifyConfig(toolItem);
-        if (toolItemIntensifyConfig == null) {
-            return false;
-        }
 
         return Config.getEnengIntensifySystem().isEneng(toolItemStack)
                 && container.getItem(1).getItem() == ItemRegistry.STRENGTHENING_STONE.get();

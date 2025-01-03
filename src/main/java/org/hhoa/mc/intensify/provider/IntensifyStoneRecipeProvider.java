@@ -185,8 +185,12 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
                         IntensifyStoneRecipeBuilder.builder(
+                                                new ResourceLocation(
+                                                        Intensify.MODID,
+                                                        IntensifyStoneType.STRENGTHENING_STONE
+                                                                .getIdentifier()),
                                                 Config.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                Config.STRENGTHEN_STONE_BURN_TIME,
+                                                Config.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 StrengtheningRecipe.SERIALIZER,
                                                 Advancement.Builder.recipeAdvancement()
                                                         .display(
@@ -217,8 +221,12 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
                         IntensifyStoneRecipeBuilder.builder(
+                                                new ResourceLocation(
+                                                        Intensify.MODID,
+                                                        IntensifyStoneType.ENENG_STONE
+                                                                .getIdentifier()),
                                                 Config.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                Config.ENENG_BURN_TIME,
+                                                Config.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 EnengRecipe.SERIALIZER,
                                                 Advancement.Builder.recipeAdvancement()
                                                         .display(
@@ -247,6 +255,10 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
                         IntensifyStoneRecipeBuilder.builder(
+                                                new ResourceLocation(
+                                                        Intensify.MODID,
+                                                        IntensifyStoneType.INTENSIFY_STONE
+                                                                .getIdentifier()),
                                                 Config.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
                                                 Config.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 CommonIntensifyRecipe.SERIALIZER,

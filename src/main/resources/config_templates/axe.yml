@@ -67,18 +67,23 @@ axe:
         value: [0.1, 0.2]
       grows:
         - type: fixed
-          range: [1, 10]
-          speed: 2
-          value: 0.2
+          range: [1, 20]
+          speed: 3
+          value: 0.062
+        - type: proportional
+          range: [ 21, -1 ]
+          speed: 4
+          value: 0.02
+    # 击退
     - type: generic.attack_knockback
       eneng:
         enable: true
-        value: [0.5, 1.5]
+        value: [0.5, 1.1]
       grows:
         - type: fixed
           range: [1, 6]
           speed: 1
-          value: 0.2
+          value: 0.12
     # 挖掘速度
     - type: mining_speed
       eneng:
@@ -86,6 +91,9 @@ axe:
         value: [ 0.1, 0.2 ]
       grows:
         - type: fixed
-          range: [ 1, -1 ]
-          speed: 2
-          value: 0.1
+          range: [ 1, 10 ]
+          speed: 1
+          value: 0.038
+        - type: proportional
+          range: [ 11, -1 ]
+          value: 0.05

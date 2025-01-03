@@ -27,16 +27,29 @@ chestplate:
         - type: proportional
           range: [9, -1]
           value: 0.02 # 每级额外增长2%
+    # 击退抵抗
+    - type: generic.knockback_resistance
+      eneng:
+        enable: true
+        value: [ 0.1, 0.3 ]
+      grows:
+        - type: fixed
+          range: [ 1, 5 ]
+          speed: 1
+          value: 0.05
+        - type: proportional
+          range: [ 6, -1 ]
+          value: 0.02
     # 最大生命值
     - type: generic.max_health
       eneng:
         enable: true
-        value: [3.0, 6.0] # 初始增加3-6点生命值
+        value: [2.4, 3.6]
       grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 1.0 # 每级固定增加1点生命值
+          value: 0.9
         - type: proportional
           range: [6, -1]
-          value: 0.05 # 每级额外增长5%
+          value: 0.05

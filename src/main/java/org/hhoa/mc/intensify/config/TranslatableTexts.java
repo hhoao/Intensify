@@ -181,6 +181,13 @@ public class TranslatableTexts {
     public static final TranslatableText ETERNAL_SUCCESS = text("eternal.success");
     public static final TranslatableText INTENSIFY_ITEM_TIP = text("item.intensify.stone.tip");
 
+    public static final TranslatableText SET_UPGRADE_MULTIPLIER_TIP =
+            text("command.set.upgrade_multiplier");
+    public static final TranslatableText SET_STONE_DROP_RATE_TIP =
+            text("command.set.stone_dropout_rate");
+    public static final TranslatableText SET_ATTRIBUTE_MULTIPLIER_TIP =
+            text("command.set.attribute_multiplier");
+
     public static TranslatableText text(String string) {
         return new TranslatableText(string);
     }

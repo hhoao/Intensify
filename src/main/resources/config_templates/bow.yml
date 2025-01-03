@@ -5,38 +5,39 @@ bow:
     - type: arrow_damage
       eneng:
         enable: true
-        value: [2.5, 5]
-      grows:
-        - type: fixed
-          range: [1, 5]
-          speed: 1
-          value: 1.5
-        - type: proportional
-          range: [6, -1]
-          value: 0.1
-    # 箭矢速度
-    - type: arrow_velocity
-      eneng:
-        enable: true
-        value: [0.1, 0.2] # 初始箭矢速度为1.0-2.0
+        value: [0.2, 0.4]
       grows:
         - type: fixed
           range: [1, -1]
           speed: 1
-          value: 0.02
+          value: 0.12
+    # 箭矢速度
+    - type: arrow_velocity
+      eneng:
+        enable: true
+        value: [0.1, 0.2]
+      grows:
+        - type: fixed
+          range: [1, 10]
+          speed: 1
+          value: 0.06
+        - type: fixed
+          range: [ 11, -1 ]
+          speed: 1
+          value: 0.08
     # 远程武器充能速度
     - type: draw_speed
       eneng:
         enable: true
-        value: [0.1, 0.2] # 初始充能速度为1.0-2.0
+        value: [0.1, 0.2]
       grows:
         - type: fixed
-          range: [1, 5]
+          range: [1, 10]
           speed: 1
-          value: 0.1 # 每级增加0.1充能速度
+          value: 0.07
         - type: proportional
-          range: [6, -1]
-          value: 0.05 # 每级额外增加5%
+          range: [11, -1]
+          value: 0.12
     # 暴击几率
     - type: crit_chance
       eneng:
@@ -47,6 +48,10 @@ bow:
           range: [ 1, 10 ]
           speed: 2
           value: 0.02
+        - type: fixed
+          range: [ 11, 30 ]
+          speed: 2
+          value: 0.04
     # 暴击伤害
     - type: crit_damage
       eneng:
@@ -71,6 +76,6 @@ bow:
     - type: life_steal
       grows:
         - type: fixed
-          range: [10, -1]
-          speed: 1
-          value: 0.01 # 每级增加1%生命吸取
+          range: [3, -1]
+          speed: 2
+          value: 0.038

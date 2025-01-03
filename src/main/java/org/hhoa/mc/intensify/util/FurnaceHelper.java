@@ -163,6 +163,8 @@ public class FurnaceHelper {
     private static final Field COOKING_PROGRESS_FIELD;
     private static final Field COOKING_TOTAL_TIME_FIELD;
 
+    private static final Field LIT_TIME_FIELD;
+
     static {
         try {
             COOKING_PROGRESS_FIELD =
@@ -172,6 +174,9 @@ public class FurnaceHelper {
             COOKING_TOTAL_TIME_FIELD =
                     AbstractFurnaceBlockEntity.class.getDeclaredField("cookingTotalTime");
             COOKING_TOTAL_TIME_FIELD.setAccessible(true);
+
+            LIT_TIME_FIELD = AbstractFurnaceBlockEntity.class.getDeclaredField("litTime");
+            LIT_TIME_FIELD.setAccessible(true);
         } catch (NoSuchFieldException e) {
             throw new RuntimeException("Failed to access furnace fields", e);
         }
@@ -182,6 +187,14 @@ public class FurnaceHelper {
             return COOKING_PROGRESS_FIELD.getInt(furnace);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Failed to read cooking progress", e);
+        }
+    }
+
+    public static int getLitTime(AbstractFurnaceBlockEntity furnace) {
+        try {
+            return LIT_TIME_FIELD.getInt(furnace);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to read cooking total time", e);
         }
     }
 

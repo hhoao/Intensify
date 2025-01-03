@@ -1,15 +1,19 @@
 hoe:
   enable: true
   attributes:
-    - type: mining_speed  # 挖掘速度
+    # 挖掘速度
+    - type: mining_speed
       eneng:
         enable: true
         value: [ 0.1, 0.2 ]
       grows:
         - type: fixed
-          range: [ 1, -1 ]
-          speed: 2
-          value: 0.1
+          range: [ 1, 10 ]
+          speed: 1
+          value: 0.038
+        - type: proportional
+          range: [ 11, -1 ]
+          value: 0.05
     # 经验获取
     - type: experience_gained
       eneng:

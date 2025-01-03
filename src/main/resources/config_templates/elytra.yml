@@ -5,15 +5,15 @@ elytra:
     - type: generic.max_health
       eneng:
         enable: true
-        value: [0.8, 1.6] # 初始增加2-4点生命值
+        value: [0.8, 1.6]
       grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 0.3 # 每级固定增加1点生命值
+          value: 0.3
         - type: proportional
           range: [6, -1]
-          value: 0.03 # 每级额外增长5%
+          value: 0.03
     # 击退抵抗
     - type: generic.knockback_resistance
       eneng:
@@ -26,7 +26,7 @@ elytra:
           value: 0.05
         - type: proportional
           range: [ 6, -1 ]
-          value: 0.02
+          value: 0.05
     # 移动速度
     - type: generic.movement_speed
       eneng:
@@ -34,6 +34,9 @@ elytra:
         value: [ 0.03, 0.05 ]
       grows:
         - type: fixed
-          range: [ 1, -1 ]
+          range: [ 1, 10 ]
           speed: 1
           value: 0.01
+        - type: proportional
+          range: [ 11, -1 ]
+          value: 0.05

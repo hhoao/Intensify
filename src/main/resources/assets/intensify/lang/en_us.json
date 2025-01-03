@@ -16,5 +16,8 @@
   "strengthening.unchanged": "Enhancement failed!!! Level unchanged. Current level: %s, Current fail count: %s",
   "strengthening.protected": "Enhancement failed!!! Level protected. Current level: %s, Current fail count: %s",
   "strengthening.downgrade": "Enhancement failed!!! Level decreased. Current level: %s, Current fail count: %s",
-  "eternal.success": "The item is now unbreakable!!"
+  "eternal.success": "The item is now unbreakable!!",
+  "command.set.upgrade_multiplier": "The enhancement upgrade rate has been set to: %s",
+  "command.set.stone_dropout_rate": "The ore drop rate has been set to: %s",
+  "command.set.attribute_multiplier": "The enhancement attribute multiplier has been set to: %s"
 }

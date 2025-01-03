@@ -5,68 +5,67 @@ crossbow:
     - type: arrow_damage
       eneng:
         enable: true
-        value: [7.0, 12.0] # 初始弩伤害为7-12
+        value: [ 0.16, 0.37 ]
       grows:
         - type: fixed
-          range: [1, 5]
+          range: [ 1, -1 ]
           speed: 1
-          value: 3.0 # 每级增加3点弩伤害
-        - type: proportional
-          range: [6, -1]
-          value: 0.1 # 每级额外增加10%
+          value: 0.08
 
-    # 充能速度
+    # 远程武器充能速度
     - type: draw_speed
       eneng:
         enable: true
-        value: [1.5, 3.0] # 初始充能速度为1.5-3.0
+        value: [0.16, 0.34]
       grows:
         - type: fixed
-          range: [1, 5]
+          range: [1, 10]
           speed: 1
-          value: 0.2 # 每级增加0.2充能速度
+          value: 0.082
         - type: proportional
-          range: [6, -1]
-          value: 0.05 # 每级额外增加5%
+          range: [11, -1]
+          value: 0.131
 
     # 箭矢速度
     - type: arrow_velocity
       eneng:
         enable: true
-        value: [0.1, 0.2] # 初始箭矢速度为1.0-2.0
+        value: [ 0.13, 0.26 ]
       grows:
         - type: fixed
-          range: [1, -1]
+          range: [ 1, 10 ]
           speed: 1
-          value: 0.02
+          value: 0.092
+        - type: fixed
+          range: [ 11, -1 ]
+          speed: 1
+          value: 0.12
 
     # 暴击几率
     - type: crit_chance
       eneng:
         enable: true
-        value: [0.05, 0.25] # 初始暴击几率为5%-25%
+        value: [ 0.042, 0.072 ]
       grows:
         - type: fixed
-          range: [1, 5]
-          speed: 1
-          value: 0.05 # 每级增加5%暴击几率
-        - type: proportional
-          range: [6, -1]
-          value: 0.01 # 每级额外增加1%
+          range: [ 1, 10 ]
+          speed: 2
+          value: 0.017
+        - type: fixed
+          range: [ 11, 30 ]
+          speed: 2
+          value: 0.033
 
     # 暴击伤害
     - type: crit_damage
       eneng:
         enable: true
-        value: [1.5, 3.0] # 初始暴击伤害为1.5-3.0倍
+        value: [0.17, 0.36]
       grows:
         - type: fixed
-          range: [1, 5]
-          speed: 1
-          value: 0.15 # 每级增加0.15倍暴击伤害
-        - type: proportional
-          range: [6, -1]
-          value: 0.05 # 每级额外增加5%
+          range: [1, -1]
+          speed: 2
+          value: 0.092
     # 击退
     - type: generic.attack_knockback
       eneng:
@@ -76,11 +75,11 @@ crossbow:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 0.04
+          value: 0.028
     # 生命吸取
     - type: life_steal
       grows:
         - type: fixed
-          range: [ 10, -1 ]
-          speed: 1
-          value: 0.01 # 每级增加1%生命吸取
+          range: [ 3, -1 ]
+          speed: 2
+          value: 0.021

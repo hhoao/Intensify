@@ -14,3 +14,16 @@ shield:
         - type: proportional
           range: [6, -1]
           value: 0.05 # 每级额外增长5%
+    # 伤害转化为护盾
+    - type: overheal
+      eneng:
+        enable: true
+        value: [ 0.04, 0.06 ]
+      grows:
+        - type: fixed
+          range: [ 1, 5 ]
+          speed: 1
+          value: 0.02
+        - type: proportional
+          range: [ 6, -1 ]
+          value: 0.05

@@ -159,6 +159,7 @@ import com.google.common.collect.Range;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -167,6 +168,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import org.hhoa.mc.intensify.config.Config;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
@@ -204,7 +206,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
 
         double totalProbability = currentBaseProbability + failCount * probabilityIncreaseOnFailure;
 
-        return Math.min(totalProbability, maxSuccessProbability);
+        return Math.min(totalProbability, maxSuccessProbability) * Config.UPGRADE_MULTIPLIER.get();
     }
 
     @Override
@@ -243,15 +245,18 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                     Attribute type = attribute.getType();
                     List<ToolIntensifyConfig.GrowConfig> grows = attribute.getGrows();
                     for (ToolIntensifyConfig.GrowConfig grow : grows) {
-                        Double value = grow.getValue();
+                        Double value = randomizeAndMultiply(grow.getValue());
                         ToolIntensifyConfig.GrowTypeEnum growType = grow.getType();
+                        int speed = grow.getSpeed();
                         Range<Integer> range = grow.getRange();
 
                         if (range.contains(currentLevel + 1)
+                                && (((currentLevel + 1) - range.lowerEndpoint()) % speed) == 0
                                 && enhanceResult == EnhanceResult.UPGRADE) {
                             upgradeAttribute(
                                     itemStack, type, value, growType, equipmentSlotForItem);
                         } else if (range.contains(currentLevel - 1)
+                                && (((currentLevel - 1) - range.lowerEndpoint()) % speed) == 0
                                 && enhanceResult == EnhanceResult.DOWNGRADE) {
                             downgradeAttribute(
                                     itemStack, type, value, growType, equipmentSlotForItem);
@@ -275,6 +280,13 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                 }
             }
         }
+    }
+
+    private Double randomizeAndMultiply(Double value) {
+        value = value * Config.ATTRIBUTE_MULTIPLIER.get();
+        double lower = value * 0.1;
+        double upper = value * (1 + 0.1);
+        return ThreadLocalRandom.current().nextDouble(lower, upper);
     }
 
     private static void sendMessage(ServerPlayer player, String currentLevel) {
@@ -318,21 +330,30 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         List<AttributeModifier> oldModifiers =
                 getAttributeModifiers(itemStack, type, equipmentSlotForItem);
 
-        for (AttributeModifier oldAttributeModifier : oldModifiers) {
-            double amount = oldAttributeModifier.getAmount();
-            double newValue = 0;
-            if (growType == ToolIntensifyConfig.GrowTypeEnum.FIXED) {
-                newValue = amount + incrementValue;
-            } else if (growType == ToolIntensifyConfig.GrowTypeEnum.PROPORTIONAL) {
-                newValue = amount * (1 + incrementValue);
-            }
-            AttributeModifier newAttributeModifier =
+        if (oldModifiers.isEmpty()) {
+            AttributeModifier attributeModifier =
                     new AttributeModifier(
                             getAttributeModifierName(type),
-                            newValue,
+                            incrementValue,
                             AttributeModifier.Operation.ADDITION);
-            ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getId());
-            itemStack.addAttributeModifier(type, newAttributeModifier, equipmentSlotForItem);
+            itemStack.addAttributeModifier(type, attributeModifier, equipmentSlotForItem);
+        } else {
+            for (AttributeModifier oldAttributeModifier : oldModifiers) {
+                double amount = oldAttributeModifier.getAmount();
+                double newValue = 0;
+                if (growType == ToolIntensifyConfig.GrowTypeEnum.FIXED) {
+                    newValue = amount + incrementValue;
+                } else if (growType == ToolIntensifyConfig.GrowTypeEnum.PROPORTIONAL) {
+                    newValue = amount * (1 + incrementValue);
+                }
+                AttributeModifier newAttributeModifier =
+                        new AttributeModifier(
+                                getAttributeModifierName(type),
+                                newValue,
+                                AttributeModifier.Operation.ADDITION);
+                ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getId());
+                itemStack.addAttributeModifier(type, newAttributeModifier, equipmentSlotForItem);
+            }
         }
     }
 
@@ -379,7 +400,6 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
      */
     EnhanceResult enhance(int level, int failuresCount) {
         double successAndFailedProbability = calculateSuccessProbability(level, failuresCount);
-        System.out.println(successAndFailedProbability);
 
         double randomValue = Math.random();
 

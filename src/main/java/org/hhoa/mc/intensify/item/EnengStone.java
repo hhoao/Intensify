@@ -156,9 +156,6 @@ package org.hhoa.mc.intensify.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
-import org.hhoa.mc.intensify.config.Config;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class EnengStone extends IntensifyStone {
@@ -169,11 +166,6 @@ public class EnengStone extends IntensifyStone {
     @Override
     public ChatFormatting getNameColor() {
         return ChatFormatting.BLUE;
-    }
-
-    @Override
-    public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
-        return Config.ENENG_BURN_TIME;
     }
 
     @Override

@@ -5,7 +5,7 @@ helmet:
     - type: generic.armor
       eneng:
         enable: true
-        value: [1.0, 2.0] # 初始护甲值为2-4
+        value: [1.0, 2.0]
       grows:
         - type: fixed
           range: [ 1, 10 ]
@@ -13,49 +13,35 @@ helmet:
           value: 0.3
         - type: proportional
           range: [ 11, -1 ]
-          value: 0.02 # 每级额外增长5%
+          value: 0.02
     # 护甲韧性
     - type: generic.armor_toughness
       eneng:
         enable: true
-        value: [1.0, 2.0] # 初始韧性为1-2
+        value: [1.0, 2.0]
       grows:
         - type: fixed
           range: [1, 5]
           speed: 2
-          value: 0.5 # 每2级增加0.5点韧性
+          value: 0.5
         - type: proportional
           range: [6, -1]
-          value: 0.02 # 每级额外增长2%
+          value: 0.02
     # 最大生命值
     - type: generic.max_health
       eneng:
         enable: true
-        value: [2.0, 4.0] # 初始增加2-4点生命值
+        value: [1.0, 2.0] # 初始增加2-4点生命值
       grows:
         - type: fixed
           range: [1, 5]
           speed: 1
-          value: 1.0 # 每级固定增加1点生命值
+          value: 0.5
         - type: proportional
           range: [6, -1]
-          value: 0.05 # 每级额外增长5%
+          value: 0.05
     # 闪避几率
     - type: dodge_chance
-      eneng:
-        enable: true
-        value: [0.05, 0.10] # 初始闪避几率为5%-10%
-      grows:
-        - type: fixed
-          range: [1, 5]
-          speed: 1
-          value: 0.02 # 每级增加2%
-        - type: proportional
-          range: [6, 30]
-          speed: 2
-          value: 0.01 # 每级额外增加1%
-    # 治疗效果
-    - type: healing_received
       eneng:
         enable: true
         value: [0.05, 0.10]
@@ -65,8 +51,22 @@ helmet:
           speed: 1
           value: 0.02
         - type: proportional
+          range: [6, 30]
+          speed: 2
+          value: 0.05
+    # 治疗效果
+    - type: healing_received
+      eneng:
+        enable: true
+        value: [0.05, 0.10]
+      grows:
+        - type: fixed
+          range: [1, 5]
+          speed: 1
+          value: 0.036
+        - type: proportional
           range: [6, -1]
-          value: 0.01
+          value: 0.05
     # 经验获取
     - type: experience_gained
       eneng:
@@ -74,6 +74,9 @@ helmet:
         value: [ 0.03, 0.07 ]
       grows:
         - type: fixed
-          range: [ 1, -1 ]
+          range: [ 1, 10 ]
           speed: 1
           value: 0.02
+        - type: proportional
+          range: [ 6, -1 ]
+          value: 0.05

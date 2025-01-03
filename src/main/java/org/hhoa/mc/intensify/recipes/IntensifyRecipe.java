@@ -155,15 +155,18 @@
 package org.hhoa.mc.intensify.recipes;
 
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.hhoa.mc.intensify.config.IntensifyConstants;
@@ -189,14 +192,68 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
 
     public abstract boolean matchesInternal(Container container, Level level);
 
+    // 装备放入时也会进行一次 matches, 会根据matches的结果获取Recipe，然后获取其cookingTime, 默认如果没有matches，则cookingTime为200
+    // 那我们如何在放入装备时就匹配成功然后获取相应的cookingTime呢?
+    // 方案1：我们把所有Recipe的cookingTotalTime设置为200
+    // 方案2: 判断如果有装备，并且燃料为空，并且燃烧时间为0， 则匹配成功（那这都不需要燃料都可以强化了？）
+    // 有个bug，启能完后，将启能的武器再次放到需要煅烧的地方，然后将启能石头替换成强化石，导致cookingTotalTime为默认值200
+    // 原因是启能完后，将启能的装备再次放到需要煅烧的地方，那么这个时候Recipe的判断失败，则cookingTotalTime为默认的200
+    // 然后将启能石头换为强化石只是替换了燃料，不会尝试改变cookingTotalTime, 这样的话第二个方案失败了,只能使用第一个方案了
+
+    // 我们需要判断的是在强化石没有后，怎么判断是否还可以继续强化当前装备
+    // 强化石开始燃烧，这时其实替换什么燃料都无所谓了，强化石的燃烧时间迟早会到0
+
+    // 我们可以设置一个lastRecipe
+    // 因为强化石的燃烧时间迟早会到0, 到0时就可以根据是否有强化石并且可强化来设置lastRecipe, 可强化则设置，不可强化则不设置
+    // lastRecipe设置完后，强化中，如果没有强化石，则可以根据lastRecipe来判断是否可以强化，符合lastRecipe则可以继续强化
+
+    // matches 时判断当前燃烧时间，
+    // 强化装备时
+    // 如果燃烧时间为0，有强化石，那么返回true，并且设置lastRecipe为当前recipe
+    // 如果燃烧时间为0，没有强化石, 那么返回false，并且设置lastRecipe为当前recipe
+    // 如果燃烧时间不为0，有强化石， lastRecipe符合, 返回true
+    // 如果燃烧时间不为0，有强化石， lastRecipe不符合, 返回false
+    // 如果燃烧时间不为0，没有强化石，那么判断lastRecipe参数是否为当前Recipe，是的话就返回true
+    // 如果燃烧时间不为0，没有强化石，那么判断lastRecipe参数是否为当前Recipe，不是的话就返回false
+
+    // 怎么判断燃烧时间呢？
+    // litTime==0
+
     @Override
     public boolean matches(Container container, net.minecraft.world.level.Level level) {
-        if (!(container instanceof FurnaceBlockEntity)
-                || !(container.getItem(1).getItem() instanceof IntensifyStone)) {
+        ItemStack tool = container.getItem(0);
+        Item toolItem = tool.getItem();
+        ToolIntensifyConfig toolItemIntensifyConfig =
+                ToolIntensifyConfig.getToolIntensifyConfig(toolItem);
+        if (toolItemIntensifyConfig == null) {
             return false;
         }
 
-        return matchesInternal(container, level);
+        AbstractFurnaceBlockEntity furnaceBlockEntity = (AbstractFurnaceBlockEntity) container;
+        int litTime = FurnaceHelper.getLitTime(furnaceBlockEntity);
+        if (litTime <= 0) {
+            // 开始准备熔炼
+            if (!(container instanceof FurnaceBlockEntity)
+                    || !(container.getItem(1).getItem() instanceof IntensifyStone)) {
+                return false;
+            }
+
+            boolean matches = matchesInternal(container, level);
+            CompoundTag persistentData = furnaceBlockEntity.getPersistentData();
+            if (matches) {
+                persistentData.putString(
+                        IntensifyConstants.LAST_RECIPE_TAG_ID, this.getId().toString());
+            } else {
+                persistentData.remove(IntensifyConstants.LAST_RECIPE_TAG_ID);
+            }
+
+            return matches;
+        } else {
+            CompoundTag persistentData = furnaceBlockEntity.getPersistentData();
+            String lastRecipeTagId =
+                    persistentData.getString(IntensifyConstants.LAST_RECIPE_TAG_ID);
+            return this.getId().toString().equals(lastRecipeTagId);
+        }
     }
 
     public abstract void intensify(

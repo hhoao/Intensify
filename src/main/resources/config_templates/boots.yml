@@ -5,12 +5,12 @@ boots:
     - type: generic.movement_speed
       eneng:
         enable: true
-        value: [0.03, 0.05]
+        value: [0.003, 0.005]
       grows:
         - type: fixed
           range: [ 1, -1 ]
           speed: 1
-          value: 0.01
+          value: 0.001
     # 闪避几率
     - type: dodge_chance
       eneng:

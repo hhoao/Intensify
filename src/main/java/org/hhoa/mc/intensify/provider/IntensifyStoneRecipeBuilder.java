@@ -167,16 +167,19 @@ import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.recipes.IntensifyRecipeSerializer;
 
 public class IntensifyStoneRecipeBuilder implements CustomRecipeBuilder {
+    private final ResourceLocation id;
     private final float experience;
     private final int cookingTime;
     private final Advancement.Builder advancement;
     private final IntensifyRecipeSerializer<?> serializer;
 
     private IntensifyStoneRecipeBuilder(
+            ResourceLocation id,
             float experience,
             int cookingTime,
             IntensifyRecipeSerializer<?> serializer,
             Advancement.Builder advancementBuilder) {
+        this.id = id;
         this.experience = experience;
         this.cookingTime = cookingTime;
         this.serializer = serializer;
@@ -184,12 +187,13 @@ public class IntensifyStoneRecipeBuilder implements CustomRecipeBuilder {
     }
 
     public static IntensifyStoneRecipeBuilder builder(
+            ResourceLocation resourceLocation,
             float experience,
             int cookingTime,
             IntensifyRecipeSerializer<?> serializer,
             Advancement.Builder advancementBuilder) {
         return new IntensifyStoneRecipeBuilder(
-                experience, cookingTime, serializer, advancementBuilder);
+                resourceLocation, experience, cookingTime, serializer, advancementBuilder);
     }
 
     @Override
@@ -204,6 +208,7 @@ public class IntensifyStoneRecipeBuilder implements CustomRecipeBuilder {
         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).requirements(RequirementsStrategy.OR);
         recipeConsumer.accept(
                 new IntensifyStoneRecipeBuilder.Result(
+                        this.id,
                         this.experience,
                         this.cookingTime,
                         this.advancement,
@@ -225,12 +230,13 @@ public class IntensifyStoneRecipeBuilder implements CustomRecipeBuilder {
         private final IntensifyRecipeSerializer<?> serializer;
 
         public Result(
+                ResourceLocation id,
                 float experience,
                 int cookingTime,
                 Advancement.Builder advancement,
                 ResourceLocation advancementId,
                 IntensifyRecipeSerializer<?> serializer) {
-            this.id = new ResourceLocation("fsdfsdf");
+            this.id = id;
             this.experience = experience;
             this.cookingTime = cookingTime;
             this.advancement = advancement;

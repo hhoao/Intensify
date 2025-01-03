@@ -1,19 +1,29 @@
 trident:
   enable: true
   attributes:
+    # 箭矢伤害
+    - type: arrow_damage
+      eneng:
+        enable: true
+        value: [0.11, 0.28]
+      grows:
+        - type: fixed
+          range: [1, -1]
+          speed: 1
+          value: 0.10
     # 攻击伤害
     - type: generic.attack_damage
       eneng:
         enable: true
-        value: [ 2.0, 4.0 ]
+        value: [1.0, 3.0]
       grows:
         - type: fixed
-          range: [ 1, 8 ]
+          range: [1, 10]
           speed: 1
-          value: 1.5
+          value: 0.8
         - type: proportional
-          range: [ 9, -1 ]
-          value: 0.12
+          range: [11, -1]
+          value: 0.08
     # 攻击速度
     - type: generic.attack_speed
       eneng:
@@ -27,11 +37,38 @@ trident:
         - type: proportional
           range: [ 6, -1 ]
           value: 0.03
+    # 箭矢速度
+    - type: arrow_velocity
+      eneng:
+        enable: true
+        value: [ 0.08, 0.16 ]
+      grows:
+        - type: fixed
+          range: [ 1, 10 ]
+          speed: 1
+          value: 0.05
+        - type: fixed
+          range: [ 11, -1 ]
+          speed: 1
+          value: 0.07
+    # 远程武器充能速度
+    - type: draw_speed
+      eneng:
+        enable: true
+        value: [ 0.08, 0.16 ]
+      grows:
+        - type: fixed
+          range: [ 1, 10 ]
+          speed: 1
+          value: 0.06
+        - type: proportional
+          range: [ 11, -1 ]
+          value: 0.11
     # 护甲穿透
     - type: armor_pierce
       eneng:
         enable: true
-        value: [2.0, 5.0]
+        value: [1.0, 6.0]
       grows:
         - type: fixed
           range: [1, 5]
@@ -39,17 +76,21 @@ trident:
           value: 1.0
         - type: proportional
           range: [6, -1]
-          value: 0.05
+          value: 0.06
     # 百分比护甲穿透
     - type: armor_shred
       eneng:
         enable: true
-        value: [0.1, 0.2]
+        value: [ 0.1, 0.2 ]
       grows:
         - type: fixed
-          range: [1, 10]
-          speed: 2
-          value: 0.2
+          range: [ 1, 20 ]
+          speed: 3
+          value: 0.062
+        - type: proportional
+          range: [ 21, -1 ]
+          speed: 4
+          value: 0.02
     # 暴击几率
     - type: crit_chance
       eneng:
@@ -69,7 +110,7 @@ trident:
         - type: fixed
           range: [ 1, -1 ]
           speed: 2
-          value: 0.9
+          value: 0.09
     # 生命偷取
     - type: life_steal
       grows:

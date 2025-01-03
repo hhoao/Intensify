@@ -165,6 +165,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import org.hhoa.mc.intensify.config.Config;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
@@ -202,12 +203,7 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
             EquipmentSlot equipmentSlotForItem) {
         ThreadLocalRandom current = ThreadLocalRandom.current();
         List<Double> value = eneng.getValue();
-        double v;
-        if (value.size() == 2) {
-            v = current.nextDouble(value.get(0), value.get(1));
-        } else {
-            v = value.get(0);
-        }
+        double v = randomizeAndMultiply(value, current);
 
         ItemModifierHelper.initAttributeModifiers(itemStack, equipmentSlotForItem);
         itemStack.addAttributeModifier(
@@ -217,5 +213,18 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
                         v,
                         AttributeModifier.Operation.ADDITION),
                 equipmentSlotForItem);
+    }
+
+    private static double randomizeAndMultiply(List<Double> value, ThreadLocalRandom current) {
+        double v;
+        if (value.size() == 2) {
+            v = current.nextDouble(value.get(0), value.get(1)) * Config.ATTRIBUTE_MULTIPLIER.get();
+        } else {
+            v = value.get(0) * Config.ATTRIBUTE_MULTIPLIER.get();
+            double lower = v * 0.1;
+            double upper = v * (1 + 0.1);
+            v = current.nextDouble(lower, upper);
+        }
+        return v;
     }
 }
