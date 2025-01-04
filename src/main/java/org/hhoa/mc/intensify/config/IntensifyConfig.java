@@ -152,140 +152,94 @@
  * This Source Code Form is “Incompatible With Secondary Licenses”, as defined by the Mozilla Public License, v. 2.0.
  */
 
-package org.hhoa.mc.intensify.provider;
+package org.hhoa.mc.intensify.config;
 
-import java.util.function.Consumer;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.FrameType;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-import net.minecraftforge.common.crafting.conditions.TrueCondition;
-import org.hhoa.mc.intensify.Intensify;
-import org.hhoa.mc.intensify.config.IntensifyConfig;
-import org.hhoa.mc.intensify.config.TranslatableTexts;
-import org.hhoa.mc.intensify.item.IntensifyStoneType;
-import org.hhoa.mc.intensify.recipes.impl.CommonIntensifyRecipe;
-import org.hhoa.mc.intensify.recipes.impl.EnengRecipe;
-import org.hhoa.mc.intensify.recipes.impl.StrengtheningRecipe;
-import org.hhoa.mc.intensify.registry.ItemRegistry;
+import static org.hhoa.mc.intensify.config.IntensifyConstants.ARMOR_NAME_CLASS_MAPPING;
 
-public class IntensifyStoneRecipeProvider extends RecipeProvider {
-    public static final String HAS_STONE = Intensify.locationStr("has_stone");
-    public static final String HAS_TOOL = Intensify.locationStr("has_tool");
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import org.hhoa.mc.intensify.core.DefaultEnengIntensifySystem;
+import org.hhoa.mc.intensify.core.DefaultEnhancementIntensifySystem;
+import org.hhoa.mc.intensify.core.EnengIntensifySystem;
+import org.hhoa.mc.intensify.core.EnhancementIntensifySystem;
 
-    public IntensifyStoneRecipeProvider(PackOutput p_248933_) {
-        super(p_248933_);
+public class IntensifyConfig {
+    private static DefaultEnengIntensifySystem defaultEnengIntensifySystem;
+    private static DefaultEnhancementIntensifySystem defaultEnhancementIntensifySystem;
+
+    public static final Integer DEFAULT_INTENSIFY_STONE_BURN_TIME =
+            AbstractFurnaceBlockEntity.BURN_TIME_STANDARD;
+
+    public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
+
+    private static HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap;
+    private static HashMap<Class<? extends Item>, ToolIntensifyConfig>
+            classToolIntensifyConfigHashMap;
+
+    public static void initialize() {
+        defaultEnengIntensifySystem = new DefaultEnengIntensifySystem();
+        defaultEnhancementIntensifySystem =
+                new DefaultEnhancementIntensifySystem(1, 0.005, 1, 4, 10);
+
+        List<ToolIntensifyConfig> toolIntensifyConfigs =
+                ConfigLoader.loadToolIntensifyConfigFromDir("config/intensify");
+        classToolIntensifyConfigHashMap = new HashMap<>();
+        armorClassConfigMap = new HashMap<>();
+        for (ToolIntensifyConfig toolIntensifyConfig : toolIntensifyConfigs) {
+            if (toolIntensifyConfig.isEnable()) {
+                Class<? extends Item> aClass =
+                        IntensifyConstants.TOOL_NAME_CLASS_MAPPING.get(
+                                toolIntensifyConfig.getName());
+                if (aClass == null) {
+                    ArmorItem.Type type =
+                            ARMOR_NAME_CLASS_MAPPING.get(toolIntensifyConfig.getName());
+                    if (type == null) {
+                        throw new RuntimeException(toolIntensifyConfig.getName());
+                    }
+                    armorClassConfigMap.put(type, toolIntensifyConfig);
+                } else {
+                    classToolIntensifyConfigHashMap.put(aClass, toolIntensifyConfig);
+                }
+            }
+        }
     }
 
-    @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
-        ConditionalRecipe.builder()
-                .addCondition(TrueCondition.INSTANCE)
-                .addRecipe(
-                        IntensifyStoneRecipeBuilder.builder(
-                                                new ResourceLocation(
-                                                        Intensify.MODID,
-                                                        IntensifyStoneType.STRENGTHENING_STONE
-                                                                .getIdentifier()),
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
-                                                StrengtheningRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
-                                                        .display(
-                                                                new ItemStack(Items.COAL),
-                                                                TranslatableTexts
-                                                                        .STRENGTHENING_ADVANCEMENT_TITLE
-                                                                        .component(),
-                                                                TranslatableTexts
-                                                                        .STRENGTHENING_ADVANCEMENT_DESCRIPTION
-                                                                        .component(),
-                                                                null,
-                                                                FrameType.TASK,
-                                                                true,
-                                                                true,
-                                                                false))
-                                        .unlockedBy(
-                                                HAS_STONE,
-                                                has(ItemRegistry.STRENGTHENING_STONE.get()))
-                                ::save)
-                .generateAdvancement()
-                .build(
-                        consumer,
-                        new ResourceLocation(
-                                Intensify.MODID,
-                                IntensifyStoneType.STRENGTHENING_STONE.getIdentifier()));
+    public static EnengIntensifySystem getEnengIntensifySystem() {
+        return defaultEnengIntensifySystem;
+    }
 
-        ConditionalRecipe.builder()
-                .addCondition(TrueCondition.INSTANCE)
-                .addRecipe(
-                        IntensifyStoneRecipeBuilder.builder(
-                                                new ResourceLocation(
-                                                        Intensify.MODID,
-                                                        IntensifyStoneType.ENENG_STONE
-                                                                .getIdentifier()),
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
-                                                EnengRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
-                                                        .display(
-                                                                new ItemStack(Items.LAPIS_LAZULI),
-                                                                TranslatableTexts
-                                                                        .ENENG_ADVANCEMENT_TITLE
-                                                                        .component(),
-                                                                TranslatableTexts
-                                                                        .ENENG_ADVANCEMENT_DESCRIPTION
-                                                                        .component(),
-                                                                null,
-                                                                FrameType.TASK,
-                                                                true,
-                                                                true,
-                                                                false))
-                                        .unlockedBy(HAS_STONE, has(ItemRegistry.ENENG_STONE.get()))
-                                ::save)
-                .generateAdvancement()
-                .build(
-                        consumer,
-                        new ResourceLocation(
-                                Intensify.MODID, IntensifyStoneType.ENENG_STONE.getIdentifier()));
+    public static EnhancementIntensifySystem getEnhancementIntensifySystem() {
+        return defaultEnhancementIntensifySystem;
+    }
 
-        ConditionalRecipe.builder()
-                .addCondition(TrueCondition.INSTANCE)
-                .addRecipe(
-                        IntensifyStoneRecipeBuilder.builder(
-                                                new ResourceLocation(
-                                                        Intensify.MODID,
-                                                        IntensifyStoneType.INTENSIFY_STONE
-                                                                .getIdentifier()),
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
-                                                CommonIntensifyRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
-                                                        .display(
-                                                                new ItemStack(Items.DIAMOND),
-                                                                TranslatableTexts
-                                                                        .ETERNAL_ADVANCEMENT_TITLE
-                                                                        .component(),
-                                                                TranslatableTexts
-                                                                        .ETERNAL_ADVANCEMENT_DESCRIPTION
-                                                                        .component(),
-                                                                null,
-                                                                FrameType.TASK,
-                                                                true,
-                                                                true,
-                                                                false))
-                                        .unlockedBy(
-                                                HAS_STONE, has(ItemRegistry.ETERNAL_STONE.get()))
-                                ::save)
-                .generateAdvancement()
-                .build(
-                        consumer,
-                        new ResourceLocation(
-                                Intensify.MODID,
-                                IntensifyStoneType.INTENSIFY_STONE.getIdentifier()));
+    public static HashMap<Class<? extends Item>, ToolIntensifyConfig>
+            getToolWeaponClassConfigMap() {
+        return classToolIntensifyConfigHashMap;
+    }
+
+    public static HashMap<ArmorItem.Type, ToolIntensifyConfig> getArmorClassConfigMap() {
+        return armorClassConfigMap;
+    }
+
+    public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
+        HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap = getArmorClassConfigMap();
+        if (item instanceof ArmorItem) {
+            ArmorItem armorItem = (ArmorItem) item;
+            return armorClassConfigMap.get(armorItem.getType());
+        } else {
+            HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap =
+                    getToolWeaponClassConfigMap();
+            for (Map.Entry<Class<? extends Item>, ToolIntensifyConfig>
+                    classToolIntensifyConfigEntry : configsMap.entrySet()) {
+                if (classToolIntensifyConfigEntry.getKey().isInstance(item)) {
+                    return classToolIntensifyConfigEntry.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

@@ -161,7 +161,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.hhoa.mc.intensify.config.Config;
+import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.recipes.IntensifyRecipe;
@@ -171,7 +171,7 @@ import org.hhoa.mc.intensify.registry.ItemRegistry;
 public class CommonIntensifyRecipe extends IntensifyRecipe {
     public static final IntensifyRecipeSerializer<CommonIntensifyRecipe> SERIALIZER =
             new IntensifyRecipeSerializer<>(
-                    CommonIntensifyRecipe::new, Config.DEFAULT_INTENSIFY_STONE_BURN_TIME);
+                    CommonIntensifyRecipe::new, IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME);
 
     public CommonIntensifyRecipe(
             ResourceLocation resourceLocation, float experience, int cookingTime) {

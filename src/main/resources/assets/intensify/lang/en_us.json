@@ -1,6 +1,10 @@
 {
-  "advancement.intensify.diamond.title": "Intensify",
-  "advancement.intensify.diamond.description": "Start intensify!!",
+  "advancement.intensify.strengthening.title": "Start Strengthening",
+  "advancement.intensify.strengthening.description": "Start strengthening",
+  "advancement.intensify.eneng.title": "Start Intensify",
+  "advancement.intensify.eneng.description": "Start intensify!!",
+  "advancement.intensify.eternal.title": "Indestructible Stone",
+  "advancement.intensify.eternal.description": "Enhanced equipment will be unbreakable.",
   "item.intensify.strengthening_stone": "Enhancement Stone",
   "item.intensify.eneng_stone": "Eneng Stone",
   "item.intensify.protection_stone": "Protection Stone",
@@ -19,5 +23,11 @@
   "eternal.success": "The item is now unbreakable!!",
   "command.set.upgrade_multiplier": "The enhancement upgrade rate has been set to: %s",
   "command.set.stone_dropout_rate": "The ore drop rate has been set to: %s",
-  "command.set.attribute_multiplier": "The enhancement attribute multiplier has been set to: %s"
+  "command.set.attribute_multiplier": "The enhancement attribute multiplier has been set to: %s",
+  "advancement.intensify.intensify.title": "Intensify system",
+  "advancement.intensify.intensify.description": "Reward eneng stone",
+  "advancement.intensify.first_eneng.title": "First Eneng",
+  "advancement.intensify.first_eneng.description": "Reword strengthening stone",
+  "advancement.intensify.first_strengthening.title": "First Strengthen",
+  "advancement.intensify.first_strengthening.description": "Reword protection stone"
 }

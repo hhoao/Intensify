@@ -181,7 +181,7 @@ public class StoneDropoutProbabilityConfig {
     private final Map<DropTypeEnum, Map<String, ForgeConfigSpec.ConfigValue<Double>>>
             stoneDropProbability;
 
-    protected static Pair<ForgeConfigSpec, StoneDropoutProbabilityConfig> create() {
+    public static Pair<ForgeConfigSpec, StoneDropoutProbabilityConfig> create() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         StoneDropoutProbabilityConfig stoneDropoutProbabilityConfig =
                 new StoneDropoutProbabilityConfig(builder);
@@ -194,9 +194,10 @@ public class StoneDropoutProbabilityConfig {
     }
 
     public Optional<Item> dropStone(DropTypeEnum dropTypeEnum, Object key) {
-        Map<?, Double> probabilities = getStoneDropOutProbabilities(dropTypeEnum);
+        Map<?, Double> probabilities = getEntityStoneDropOutProbabilities(dropTypeEnum);
         Double probability =
-                probabilities.getOrDefault(key, defaultProbabilities.get(dropTypeEnum).get());
+                probabilities.getOrDefault(key, defaultProbabilities.get(dropTypeEnum).get())
+                        * totalRate.get();
 
         double v = ThreadLocalRandom.current().nextDouble();
         if (v <= probability) {
@@ -229,14 +230,15 @@ public class StoneDropoutProbabilityConfig {
 
     public Double getStoneDropOutProbability(
             IntensifyStoneType intensifyStone, DropTypeEnum dropTypeEnum, Object key) {
-        Map<?, Double> probabilities = getStoneDropOutProbabilities(dropTypeEnum);
+        Map<?, Double> probabilities = getEntityStoneDropOutProbabilities(dropTypeEnum);
         Double stoneRate = this.stoneRate.get(intensifyStone).get();
         Double stoneDropProperties =
-                probabilities.getOrDefault(key, defaultProbabilities.get(dropTypeEnum).get());
+                probabilities.getOrDefault(key, defaultProbabilities.get(dropTypeEnum).get())
+                        * totalRate.get();
         return stoneDropProperties * stoneRate;
     }
 
-    private Map<?, Double> getStoneDropOutProbabilities(DropTypeEnum dropTypeEnum) {
+    private Map<?, Double> getEntityStoneDropOutProbabilities(DropTypeEnum dropTypeEnum) {
         Map<String, ForgeConfigSpec.ConfigValue<Double>> mineralBlocksProbability =
                 stoneDropProbability.get(dropTypeEnum);
         Map<Object, Double> stoneDropoutProbability = new HashMap<>();
@@ -254,8 +256,7 @@ public class StoneDropoutProbabilityConfig {
             } else {
                 throw new RuntimeException("No such drop type");
             }
-            stoneDropoutProbability.put(
-                    value, blockNameWithProbability.getValue().get() * totalRate.get());
+            stoneDropoutProbability.put(value, blockNameWithProbability.getValue().get());
         }
         return stoneDropoutProbability;
     }
@@ -305,11 +306,11 @@ public class StoneDropoutProbabilityConfig {
         builder.push("defaults");
         defaultProbabilities = new HashMap<>();
         ForgeConfigSpec.ConfigValue<Double> defaultFishing =
-                builder.define(DropTypeEnum.FISHING.getIdentify(), 0.06);
+                builder.define(DropTypeEnum.FISHING.getIdentify(), 0.045);
         ForgeConfigSpec.ConfigValue<Double> defaultMineralBlockDestroyed =
                 builder.define(DropTypeEnum.MINERAL_BLOCK_DESTROYED.getIdentify(), 0.0);
         ForgeConfigSpec.ConfigValue<Double> defaultMobKilled =
-                builder.define(DropTypeEnum.MOB_KILLED.getIdentify(), 0.02);
+                builder.define(DropTypeEnum.MOB_KILLED.getIdentify(), 0.015);
 
         defaultProbabilities.put(DropTypeEnum.FISHING, defaultFishing);
         defaultProbabilities.put(
@@ -322,8 +323,24 @@ public class StoneDropoutProbabilityConfig {
 
     private void configureMob(ForgeConfigSpec.Builder builder) {
         builder.push(DropTypeEnum.MOB_KILLED.getIdentify());
+        HashMap<String, Double> mobsProbability = new HashMap<>();
+        mobsProbability.put(getRegistryName(EntityType.WITHER), 10.0);
+        mobsProbability.put(getRegistryName(EntityType.ENDER_DRAGON), 100.0);
+        mobsProbability.put(getRegistryName(EntityType.SKELETON_HORSE), 0.8);
+        mobsProbability.put(getRegistryName(EntityType.ZOMBIE_HORSE), 0.8);
+        mobsProbability.put(getRegistryName(EntityType.IRON_GOLEM), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.DOLPHIN), 0.08);
+        mobsProbability.put(getRegistryName(EntityType.GUARDIAN), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.ELDER_GUARDIAN), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.PARROT), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.FOX), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.PANDA), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.POLAR_BEAR), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.ALLAY), 0.05);
+        mobsProbability.put(getRegistryName(EntityType.SLIME), 0.02);
+        mobsProbability.put(getRegistryName(EntityType.WARDEN), 0.4);
         Map<String, ForgeConfigSpec.ConfigValue<Double>> mobProbability =
-                createProbabilityConfig(builder, Map.of(getRegistryName(EntityType.ZOMBIE), 0.02));
+                createProbabilityConfig(builder, mobsProbability);
         stoneDropProbability.put(DropTypeEnum.MOB_KILLED, mobProbability);
         builder.pop();
     }
@@ -334,10 +351,10 @@ public class StoneDropoutProbabilityConfig {
                 createProbabilityConfig(
                         builder,
                         Map.of(
-                                getRegistryName(Items.COD), 0.01,
-                                getRegistryName(Items.SALMON), 0.02,
-                                getRegistryName(Items.TROPICAL_FISH), 0.1,
-                                getRegistryName(Items.PUFFERFISH), 0.04));
+                                getRegistryName(Items.COD), 0.02,
+                                getRegistryName(Items.SALMON), 0.04,
+                                getRegistryName(Items.TROPICAL_FISH), 0.2,
+                                getRegistryName(Items.PUFFERFISH), 0.08));
         stoneDropProbability.put(DropTypeEnum.FISHING, fishProbability);
         builder.pop();
     }

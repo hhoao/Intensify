@@ -168,9 +168,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
-import org.hhoa.mc.intensify.config.Config;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
+import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
 import org.hhoa.mc.intensify.util.PlayerUtils;
@@ -206,7 +206,8 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
 
         double totalProbability = currentBaseProbability + failCount * probabilityIncreaseOnFailure;
 
-        return Math.min(totalProbability, maxSuccessProbability) * Config.UPGRADE_MULTIPLIER.get();
+        return Math.min(totalProbability, maxSuccessProbability)
+                * ConfigRegistry.UPGRADE_MULTIPLIER.get();
     }
 
     @Override
@@ -283,7 +284,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
     }
 
     private Double randomizeAndMultiply(Double value) {
-        value = value * Config.ATTRIBUTE_MULTIPLIER.get();
+        value = value * ConfigRegistry.ATTRIBUTE_MULTIPLIER.get();
         double lower = value * 0.1;
         double upper = value * (1 + 0.1);
         return ThreadLocalRandom.current().nextDouble(lower, upper);

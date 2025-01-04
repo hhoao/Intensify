@@ -4,7 +4,7 @@
       "advancement": {
         "parent": "minecraft:recipes/root",
         "criteria": {
-          "has_stone": {
+          "intensify:has_stone": {
             "conditions": {
               "items": [
                 {
@@ -20,7 +20,7 @@
         "display": {
           "announce_to_chat": true,
           "description": {
-            "translate": "advancement.intensify.eneng.description"
+            "translate": "advancement.intensify.eternal.description"
           },
           "frame": "task",
           "hidden": false,
@@ -29,12 +29,12 @@
           },
           "show_toast": true,
           "title": {
-            "translate": "advancement.intensify.eneng.title"
+            "translate": "advancement.intensify.eternal.title"
           }
         },
         "requirements": [
           [
-            "has_stone"
+            "intensify:has_stone"
           ]
         ],
         "sends_telemetry_event": false

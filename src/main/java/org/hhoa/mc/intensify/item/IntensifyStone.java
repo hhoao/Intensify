@@ -164,7 +164,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import org.hhoa.mc.intensify.config.Config;
+import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.jetbrains.annotations.Nullable;
 
@@ -180,7 +180,7 @@ public abstract class IntensifyStone extends Item {
 
     @Override
     public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
-        return Config.DEFAULT_INTENSIFY_STONE_BURN_TIME;
+        return IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME;
     }
 
     @Override

@@ -4,7 +4,7 @@
       "advancement": {
         "parent": "minecraft:recipes/root",
         "criteria": {
-          "has_stone": {
+          "intensify:has_stone": {
             "conditions": {
               "items": [
                 {
@@ -25,7 +25,7 @@
           "frame": "task",
           "hidden": false,
           "icon": {
-            "item": "minecraft:diamond"
+            "item": "minecraft:lapis_lazuli"
           },
           "show_toast": true,
           "title": {
@@ -34,7 +34,7 @@
         },
         "requirements": [
           [
-            "has_stone"
+            "intensify:has_stone"
           ]
         ],
         "sends_telemetry_event": false

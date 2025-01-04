@@ -187,6 +187,24 @@ public class TranslatableTexts {
             text("command.set.stone_dropout_rate");
     public static final TranslatableText SET_ATTRIBUTE_MULTIPLIER_TIP =
             text("command.set.attribute_multiplier");
+    public static final TranslatableText ADVANCEMENT_INTENSIFY_TITLE =
+            text("advancement.intensify.intensify.title");
+    public static final TranslatableText ADVANCEMENT_INTENSIFY_DESCRIPTION =
+            text("advancement.intensify.intensify.description");
+    public static TranslatableText ETERNAL_ADVANCEMENT_TITLE =
+            text("advancement.intensify.eternal.title");
+    public static TranslatableText ETERNAL_ADVANCEMENT_DESCRIPTION =
+            text("advancement.intensify.eternal.description");
+
+    public static final TranslatableText ADVANCEMENT_FIRST_ENENG_TITLE =
+            text("advancement.intensify.first_eneng.title");
+    public static final TranslatableText ADVANCEMENT_FIRST_ENENG_DESCRIPTION =
+            text("advancement.intensify.first_eneng.description");
+
+    public static final TranslatableText ADVANCEMENT_FIRST_STRENGTHENING_TITLE =
+            text("advancement.intensify.first_strengthening.title");
+    public static final TranslatableText ADVANCEMENT_FIRST_STRENGTHENING_DESCRIPTION =
+            text("advancement.intensify.first_strengthening.description");
 
     public static TranslatableText text(String string) {
         return new TranslatableText(string);

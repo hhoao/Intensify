@@ -165,10 +165,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import org.hhoa.mc.intensify.config.Config;
 import org.hhoa.mc.intensify.config.StoneDropoutProbabilityConfig;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
+import org.hhoa.mc.intensify.registry.ConfigRegistry;
 
 public class MineralDestructionLootCondition implements LootItemCondition {
     public static final String IDENTIFIER = "mineral_destruction";
@@ -182,7 +182,7 @@ public class MineralDestructionLootCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        StoneDropoutProbabilityConfig configValueMap = Config.getStoneDropoutProbabilityConfig();
+        StoneDropoutProbabilityConfig configValueMap = ConfigRegistry.stoneDropoutProbabilityConfig;
         BlockState blockState = lootContext.getParamOrNull(LootContextParams.BLOCK_STATE);
         if (blockState == null
                 || !lootContext.hasParam(LootContextParams.TOOL)

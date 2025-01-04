@@ -157,22 +157,25 @@ package org.hhoa.mc.intensify;
 import static org.hhoa.mc.intensify.Intensify.MODID;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import java.util.List;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
+import org.hhoa.mc.intensify.config.IntensifyConfig;
+import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
 import org.hhoa.mc.intensify.provider.IntensifyItemModelProvider;
 import org.hhoa.mc.intensify.provider.IntensifyLootModifierProvider;
+import org.hhoa.mc.intensify.provider.IntensifyLootTableProvider;
 import org.hhoa.mc.intensify.provider.IntensifyStoneRecipeProvider;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class IntensifyModEventHandler {
     @SubscribeEvent
     public void setup(FMLCommonSetupEvent event) {
-        ToolIntensifyConfig.initialize();
+        IntensifyConfig.initialize();
     }
 
     @SubscribeEvent
@@ -199,6 +202,20 @@ public class IntensifyModEventHandler {
                 .addProvider(
                         event.includeServer(),
                         new IntensifyStoneRecipeProvider(event.getGenerator().getPackOutput()));
+
+        event.getGenerator()
+                .addProvider(
+                        true,
+                        new IntensifyAdvancementProvider(
+                                event.getGenerator().getPackOutput(),
+                                event.getLookupProvider(),
+                                event.getExistingFileHelper(),
+                                List.of(
+                                        new IntensifyAdvancementProvider
+                                                .ModAdvancementGenerator())));
+        event.getGenerator()
+                .addProvider(
+                        true, new IntensifyLootTableProvider(event.getGenerator().getPackOutput()));
     }
 
     @SubscribeEvent

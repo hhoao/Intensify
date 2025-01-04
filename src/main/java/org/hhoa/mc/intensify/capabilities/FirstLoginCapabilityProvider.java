@@ -152,61 +152,41 @@
  * This Source Code Form is “Incompatible With Secondary Licenses”, as defined by the Mozilla Public License, v. 2.0.
  */
 
-package org.hhoa.mc.intensify.config;
+package org.hhoa.mc.intensify.capabilities;
 
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.commons.lang3.tuple.Pair;
-import org.hhoa.mc.intensify.core.DefaultEnengIntensifySystem;
-import org.hhoa.mc.intensify.core.DefaultEnhancementIntensifySystem;
-import org.hhoa.mc.intensify.core.EnengIntensifySystem;
-import org.hhoa.mc.intensify.core.EnhancementIntensifySystem;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.LazyOptional;
+import org.hhoa.mc.intensify.Intensify;
+import org.hhoa.mc.intensify.IntensifyForgeEventHandler;
 
-public class Config {
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    private static DefaultEnengIntensifySystem defaultEnengIntensifySystem;
-    private static DefaultEnhancementIntensifySystem defaultEnhancementIntensifySystem;
+public class FirstLoginCapabilityProvider
+        implements ICapabilityProvider, ICapabilitySerializable<CompoundTag> {
+    private final IFirstLoginCapability instance = new FirstLoginCapabilityImpl();
+    private final LazyOptional<IFirstLoginCapability> optional = LazyOptional.of(() -> instance);
 
-    public static final ForgeConfigSpec.ConfigValue<Double> UPGRADE_MULTIPLIER =
-            BUILDER.define("upgrade_multiplier", 1.0);
-
-    public static final ForgeConfigSpec.ConfigValue<Double> ATTRIBUTE_MULTIPLIER =
-            BUILDER.define("attribute_multiplier", 1.0);
-
-    static final ForgeConfigSpec SPEC = BUILDER.build();
-    private static StoneDropoutProbabilityConfig stoneDropoutProbabilityConfig;
-
-    public static final Integer DEFAULT_INTENSIFY_STONE_BURN_TIME =
-            AbstractFurnaceBlockEntity.BURN_TIME_STANDARD;
-
-    public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
-
-    public static StoneDropoutProbabilityConfig getStoneDropoutProbabilityConfig() {
-        return stoneDropoutProbabilityConfig;
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+        return cap == IntensifyForgeEventHandler.FIRST_LOGIN_CAPABILITY
+                ? optional.cast()
+                : LazyOptional.empty();
     }
 
-    public static EnengIntensifySystem getEnengIntensifySystem() {
-        return defaultEnengIntensifySystem;
+    @Override
+    public CompoundTag serializeNBT() {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean(Intensify.locationStr("has_logged_in"), instance.hasLoggedIn());
+        return tag;
     }
 
-    public static EnhancementIntensifySystem getEnhancementIntensifySystem() {
-        return defaultEnhancementIntensifySystem;
-    }
-
-    public static void initialize(FMLJavaModLoadingContext modLoadingContext) {
-        modLoadingContext.registerConfig(ModConfig.Type.COMMON, SPEC);
-        Pair<ForgeConfigSpec, StoneDropoutProbabilityConfig>
-                configSpecStoneDropoutProbabilityConfigPair =
-                        StoneDropoutProbabilityConfig.create();
-        modLoadingContext.registerConfig(
-                ModConfig.Type.COMMON,
-                configSpecStoneDropoutProbabilityConfigPair.getLeft(),
-                "probability.toml");
-        stoneDropoutProbabilityConfig = configSpecStoneDropoutProbabilityConfigPair.getRight();
-        defaultEnengIntensifySystem = new DefaultEnengIntensifySystem();
-        defaultEnhancementIntensifySystem =
-                new DefaultEnhancementIntensifySystem(1, 0.005, 1, 4, 10);
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+        instance.setHasLoggedIn(nbt.getBoolean(Intensify.locationStr("has_logged_in")));
     }
 }

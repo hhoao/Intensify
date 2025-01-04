@@ -1,0 +1,34 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "background": "minecraft:textures/block/furnace.png",
+    "description": {
+      "translate": "advancement.intensify.first_strengthening.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:furnace"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.intensify.first_strengthening.title"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "intensify:protection_stone"
+    ]
+  },
+  "sends_telemetry_event": true
+}

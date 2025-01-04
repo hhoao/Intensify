@@ -160,7 +160,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.hhoa.mc.intensify.config.Config;
+import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.core.EnhancementIntensifySystem;
 import org.hhoa.mc.intensify.recipes.IntensifyRecipe;
@@ -170,7 +170,7 @@ import org.hhoa.mc.intensify.registry.ItemRegistry;
 public class StrengtheningRecipe extends IntensifyRecipe {
     public static final IntensifyRecipeSerializer<StrengtheningRecipe> SERIALIZER =
             new IntensifyRecipeSerializer<>(
-                    StrengtheningRecipe::new, Config.DEFAULT_INTENSIFY_STONE_BURN_TIME);
+                    StrengtheningRecipe::new, IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME);
 
     public StrengtheningRecipe(
             ResourceLocation resourceLocation, float experience, int cookingTime) {
@@ -181,7 +181,7 @@ public class StrengtheningRecipe extends IntensifyRecipe {
     public boolean matchesInternal(Container container, Level level) {
         ItemStack toolItemStack = container.getItem(0);
 
-        return Config.getEnengIntensifySystem().isEneng(toolItemStack)
+        return IntensifyConfig.getEnengIntensifySystem().isEneng(toolItemStack)
                 && container.getItem(1).getItem() == ItemRegistry.STRENGTHENING_STONE.get();
     }
 
@@ -192,7 +192,7 @@ public class StrengtheningRecipe extends IntensifyRecipe {
             ToolIntensifyConfig toolItemIntensifyConfig,
             ServerPlayer player) {
         EnhancementIntensifySystem enhancementIntensifySystem =
-                Config.getEnhancementIntensifySystem();
+                IntensifyConfig.getEnhancementIntensifySystem();
         enhancementIntensifySystem.intensify(player, tool, toolItemIntensifyConfig);
     }
 

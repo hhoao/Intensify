@@ -170,28 +170,31 @@ public class IntensifyItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
+        String generatedItemId = "item/generated";
+        String layer0 = "layer0";
+        String itemPrefix = "item/";
         singleTexture(
                 ItemRegistry.STRENGTHENING_STONE.getId().toString(),
-                new ResourceLocation("item/generated"),
-                "layer0",
-                ForgeRegistries.ITEMS.getKey(Items.COAL).withPrefix("item/"));
+                new ResourceLocation(generatedItemId),
+                layer0,
+                ForgeRegistries.ITEMS.getKey(Items.COAL).withPrefix(itemPrefix));
 
         singleTexture(
                 ItemRegistry.ENENG_STONE.getId().toString(),
-                new ResourceLocation("item/generated"),
-                "layer0",
-                ForgeRegistries.ITEMS.getKey(Items.LAPIS_LAZULI).withPrefix("item/"));
+                new ResourceLocation(generatedItemId),
+                layer0,
+                ForgeRegistries.ITEMS.getKey(Items.LAPIS_LAZULI).withPrefix(itemPrefix));
 
         singleTexture(
                 ItemRegistry.PROTECTION_STONE.getId().toString(),
-                new ResourceLocation("item/generated"),
-                "layer0",
-                ForgeRegistries.ITEMS.getKey(Items.EMERALD).withPrefix("item/"));
+                new ResourceLocation(generatedItemId),
+                layer0,
+                ForgeRegistries.ITEMS.getKey(Items.EMERALD).withPrefix(itemPrefix));
 
         singleTexture(
                 ItemRegistry.ETERNAL_STONE.getId().toString(),
-                new ResourceLocation("item/generated"),
-                "layer0",
-                ForgeRegistries.ITEMS.getKey(Items.DIAMOND).withPrefix("item/"));
+                new ResourceLocation(generatedItemId),
+                layer0,
+                ForgeRegistries.ITEMS.getKey(Items.DIAMOND).withPrefix(itemPrefix));
     }
 }

@@ -158,111 +158,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.BowItem;
-import net.minecraft.world.item.CrossbowItem;
-import net.minecraft.world.item.ElytraItem;
-import net.minecraft.world.item.FishingRodItem;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.TridentItem;
 import org.hhoa.mc.intensify.util.TypeChecker;
 
 public class ToolIntensifyConfig {
-    public static final HashMap<String, Class<? extends Item>> TOOL_NAME_CLASS_MAPPING =
-            new HashMap<>();
-    public static final HashMap<String, ArmorItem.Type> ARMOR_NAME_CLASS_MAPPING = new HashMap<>();
-
-    static {
-        // tool
-        TOOL_NAME_CLASS_MAPPING.put("hoe", HoeItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("pickaxe", PickaxeItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("shovel", ShovelItem.class);
-
-        // tool and weapon
-        TOOL_NAME_CLASS_MAPPING.put("axe", AxeItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("elytra", ElytraItem.class);
-
-        // weapon
-        TOOL_NAME_CLASS_MAPPING.put("sword", SwordItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("bow", BowItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("shield", ShieldItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("fishing_rod", FishingRodItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("trident", TridentItem.class);
-
-        // armor
-        ARMOR_NAME_CLASS_MAPPING.put("leggings", ArmorItem.Type.LEGGINGS);
-        ARMOR_NAME_CLASS_MAPPING.put("boots", ArmorItem.Type.BOOTS);
-        ARMOR_NAME_CLASS_MAPPING.put("helmet", ArmorItem.Type.HELMET);
-        ARMOR_NAME_CLASS_MAPPING.put("chestplate", ArmorItem.Type.CHESTPLATE);
-    }
-
-    private static HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap;
-    private static List<ToolIntensifyConfig> toolIntensifyConfigs;
-    private static HashMap<Class<? extends Item>, ToolIntensifyConfig>
-            classToolIntensifyConfigHashMap;
     private String name;
     private boolean enable;
     private List<AttributeConfig> attributes = new ArrayList<>();
-
-    public static void initialize() {
-        toolIntensifyConfigs = ConfigLoader.loadToolIntensifyConfigFromDir("config/intensify");
-        classToolIntensifyConfigHashMap = new HashMap<>();
-        armorClassConfigMap = new HashMap<>();
-        for (ToolIntensifyConfig toolIntensifyConfig : toolIntensifyConfigs) {
-            if (toolIntensifyConfig.enable) {
-                Class<? extends Item> aClass =
-                        TOOL_NAME_CLASS_MAPPING.get(toolIntensifyConfig.name);
-                if (aClass == null) {
-                    ArmorItem.Type type = ARMOR_NAME_CLASS_MAPPING.get(toolIntensifyConfig.name);
-                    if (type == null) {
-                        throw new RuntimeException(toolIntensifyConfig.name);
-                    }
-                    armorClassConfigMap.put(type, toolIntensifyConfig);
-                } else {
-                    classToolIntensifyConfigHashMap.put(aClass, toolIntensifyConfig);
-                }
-            }
-        }
-    }
-
-    public static HashMap<Class<? extends Item>, ToolIntensifyConfig>
-            getToolWeaponClassConfigMap() {
-        return classToolIntensifyConfigHashMap;
-    }
-
-    public static HashMap<ArmorItem.Type, ToolIntensifyConfig> getArmorClassConfigMap() {
-        return armorClassConfigMap;
-    }
-
-    public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
-        HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap =
-                ToolIntensifyConfig.getArmorClassConfigMap();
-        if (item instanceof ArmorItem) {
-            ArmorItem armorItem = (ArmorItem) item;
-            return armorClassConfigMap.get(armorItem.getType());
-        } else {
-            HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap =
-                    ToolIntensifyConfig.getToolWeaponClassConfigMap();
-            for (Map.Entry<Class<? extends Item>, ToolIntensifyConfig>
-                    classToolIntensifyConfigEntry : configsMap.entrySet()) {
-                if (classToolIntensifyConfigEntry.getKey().isInstance(item)) {
-                    return classToolIntensifyConfigEntry.getValue();
-                }
-            }
-        }
-        return null;
-    }
 
     public boolean isEnable() {
         return enable;

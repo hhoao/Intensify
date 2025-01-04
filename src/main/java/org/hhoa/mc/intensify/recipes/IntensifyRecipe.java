@@ -169,6 +169,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.item.IntensifyStone;
@@ -224,7 +225,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
         ItemStack tool = container.getItem(0);
         Item toolItem = tool.getItem();
         ToolIntensifyConfig toolItemIntensifyConfig =
-                ToolIntensifyConfig.getToolIntensifyConfig(toolItem);
+                IntensifyConfig.getToolIntensifyConfig(toolItem);
         if (toolItemIntensifyConfig == null) {
             return false;
         }
@@ -269,7 +270,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
         boolean burningEnd = FurnaceHelper.isBurningEnd(furnaceBlock);
         if (burningEnd) {
             ToolIntensifyConfig toolItemIntensifyConfig =
-                    ToolIntensifyConfig.getToolIntensifyConfig(item.getItem());
+                    IntensifyConfig.getToolIntensifyConfig(item.getItem());
             String playerName =
                     furnaceBlock
                             .getPersistentData()

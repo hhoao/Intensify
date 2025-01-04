@@ -154,138 +154,73 @@
 
 package org.hhoa.mc.intensify.provider;
 
-import java.util.function.Consumer;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.FrameType;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.ResourceLocation;
+import java.util.concurrent.atomic.AtomicReference;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.CriterionProgress;
+import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-import net.minecraftforge.common.crafting.conditions.TrueCondition;
-import org.hhoa.mc.intensify.Intensify;
+import net.minecraft.world.item.Vanishable;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
-import org.hhoa.mc.intensify.config.TranslatableTexts;
-import org.hhoa.mc.intensify.item.IntensifyStoneType;
-import org.hhoa.mc.intensify.recipes.impl.CommonIntensifyRecipe;
-import org.hhoa.mc.intensify.recipes.impl.EnengRecipe;
-import org.hhoa.mc.intensify.recipes.impl.StrengtheningRecipe;
-import org.hhoa.mc.intensify.registry.ItemRegistry;
+import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 
-public class IntensifyStoneRecipeProvider extends RecipeProvider {
-    public static final String HAS_STONE = Intensify.locationStr("has_stone");
-    public static final String HAS_TOOL = Intensify.locationStr("has_tool");
+public class CustomTriggerInstance extends InventoryChangeTrigger.TriggerInstance {
+    private final PlayerAdvancements advancements;
+    private final CriterionProgress criterionProgress;
+    private final AtomicReference<CriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>>
+            listenerAtomicReference;
 
-    public IntensifyStoneRecipeProvider(PackOutput p_248933_) {
-        super(p_248933_);
+    public CustomTriggerInstance(
+            MinMaxBounds.Ints p_286313_,
+            MinMaxBounds.Ints p_286767_,
+            MinMaxBounds.Ints p_286601_,
+            ItemPredicate[] p_286380_,
+            PlayerAdvancements advancements,
+            CriterionProgress criterionProgress,
+            AtomicReference<CriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>>
+                    listenerAtomicReference) {
+        super(ContextAwarePredicate.ANY, p_286313_, p_286767_, p_286601_, p_286380_);
+        this.advancements = advancements;
+        this.criterionProgress = criterionProgress;
+        this.listenerAtomicReference = listenerAtomicReference;
+    }
+
+    public CustomTriggerInstance(
+            PlayerAdvancements advancements,
+            CriterionProgress criterionProgress,
+            AtomicReference<CriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>>
+                    listenerAtomicReference) {
+        this(null, null, null, null, advancements, criterionProgress, listenerAtomicReference);
     }
 
     @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
-        ConditionalRecipe.builder()
-                .addCondition(TrueCondition.INSTANCE)
-                .addRecipe(
-                        IntensifyStoneRecipeBuilder.builder(
-                                                new ResourceLocation(
-                                                        Intensify.MODID,
-                                                        IntensifyStoneType.STRENGTHENING_STONE
-                                                                .getIdentifier()),
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
-                                                StrengtheningRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
-                                                        .display(
-                                                                new ItemStack(Items.COAL),
-                                                                TranslatableTexts
-                                                                        .STRENGTHENING_ADVANCEMENT_TITLE
-                                                                        .component(),
-                                                                TranslatableTexts
-                                                                        .STRENGTHENING_ADVANCEMENT_DESCRIPTION
-                                                                        .component(),
-                                                                null,
-                                                                FrameType.TASK,
-                                                                true,
-                                                                true,
-                                                                false))
-                                        .unlockedBy(
-                                                HAS_STONE,
-                                                has(ItemRegistry.STRENGTHENING_STONE.get()))
-                                ::save)
-                .generateAdvancement()
-                .build(
-                        consumer,
-                        new ResourceLocation(
-                                Intensify.MODID,
-                                IntensifyStoneType.STRENGTHENING_STONE.getIdentifier()));
-
-        ConditionalRecipe.builder()
-                .addCondition(TrueCondition.INSTANCE)
-                .addRecipe(
-                        IntensifyStoneRecipeBuilder.builder(
-                                                new ResourceLocation(
-                                                        Intensify.MODID,
-                                                        IntensifyStoneType.ENENG_STONE
-                                                                .getIdentifier()),
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
-                                                EnengRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
-                                                        .display(
-                                                                new ItemStack(Items.LAPIS_LAZULI),
-                                                                TranslatableTexts
-                                                                        .ENENG_ADVANCEMENT_TITLE
-                                                                        .component(),
-                                                                TranslatableTexts
-                                                                        .ENENG_ADVANCEMENT_DESCRIPTION
-                                                                        .component(),
-                                                                null,
-                                                                FrameType.TASK,
-                                                                true,
-                                                                true,
-                                                                false))
-                                        .unlockedBy(HAS_STONE, has(ItemRegistry.ENENG_STONE.get()))
-                                ::save)
-                .generateAdvancement()
-                .build(
-                        consumer,
-                        new ResourceLocation(
-                                Intensify.MODID, IntensifyStoneType.ENENG_STONE.getIdentifier()));
-
-        ConditionalRecipe.builder()
-                .addCondition(TrueCondition.INSTANCE)
-                .addRecipe(
-                        IntensifyStoneRecipeBuilder.builder(
-                                                new ResourceLocation(
-                                                        Intensify.MODID,
-                                                        IntensifyStoneType.INTENSIFY_STONE
-                                                                .getIdentifier()),
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
-                                                IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
-                                                CommonIntensifyRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
-                                                        .display(
-                                                                new ItemStack(Items.DIAMOND),
-                                                                TranslatableTexts
-                                                                        .ETERNAL_ADVANCEMENT_TITLE
-                                                                        .component(),
-                                                                TranslatableTexts
-                                                                        .ETERNAL_ADVANCEMENT_DESCRIPTION
-                                                                        .component(),
-                                                                null,
-                                                                FrameType.TASK,
-                                                                true,
-                                                                true,
-                                                                false))
-                                        .unlockedBy(
-                                                HAS_STONE, has(ItemRegistry.ETERNAL_STONE.get()))
-                                ::save)
-                .generateAdvancement()
-                .build(
-                        consumer,
-                        new ResourceLocation(
-                                Intensify.MODID,
-                                IntensifyStoneType.INTENSIFY_STONE.getIdentifier()));
+    public boolean matches(
+            Inventory inventory, ItemStack itemStack, int p_43189_, int p_43190_, int p_43191_) {
+        if (advancements != null
+                && listenerAtomicReference.get() != null
+                && criterionProgress.isDone()) {
+            CriteriaTriggers.INVENTORY_CHANGED.removePlayerListener(
+                    advancements, listenerAtomicReference.get());
+            listenerAtomicReference.set(null);
+        } else {
+            Item item = itemStack.getItem();
+            if (item instanceof ArmorItem) {
+                ToolIntensifyConfig toolIntensifyConfig =
+                        IntensifyConfig.getArmorClassConfigMap().get(((ArmorItem) item).getType());
+                return toolIntensifyConfig != null;
+            } else if (item instanceof Vanishable) {
+                ToolIntensifyConfig toolIntensifyConfig =
+                        IntensifyConfig.getToolWeaponClassConfigMap().get(item.getClass());
+                return toolIntensifyConfig != null;
+            }
+        }
+        return false;
     }
 }
