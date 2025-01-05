@@ -169,7 +169,6 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeAdvancementProvider;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
-import org.hhoa.mc.intensify.item.IntensifyStoneType;
 
 public class IntensifyAdvancementProvider extends ForgeAdvancementProvider {
     public static final ResourceLocation INTENSIFY_ADVANCEMENT_ID =
@@ -217,10 +216,7 @@ public class IntensifyAdvancementProvider extends ForgeAdvancementProvider {
                             .addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
                             .rewards(
                                     AdvancementRewards.Builder.loot(
-                                            new ResourceLocation(
-                                                    Intensify.MODID,
-                                                    IntensifyStoneType.ENENG_STONE
-                                                            .getIdentifier())))
+                                            IntensifyLootTableProvider.ENENG_STONE_LOOT_TABLE_ID))
                             .save(consumer, INTENSIFY_ADVANCEMENT_ID.toString());
 
             Advancement enengAdvancement =
@@ -239,10 +235,8 @@ public class IntensifyAdvancementProvider extends ForgeAdvancementProvider {
                             .addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
                             .rewards(
                                     AdvancementRewards.Builder.loot(
-                                            new ResourceLocation(
-                                                    Intensify.MODID,
-                                                    IntensifyStoneType.STRENGTHENING_STONE
-                                                            .getIdentifier())))
+                                            IntensifyLootTableProvider
+                                                    .STRENGTHENING_STONE_LOOT_TABLE_ID))
                             .save(consumer, FIRST_ENENG_ADVANCEMENT_ID.toString());
 
             Advancement firstStrnengtheningAdvancement =
@@ -262,10 +256,8 @@ public class IntensifyAdvancementProvider extends ForgeAdvancementProvider {
                             .addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
                             .rewards(
                                     AdvancementRewards.Builder.loot(
-                                            new ResourceLocation(
-                                                    Intensify.MODID,
-                                                    IntensifyStoneType.PROTECTION_STONE
-                                                            .getIdentifier())))
+                                            IntensifyLootTableProvider
+                                                    .PROTECTION_STONE_LOOT_TABLE_ID))
                             .save(consumer, FIRST_STRENGTHENING_ADVANCEMENT_ID.toString());
         }
     }

@@ -190,7 +190,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
 
     @Override
     public ItemStack getResultItem(RegistryAccess p_266851_) {
-        return new ItemStack(Items.AIR);
+        return new ItemStack(Items.FURNACE);
     }
 
     public IntensifyRecipe(ResourceLocation resourceLocation, float experience, int cookingTime) {
