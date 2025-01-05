@@ -155,8 +155,8 @@
 package org.hhoa.mc.intensify.registry;
 
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hhoa.mc.intensify.config.StoneDropoutProbabilityConfig;
 
@@ -176,7 +176,7 @@ public class ConfigRegistry {
     public static final StoneDropoutProbabilityConfig stoneDropoutProbabilityConfig =
             configSpecStoneDropoutProbabilityConfigPair.getRight();
 
-    public static void initialize(FMLJavaModLoadingContext modLoadingContext) {
+    public static void initialize(ModLoadingContext modLoadingContext) {
         modLoadingContext.registerConfig(ModConfig.Type.COMMON, SPEC);
         modLoadingContext.registerConfig(
                 ModConfig.Type.COMMON,
