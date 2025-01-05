@@ -201,7 +201,7 @@ public abstract class IntensifyStone extends Item {
                 if (description instanceof MutableComponent) {
                     Style style = description.getStyle().withColor(ChatFormatting.DARK_PURPLE);
                     ((MutableComponent) description).setStyle(style);
-                    components.addAll(descriptions);
+                    components.add(description);
                 }
             }
         }

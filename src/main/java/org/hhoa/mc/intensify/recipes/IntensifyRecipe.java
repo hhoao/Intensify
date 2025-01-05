@@ -161,6 +161,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -185,6 +186,11 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
             float experience,
             int cookingTime) {
         super(resourceLocation, group, category, ingredient, itemStack, experience, cookingTime);
+    }
+
+    @Override
+    public ItemStack getResultItem(RegistryAccess p_266851_) {
+        return new ItemStack(Items.AIR);
     }
 
     public IntensifyRecipe(ResourceLocation resourceLocation, float experience, int cookingTime) {

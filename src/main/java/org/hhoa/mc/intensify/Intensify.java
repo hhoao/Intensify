@@ -158,6 +158,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
@@ -181,14 +182,16 @@ public class Intensify {
         return new ResourceLocation(MODID, path).toString();
     }
 
-    public Intensify(FMLJavaModLoadingContext fmlJavaModLoadingContext) {
+    public Intensify() {
+        FMLJavaModLoadingContext fmlJavaModLoadingContext = FMLJavaModLoadingContext.get();
+        ModLoadingContext modLoadingContext = ModLoadingContext.get();
         LOGGER.info("Intensify enable");
         IEventBus modEventBus = fmlJavaModLoadingContext.getModEventBus();
         IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
 
         modEventBus.register(new IntensifyModEventHandler());
         forgeEventBus.register(new IntensifyForgeEventHandler());
-        ConfigRegistry.initialize(fmlJavaModLoadingContext);
+        ConfigRegistry.initialize(modLoadingContext);
         ItemRegistry.initialize(modEventBus);
         RecipeRegistry.initialize(modEventBus);
         LootRegistry.initialize(modEventBus);

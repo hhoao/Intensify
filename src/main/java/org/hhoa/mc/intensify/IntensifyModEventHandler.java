@@ -220,7 +220,7 @@ public class IntensifyModEventHandler {
 
     @SubscribeEvent
     public void onRegisterCreativeTabs(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(ItemRegistry.STRENGTHENING_STONE);
             event.accept(ItemRegistry.ENENG_STONE);
             event.accept(ItemRegistry.PROTECTION_STONE);
