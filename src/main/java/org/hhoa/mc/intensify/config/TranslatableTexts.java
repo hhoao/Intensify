@@ -166,6 +166,8 @@ public class TranslatableTexts {
 
     public static final TranslatableText STRENGTHENING_STONE_DESCRIPTION =
             text("item.intensify.strengthening_stone.description");
+    public static final TranslatableText STRENGTHENING_STONE_DESCRIPTION_TIP =
+            text("item.intensify.strengthening_stone.description.tip");
     public static final TranslatableText ENENG_STONE_DESCRIPTION =
             text("item.intensify.eneng_stone.description");
     public static final TranslatableText PROTECTION_STONE_DESCRIPTION =

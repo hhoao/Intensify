@@ -195,9 +195,15 @@ public abstract class IntensifyStone extends Item {
             Style newStyle = component.getStyle().withColor(getNameColor());
             mutableComponent.setStyle(newStyle);
         }
-        Component description = getDescriptionText();
-        if (description != null) {
-            components.add(description);
+        List<Component> descriptions = getDescriptionTexts();
+        if (descriptions != null) {
+            for (Component description : descriptions) {
+                if (description instanceof MutableComponent) {
+                    Style style = description.getStyle().withColor(ChatFormatting.DARK_PURPLE);
+                    ((MutableComponent) description).setStyle(style);
+                    components.addAll(descriptions);
+                }
+            }
         }
         components.add(TranslatableTexts.INTENSIFY_ITEM_TIP.component());
         super.appendHoverText(itemStack, level, components, tooltipFlag);
@@ -205,7 +211,7 @@ public abstract class IntensifyStone extends Item {
 
     public abstract ChatFormatting getNameColor();
 
-    public abstract Component getDescriptionText();
+    public abstract List<Component> getDescriptionTexts();
 
     public abstract IntensifyStoneType getIdentifier();
 }

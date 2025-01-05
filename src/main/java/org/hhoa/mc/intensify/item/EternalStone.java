@@ -154,6 +154,7 @@
 
 package org.hhoa.mc.intensify.item;
 
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
@@ -169,8 +170,8 @@ public class EternalStone extends IntensifyStone {
     }
 
     @Override
-    public Component getDescriptionText() {
-        return TranslatableTexts.ETERNAL_STONE_DESCRIPTION.component();
+    public List<Component> getDescriptionTexts() {
+        return List.of(TranslatableTexts.ETERNAL_STONE_DESCRIPTION.component());
     }
 
     @Override

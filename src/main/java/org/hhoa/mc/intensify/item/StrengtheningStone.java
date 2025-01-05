@@ -154,6 +154,8 @@
 
 package org.hhoa.mc.intensify.item;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
@@ -169,8 +171,11 @@ public class StrengtheningStone extends IntensifyStone {
     }
 
     @Override
-    public Component getDescriptionText() {
-        return TranslatableTexts.STRENGTHENING_STONE_DESCRIPTION.component();
+    public List<Component> getDescriptionTexts() {
+        ArrayList<Component> components = new ArrayList<>();
+        components.add(TranslatableTexts.STRENGTHENING_STONE_DESCRIPTION.component());
+        components.add(TranslatableTexts.STRENGTHENING_STONE_DESCRIPTION_TIP.component());
+        return components;
     }
 
     @Override

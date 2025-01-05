@@ -154,6 +154,7 @@
 
 package org.hhoa.mc.intensify.item;
 
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
@@ -165,12 +166,12 @@ public class EnengStone extends IntensifyStone {
 
     @Override
     public ChatFormatting getNameColor() {
-        return ChatFormatting.BLUE;
+        return ChatFormatting.AQUA;
     }
 
     @Override
-    public Component getDescriptionText() {
-        return TranslatableTexts.ENENG_STONE_DESCRIPTION.component();
+    public List<Component> getDescriptionTexts() {
+        return List.of(TranslatableTexts.ENENG_STONE_DESCRIPTION.component());
     }
 
     @Override
