@@ -53,3 +53,13 @@ chestplate:
         - type: proportional
           range: [6, -1]
           value: 0.05
+    # 脱离战斗生命恢复
+    - type: ghost_health
+      eneng:
+        enable: true
+        value: [ 0.4, 0.6 ]
+      grows:
+        - type: fixed
+          range: [ 1, -1 ]
+          speed: 1
+          value: 0.2
