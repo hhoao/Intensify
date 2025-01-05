@@ -154,56 +154,21 @@
 
 package org.hhoa.mc.intensify.util;
 
-import java.lang.reflect.Field;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 
 public class FurnaceHelper {
-    private static final Field COOKING_PROGRESS_FIELD;
-    private static final Field COOKING_TOTAL_TIME_FIELD;
-
-    private static final Field LIT_TIME_FIELD;
-
-    static {
-        try {
-            COOKING_PROGRESS_FIELD =
-                    AbstractFurnaceBlockEntity.class.getDeclaredField("cookingProgress");
-            COOKING_PROGRESS_FIELD.setAccessible(true);
-
-            COOKING_TOTAL_TIME_FIELD =
-                    AbstractFurnaceBlockEntity.class.getDeclaredField("cookingTotalTime");
-            COOKING_TOTAL_TIME_FIELD.setAccessible(true);
-
-            LIT_TIME_FIELD = AbstractFurnaceBlockEntity.class.getDeclaredField("litTime");
-            LIT_TIME_FIELD.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException("Failed to access furnace fields", e);
-        }
-    }
-
     public static int getCookingProgress(AbstractFurnaceBlockEntity furnace) {
-        try {
-            return COOKING_PROGRESS_FIELD.getInt(furnace);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to read cooking progress", e);
-        }
+        return furnace.cookingProgress;
     }
 
     public static int getLitTime(AbstractFurnaceBlockEntity furnace) {
-        try {
-            return LIT_TIME_FIELD.getInt(furnace);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to read cooking total time", e);
-        }
+        return furnace.litTime;
     }
 
     public static int getCookingTotalTime(AbstractFurnaceBlockEntity furnace) {
-        try {
-            return COOKING_TOTAL_TIME_FIELD.getInt(furnace);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to read cooking total time", e);
-        }
+        return furnace.cookingTotalTime;
     }
 
     public static boolean isBurningEnd(FurnaceBlockEntity furnaceBlockEntity) {
