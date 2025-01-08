@@ -157,7 +157,7 @@ package org.hhoa.mc.intensify.provider;
 import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -178,12 +178,12 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
     public static final String HAS_STONE = Intensify.locationStr("has_stone");
     public static final String HAS_TOOL = Intensify.locationStr("has_tool");
 
-    public IntensifyStoneRecipeProvider(PackOutput p_248933_) {
+    public IntensifyStoneRecipeProvider(DataGenerator p_248933_) {
         super(p_248933_);
     }
 
     @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
         ConditionalRecipe.builder()
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
@@ -195,7 +195,7 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 StrengtheningRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
+                                                Advancement.Builder.advancement()
                                                         .display(
                                                                 new ItemStack(Items.COAL),
                                                                 TranslatableTexts
@@ -231,7 +231,7 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 EnengRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
+                                                Advancement.Builder.advancement()
                                                         .display(
                                                                 new ItemStack(Items.LAPIS_LAZULI),
                                                                 TranslatableTexts
@@ -264,7 +264,7 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 CommonIntensifyRecipe.SERIALIZER,
-                                                Advancement.Builder.recipeAdvancement()
+                                                Advancement.Builder.advancement()
                                                         .display(
                                                                 new ItemStack(Items.DIAMOND),
                                                                 TranslatableTexts

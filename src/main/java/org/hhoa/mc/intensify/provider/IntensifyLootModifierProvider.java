@@ -154,7 +154,7 @@
 
 package org.hhoa.mc.intensify.provider;
 
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
@@ -163,7 +163,7 @@ import org.hhoa.mc.intensify.loot.MineralDestructionLootCondition;
 import org.jetbrains.annotations.NotNull;
 
 public class IntensifyLootModifierProvider extends GlobalLootModifierProvider {
-    public IntensifyLootModifierProvider(PackOutput output, String modid) {
+    public IntensifyLootModifierProvider(DataGenerator output, String modid) {
         super(output, modid);
     }
 
@@ -183,7 +183,10 @@ public class IntensifyLootModifierProvider extends GlobalLootModifierProvider {
                         new LootItemCondition[] {blockMiningLootCondition},
                         strengtheningStone.getIdentifier());
 
-        add(strengtheningStone.getIdentifier(), strengtheningStoneLootModifier);
+        add(
+                strengtheningStone.getIdentifier(),
+                IntensifyStoneLootModifier.SERIALIZER,
+                strengtheningStoneLootModifier);
     }
 
     private static @NotNull MineralDestructionLootCondition getMineralDestructionLootCondition(

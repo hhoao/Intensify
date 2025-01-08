@@ -159,15 +159,19 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import org.hhoa.mc.intensify.Intensify;
+import org.jetbrains.annotations.Nullable;
 
 public class IntensifyRecipeSerializer<T extends IntensifyRecipe> implements RecipeSerializer<T> {
     private final int defaultCookingTime;
     private final IntensifyRecipeSerializer.CookieBaker<T> factory;
+    private ResourceLocation registryName;
 
     public IntensifyRecipeSerializer(
             IntensifyRecipeSerializer.CookieBaker<T> cookieBaker, int cookingTime) {
         this.defaultCookingTime = cookingTime;
         this.factory = cookieBaker;
+        this.registryName = new ResourceLocation(Intensify.MODID, "intensify_recipe_serializer");
     }
 
     @Override
@@ -188,6 +192,22 @@ public class IntensifyRecipeSerializer<T extends IntensifyRecipe> implements Rec
     public void toNetwork(FriendlyByteBuf byteBuf, IntensifyRecipe recipe) {
         byteBuf.writeFloat(recipe.getExperience());
         byteBuf.writeVarInt(recipe.getCookingTime());
+    }
+
+    @Override
+    public RecipeSerializer<?> setRegistryName(ResourceLocation name) {
+        this.registryName = name;
+        return this;
+    }
+
+    @Override
+    public @Nullable ResourceLocation getRegistryName() {
+        return this.registryName;
+    }
+
+    @Override
+    public Class<RecipeSerializer<?>> getRegistryType() {
+        return null;
     }
 
     public interface CookieBaker<T extends IntensifyRecipe> {

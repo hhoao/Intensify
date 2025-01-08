@@ -154,7 +154,6 @@
 
 package org.hhoa.mc.intensify.recipes;
 
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -162,7 +161,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
@@ -180,21 +178,20 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     private IntensifyRecipe(
             ResourceLocation resourceLocation,
             String group,
-            CookingBookCategory category,
             Ingredient ingredient,
             ItemStack itemStack,
             float experience,
             int cookingTime) {
-        super(resourceLocation, group, category, ingredient, itemStack, experience, cookingTime);
+        super(resourceLocation, group, ingredient, itemStack, experience, cookingTime);
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess p_266851_) {
+    public ItemStack getResultItem() {
         return new ItemStack(Items.FURNACE);
     }
 
     public IntensifyRecipe(ResourceLocation resourceLocation, float experience, int cookingTime) {
-        this(resourceLocation, null, null, null, null, experience, cookingTime);
+        this(resourceLocation, null, null, null, experience, cookingTime);
     }
 
     public abstract boolean matchesInternal(Container container, Level level);
@@ -246,7 +243,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
             }
 
             boolean matches = matchesInternal(container, level);
-            CompoundTag persistentData = furnaceBlockEntity.getPersistentData();
+            CompoundTag persistentData = furnaceBlockEntity.getTileData();
             if (matches) {
                 persistentData.putString(
                         IntensifyConstants.LAST_RECIPE_TAG_ID, this.getId().toString());
@@ -256,7 +253,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
 
             return matches;
         } else {
-            CompoundTag persistentData = furnaceBlockEntity.getPersistentData();
+            CompoundTag persistentData = furnaceBlockEntity.getTileData();
             String lastRecipeTagId =
                     persistentData.getString(IntensifyConstants.LAST_RECIPE_TAG_ID);
             return this.getId().toString().equals(lastRecipeTagId);
@@ -264,13 +261,10 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     }
 
     public abstract void intensify(
-            ItemStack tool,
-            RegistryAccess registryAccess,
-            ToolIntensifyConfig toolItemIntensifyConfig,
-            ServerPlayer player);
+            ItemStack tool, ToolIntensifyConfig toolItemIntensifyConfig, ServerPlayer player);
 
     @Override
-    public ItemStack assemble(Container container, RegistryAccess registryAccess) {
+    public ItemStack assemble(Container container) {
         ItemStack item = container.getItem(0);
         FurnaceBlockEntity furnaceBlock = (FurnaceBlockEntity) container;
         boolean burningEnd = FurnaceHelper.isBurningEnd(furnaceBlock);
@@ -278,15 +272,13 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
             ToolIntensifyConfig toolItemIntensifyConfig =
                     IntensifyConfig.getToolIntensifyConfig(item.getItem());
             String playerName =
-                    furnaceBlock
-                            .getPersistentData()
-                            .getString(IntensifyConstants.FURNACE_OWNER_TAG_ID);
+                    furnaceBlock.getTileData().getString(IntensifyConstants.FURNACE_OWNER_TAG_ID);
             ServerPlayer player =
                     ServerLifecycleHooks.getCurrentServer()
                             .getPlayerList()
                             .getPlayerByName(playerName);
             ItemStack copy = item.copy();
-            intensify(copy, registryAccess, toolItemIntensifyConfig, player);
+            intensify(copy, toolItemIntensifyConfig, player);
             return copy;
         }
         return item;

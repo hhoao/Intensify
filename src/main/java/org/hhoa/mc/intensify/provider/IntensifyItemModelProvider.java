@@ -154,7 +154,7 @@
 
 package org.hhoa.mc.intensify.provider;
 
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
@@ -164,7 +164,7 @@ import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class IntensifyItemModelProvider extends ItemModelProvider {
     public IntensifyItemModelProvider(
-            PackOutput output, String modid, ExistingFileHelper existingFileHelper) {
+            DataGenerator output, String modid, ExistingFileHelper existingFileHelper) {
         super(output, modid, existingFileHelper);
     }
 
@@ -172,29 +172,32 @@ public class IntensifyItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         String generatedItemId = "item/generated";
         String layer0 = "layer0";
-        String itemPrefix = "item/";
         singleTexture(
                 ItemRegistry.STRENGTHENING_STONE.getId().toString(),
                 new ResourceLocation(generatedItemId),
                 layer0,
-                ForgeRegistries.ITEMS.getKey(Items.COAL).withPrefix(itemPrefix));
+                withItemPrefix(ForgeRegistries.ITEMS.getKey(Items.COAL)));
 
         singleTexture(
                 ItemRegistry.ENENG_STONE.getId().toString(),
                 new ResourceLocation(generatedItemId),
                 layer0,
-                ForgeRegistries.ITEMS.getKey(Items.LAPIS_LAZULI).withPrefix(itemPrefix));
+                withItemPrefix(ForgeRegistries.ITEMS.getKey(Items.LAPIS_LAZULI)));
 
         singleTexture(
                 ItemRegistry.PROTECTION_STONE.getId().toString(),
                 new ResourceLocation(generatedItemId),
                 layer0,
-                ForgeRegistries.ITEMS.getKey(Items.EMERALD).withPrefix(itemPrefix));
+                withItemPrefix(ForgeRegistries.ITEMS.getKey(Items.EMERALD)));
 
         singleTexture(
                 ItemRegistry.ETERNAL_STONE.getId().toString(),
                 new ResourceLocation(generatedItemId),
                 layer0,
-                ForgeRegistries.ITEMS.getKey(Items.DIAMOND).withPrefix(itemPrefix));
+                withItemPrefix(ForgeRegistries.ITEMS.getKey(Items.DIAMOND)));
+    }
+
+    private ResourceLocation withItemPrefix(ResourceLocation location) {
+        return new ResourceLocation(location.getNamespace(), "item/" + location.getPath());
     }
 }

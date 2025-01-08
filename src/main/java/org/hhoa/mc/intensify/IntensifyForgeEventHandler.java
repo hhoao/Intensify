@@ -158,20 +158,16 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.CriterionProgress;
-import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
@@ -206,10 +202,7 @@ import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
-import org.hhoa.mc.intensify.item.IntensifyStoneType;
-import org.hhoa.mc.intensify.provider.CustomTriggerInstance;
 import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
-import org.hhoa.mc.intensify.provider.IntensifyStoneRecipeProvider;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.util.PlayerUtils;
 
@@ -221,10 +214,10 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getPos());
+        BlockEntity blockEntity = event.getWorld().getBlockEntity(event.getPos());
         if (blockEntity instanceof FurnaceBlockEntity) {
-            CompoundTag persistentData = blockEntity.getPersistentData();
-            Player player = event.getEntity();
+            CompoundTag persistentData = blockEntity.getTileData();
+            Player player = event.getPlayer();
             persistentData.putString(
                     IntensifyConstants.FURNACE_OWNER_TAG_ID, player.getName().getString());
         }
@@ -232,10 +225,9 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        Level level = event.getEntity().level();
-
-        if (!level.isClientSide) {
-            ServerPlayer player = (ServerPlayer) event.getEntity();
+        Player player = event.getPlayer();
+        if (player instanceof ServerPlayer) {
+            ServerPlayer serverPlayer = (ServerPlayer) player;
             LazyOptional<IFirstLoginCapability> capability =
                     player.getCapability(FIRST_LOGIN_CAPABILITY);
 
@@ -243,41 +235,12 @@ public class IntensifyForgeEventHandler {
                     cap -> {
                         if (!cap.hasLoggedIn()) {
                             completeAdvancement(
-                                    player.getAdvancements(),
-                                    player.getServer(),
+                                    serverPlayer.getAdvancements(),
+                                    serverPlayer.getServer(),
                                     IntensifyAdvancementProvider.INTENSIFY_ADVANCEMENT_ID);
                             cap.setHasLoggedIn(true);
                         }
                     });
-        }
-    }
-
-    private static void addAdvancementListener(ServerPlayer player, IntensifyStoneType type) {
-        Advancement advancement =
-                player.getServer()
-                        .getAdvancements()
-                        .getAdvancement(Intensify.location("recipes/" + type.getIdentifier()));
-        if (advancement != null) {
-            CriterionProgress criterion =
-                    player.getAdvancements()
-                            .getOrStartProgress(advancement)
-                            .getCriterion(IntensifyStoneRecipeProvider.HAS_STONE);
-            if (criterion != null && !criterion.isDone()) {
-                AtomicReference<CriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>>
-                        listenerAtomicReference = new AtomicReference<>();
-                CustomTriggerInstance customTriggerInstance =
-                        new CustomTriggerInstance(
-                                player.getAdvancements(), criterion, listenerAtomicReference);
-                CriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>
-                        customTriggerInstanceListener =
-                                new CriterionTrigger.Listener<>(
-                                        customTriggerInstance,
-                                        advancement,
-                                        IntensifyStoneRecipeProvider.HAS_TOOL);
-                listenerAtomicReference.set(customTriggerInstanceListener);
-                CriteriaTriggers.INVENTORY_CHANGED.addPlayerListener(
-                        player.getAdvancements(), customTriggerInstanceListener);
-            }
         }
     }
 
@@ -314,11 +277,10 @@ public class IntensifyForgeEventHandler {
                                                                             .set(rate);
                                                                     context.getSource()
                                                                             .sendSuccess(
-                                                                                    () ->
-                                                                                            TranslatableTexts
-                                                                                                    .SET_STONE_DROP_RATE_TIP
-                                                                                                    .component(
-                                                                                                            rate),
+                                                                                    TranslatableTexts
+                                                                                            .SET_STONE_DROP_RATE_TIP
+                                                                                            .component(
+                                                                                                    rate),
                                                                                     true);
                                                                     return 1;
                                                                 })))
@@ -342,11 +304,10 @@ public class IntensifyForgeEventHandler {
                                                                             .set(rate);
                                                                     context.getSource()
                                                                             .sendSuccess(
-                                                                                    () ->
-                                                                                            TranslatableTexts
-                                                                                                    .SET_UPGRADE_MULTIPLIER_TIP
-                                                                                                    .component(
-                                                                                                            rate),
+                                                                                    TranslatableTexts
+                                                                                            .SET_UPGRADE_MULTIPLIER_TIP
+                                                                                            .component(
+                                                                                                    rate),
                                                                                     true);
                                                                     return 1;
                                                                 })))
@@ -369,11 +330,10 @@ public class IntensifyForgeEventHandler {
                                                                             .set(rate);
                                                                     context.getSource()
                                                                             .sendSuccess(
-                                                                                    () ->
-                                                                                            TranslatableTexts
-                                                                                                    .SET_ATTRIBUTE_MULTIPLIER_TIP
-                                                                                                    .component(
-                                                                                                            rate),
+                                                                                    TranslatableTexts
+                                                                                            .SET_ATTRIBUTE_MULTIPLIER_TIP
+                                                                                            .component(
+                                                                                                    rate),
                                                                                     true);
                                                                     return 1;
                                                                 }))));
@@ -381,11 +341,10 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onItemFished(ItemFishedEvent event) {
-        Player player = event.getEntity();
-        Level world = player.level();
+        Player player = event.getPlayer();
 
-        if (!world.isClientSide) {
-            LivingEntity entity = event.getEntity();
+        if (player instanceof ServerPlayer) {
+            LivingEntity entity = event.getEntityLiving();
             Optional<Item> item =
                     ConfigRegistry.stoneDropoutProbabilityConfig.dropStone(
                             DropTypeEnum.FISHING, entity.getType());
@@ -418,10 +377,10 @@ public class IntensifyForgeEventHandler {
         Component component = toolTip.get(0);
         if (level > 0) {
             List<Component> siblings = component.getSiblings();
-            siblings.add(Component.literal("+" + level));
+            siblings.add(new TextComponent("+" + level));
         } else if (eneng) {
             List<Component> siblings = component.getSiblings();
-            siblings.add(Component.literal("*"));
+            siblings.add(new TextComponent("*"));
         }
         if (component instanceof MutableComponent) {
             MutableComponent mutableComponent = (MutableComponent) component;
@@ -445,8 +404,8 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onLivingDrops(LivingDropsEvent event) {
-        LivingEntity entity = event.getEntity();
-        Level level = entity.level();
+        LivingEntity entity = event.getEntityLiving();
+        Level level = entity.level;
 
         if (!level.isClientSide) {
             if (entity instanceof Mob && event.getSource().getEntity() instanceof Player) {
@@ -458,7 +417,7 @@ public class IntensifyForgeEventHandler {
                     ItemStack stoneItemStack = new ItemStack(stone);
                     ItemEntity itemEntity =
                             new ItemEntity(
-                                    entity.level(),
+                                    entity.level,
                                     entity.getX(),
                                     entity.getY(),
                                     entity.getZ(),
@@ -472,7 +431,7 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onItemSmelted(PlayerEvent.ItemSmeltedEvent event) {
-        Level level = event.getEntity().level();
+        Level level = event.getEntityLiving().level;
 
         if (level.isClientSide()) return;
         ServerPlayer player = (ServerPlayer) event.getEntity();

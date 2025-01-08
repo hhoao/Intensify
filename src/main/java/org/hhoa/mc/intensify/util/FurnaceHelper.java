@@ -174,7 +174,7 @@ public class FurnaceHelper {
     public static boolean isBurningEnd(FurnaceBlockEntity furnaceBlockEntity) {
         int cookingProgress = FurnaceHelper.getCookingProgress(furnaceBlockEntity);
         int cookingTotalTime = FurnaceHelper.getCookingTotalTime(furnaceBlockEntity);
-        CompoundTag persistentData = furnaceBlockEntity.getPersistentData();
+        CompoundTag persistentData = furnaceBlockEntity.getTileData();
         int phase = persistentData.getInt("phase");
         boolean burningEnd = false;
         if (cookingProgress == 0) {

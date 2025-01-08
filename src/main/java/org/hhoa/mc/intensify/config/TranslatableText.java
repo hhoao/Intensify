@@ -157,6 +157,7 @@ package org.hhoa.mc.intensify.config;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class TranslatableText {
     private final String key;
@@ -180,7 +181,7 @@ public class TranslatableText {
 
     public Component component(Object... args) {
         if (component == null) {
-            component = Component.translatable(key, args);
+            component = new TranslatableComponent(key, args);
         }
         return component;
     }

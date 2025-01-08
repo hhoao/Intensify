@@ -154,6 +154,7 @@
 
 package org.hhoa.mc.intensify.registry;
 
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -173,22 +174,28 @@ public class ItemRegistry {
     public static final RegistryObject<Item> STRENGTHENING_STONE =
             ITEMS.register(
                     IntensifyStoneType.STRENGTHENING_STONE.getIdentifier(),
-                    () -> new StrengtheningStone(new Item.Properties()));
+                    () ->
+                            new StrengtheningStone(
+                                    new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
 
     public static final RegistryObject<Item> ENENG_STONE =
             ITEMS.register(
                     IntensifyStoneType.ENENG_STONE.getIdentifier(),
-                    () -> new EnengStone(new Item.Properties()));
+                    () -> new EnengStone(new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
 
     public static final RegistryObject<Item> ETERNAL_STONE =
             ITEMS.register(
                     IntensifyStoneType.ETERNAL_STONE.getIdentifier(),
-                    () -> new EternalStone(new Item.Properties()));
+                    () ->
+                            new EternalStone(
+                                    new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
 
     public static final RegistryObject<Item> PROTECTION_STONE =
             ITEMS.register(
                     IntensifyStoneType.PROTECTION_STONE.getIdentifier(),
-                    () -> new ProtectionStone(new Item.Properties()));
+                    () ->
+                            new ProtectionStone(
+                                    new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
 
     public static void initialize(IEventBus iEventBus) {
         ITEMS.register(iEventBus);

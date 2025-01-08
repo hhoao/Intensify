@@ -154,7 +154,6 @@
 
 package org.hhoa.mc.intensify.recipes.impl;
 
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -187,10 +186,7 @@ public class StrengtheningRecipe extends IntensifyRecipe {
 
     @Override
     public void intensify(
-            ItemStack tool,
-            RegistryAccess registryAccess,
-            ToolIntensifyConfig toolItemIntensifyConfig,
-            ServerPlayer player) {
+            ItemStack tool, ToolIntensifyConfig toolItemIntensifyConfig, ServerPlayer player) {
         EnhancementIntensifySystem enhancementIntensifySystem =
                 IntensifyConfig.getEnhancementIntensifySystem();
         enhancementIntensifySystem.intensify(player, tool, toolItemIntensifyConfig);

@@ -155,7 +155,7 @@
 package org.hhoa.mc.intensify.config;
 
 import java.util.HashMap;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
@@ -176,7 +176,7 @@ public class IntensifyConstants {
 
     public static final HashMap<String, Class<? extends Item>> TOOL_NAME_CLASS_MAPPING =
             new HashMap<>();
-    public static final HashMap<String, ArmorItem.Type> ARMOR_NAME_CLASS_MAPPING = new HashMap<>();
+    public static final HashMap<String, EquipmentSlot> ARMOR_NAME_CLASS_MAPPING = new HashMap<>();
 
     static {
         // tool
@@ -199,9 +199,9 @@ public class IntensifyConstants {
         TOOL_NAME_CLASS_MAPPING.put("trident", TridentItem.class);
 
         // armor
-        ARMOR_NAME_CLASS_MAPPING.put("leggings", ArmorItem.Type.LEGGINGS);
-        ARMOR_NAME_CLASS_MAPPING.put("boots", ArmorItem.Type.BOOTS);
-        ARMOR_NAME_CLASS_MAPPING.put("helmet", ArmorItem.Type.HELMET);
-        ARMOR_NAME_CLASS_MAPPING.put("chestplate", ArmorItem.Type.CHESTPLATE);
+        ARMOR_NAME_CLASS_MAPPING.put("leggings", EquipmentSlot.LEGS);
+        ARMOR_NAME_CLASS_MAPPING.put("boots", EquipmentSlot.FEET);
+        ARMOR_NAME_CLASS_MAPPING.put("helmet", EquipmentSlot.HEAD);
+        ARMOR_NAME_CLASS_MAPPING.put("chestplate", EquipmentSlot.CHEST);
     }
 }

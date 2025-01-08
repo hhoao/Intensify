@@ -192,7 +192,7 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
         CompoundTag orCreateTag = itemStack.getOrCreateTag();
         orCreateTag.putBoolean(ENENGED_TAG_ID, true);
         if (player != null) {
-            player.sendSystemMessage(TranslatableTexts.ENENG_SUCCESS.component());
+            player.sendMessage(TranslatableTexts.ENENG_SUCCESS.component(), player.getUUID());
         }
     }
 

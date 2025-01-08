@@ -252,7 +252,7 @@ public class StoneDropoutProbabilityConfig {
             } else if (dropTypeEnum == DropTypeEnum.FISHING) {
                 value = ForgeRegistries.ITEMS.getValue(resourceLocation);
             } else if (dropTypeEnum == DropTypeEnum.MOB_KILLED) {
-                value = ForgeRegistries.ENTITY_TYPES.getValue(resourceLocation);
+                value = ForgeRegistries.ENTITIES.getValue(resourceLocation);
             } else {
                 throw new RuntimeException("No such drop type");
             }
@@ -336,9 +336,9 @@ public class StoneDropoutProbabilityConfig {
         mobsProbability.put(getRegistryName(EntityType.FOX), 0.05);
         mobsProbability.put(getRegistryName(EntityType.PANDA), 0.05);
         mobsProbability.put(getRegistryName(EntityType.POLAR_BEAR), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.ALLAY), 0.05);
+        //        mobsProbability.put(getRegistryName(EntityType.ALLAY), 0.05);
         mobsProbability.put(getRegistryName(EntityType.SLIME), 0.02);
-        mobsProbability.put(getRegistryName(EntityType.WARDEN), 0.4);
+        //        mobsProbability.put(getRegistryName(EntityType.WARDEN), 0.4);
         Map<String, ForgeConfigSpec.ConfigValue<Double>> mobProbability =
                 createProbabilityConfig(builder, mobsProbability);
         stoneDropProbability.put(DropTypeEnum.MOB_KILLED, mobProbability);
@@ -416,7 +416,7 @@ public class StoneDropoutProbabilityConfig {
         } else if (registryObject instanceof net.minecraft.world.item.Item item) {
             return ForgeRegistries.ITEMS.getKey(item).toString();
         } else if (registryObject instanceof net.minecraft.world.entity.EntityType<?> entityType) {
-            return ForgeRegistries.ENTITY_TYPES.getKey(entityType).toString();
+            return ForgeRegistries.ENTITIES.getKey(entityType).toString();
         }
         throw new IllegalArgumentException("Unsupported registry object: " + registryObject);
     }

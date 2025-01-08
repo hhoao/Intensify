@@ -186,7 +186,7 @@ public class MineralDestructionLootCondition implements LootItemCondition {
         BlockState blockState = lootContext.getParamOrNull(LootContextParams.BLOCK_STATE);
         if (blockState == null
                 || !lootContext.hasParam(LootContextParams.TOOL)
-                || EnchantmentHelper.getTagEnchantmentLevel(
+                || EnchantmentHelper.getItemEnchantmentLevel(
                                 Enchantments.SILK_TOUCH,
                                 lootContext.getParam(LootContextParams.TOOL))
                         > 0) {

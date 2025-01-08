@@ -154,7 +154,6 @@
 
 package org.hhoa.mc.intensify.recipes.impl;
 
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -187,13 +186,10 @@ public class CommonIntensifyRecipe extends IntensifyRecipe {
 
     @Override
     public void intensify(
-            ItemStack tool,
-            RegistryAccess registryAccess,
-            ToolIntensifyConfig toolItemIntensifyConfig,
-            ServerPlayer player) {
+            ItemStack tool, ToolIntensifyConfig toolItemIntensifyConfig, ServerPlayer player) {
         CompoundTag tag = tool.getOrCreateTag();
         tag.putBoolean("Unbreakable", true);
-        player.sendSystemMessage(TranslatableTexts.ETERNAL_SUCCESS.component());
+        player.sendMessage(TranslatableTexts.ETERNAL_SUCCESS.component(), player.getUUID());
     }
 
     @Override

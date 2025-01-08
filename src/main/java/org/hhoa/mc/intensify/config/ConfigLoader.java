@@ -157,9 +157,10 @@ package org.hhoa.mc.intensify.config;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.toml.TomlParser;
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -172,15 +173,25 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ConfigLoader {
     public static List<ToolIntensifyConfig> loadToolIntensifyConfigFromDir(String dir) {
         TomlParser tomlParser = new TomlParser();
-        Map<ResourceLocation, Resource> resourceLocationResourceMap =
+        Collection<ResourceLocation> resourceLocations =
                 Minecraft.getInstance()
                         .getResourceManager()
-                        .listResources(dir, (resourceLocation) -> true);
+                        .listResources(dir, (resourceLocation) -> !resourceLocation.isEmpty())
+                        .stream()
+                        .filter(
+                                (resourceLocation ->
+                                        resourceLocation.getPath().split("/").length == 3))
+                        .toList();
         List<ToolIntensifyConfig> toolIntensifyConfigs = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, Resource> resourceLocationResourceEntry :
-                resourceLocationResourceMap.entrySet()) {
-            Resource resource = resourceLocationResourceEntry.getValue();
-            try (BufferedReader bufferedReader = resource.openAsReader()) {
+        for (ResourceLocation resourceLocation : resourceLocations) {
+            Resource resource;
+            try {
+                resource =
+                        Minecraft.getInstance().getResourceManager().getResource(resourceLocation);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try (InputStream bufferedReader = resource.getInputStream()) {
                 CommentedConfig tomlConfig = tomlParser.parse(bufferedReader);
 
                 Map<String, Object> toolConfig = tomlConfig.valueMap();

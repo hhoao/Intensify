@@ -154,39 +154,21 @@
 
 package org.hhoa.mc.intensify.loot;
 
-import com.google.common.base.Suppliers;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.function.Supplier;
-import net.minecraft.util.ExtraCodecs;
+import com.google.gson.JsonObject;
+import java.util.List;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
+import org.jetbrains.annotations.NotNull;
 
 public class IntensifyStoneLootModifier extends LootModifier {
-    public static final Supplier<Codec<IntensifyStoneLootModifier>> CODEC =
-            Suppliers.memoize(
-                    () ->
-                            RecordCodecBuilder.create(
-                                    inst ->
-                                            codecStart(inst)
-                                                    .and(
-                                                            ExtraCodecs.NON_EMPTY_STRING
-                                                                    .optionalFieldOf(
-                                                                            "intensifyItemStoneType",
-                                                                            IntensifyStoneType
-                                                                                    .STRENGTHENING_STONE
-                                                                                    .getIdentifier())
-                                                                    .forGetter(
-                                                                            m ->
-                                                                                    m.intensifyItemStoneType))
-                                                    .apply(inst, IntensifyStoneLootModifier::new)));
+    public static final Serializer SERIALIZER = new Serializer();
     private final String intensifyItemStoneType;
     private final Item intensifyStone;
 
@@ -231,14 +213,25 @@ public class IntensifyStoneLootModifier extends LootModifier {
     }
 
     @Override
-    public ObjectArrayList<ItemStack> doApply(
-            ObjectArrayList<ItemStack> original, LootContext context) {
-        original.add(new ItemStack(intensifyStone, 1));
-        return original;
+    protected @NotNull List<ItemStack> doApply(List<ItemStack> list, LootContext lootContext) {
+        list.add(new ItemStack(intensifyStone, 1));
+        return list;
     }
 
-    @Override
-    public Codec<? extends IGlobalLootModifier> codec() {
-        return CODEC.get();
+    public static class Serializer
+            extends GlobalLootModifierSerializer<IntensifyStoneLootModifier> {
+        @Override
+        public IntensifyStoneLootModifier read(
+                ResourceLocation location, JsonObject object, LootItemCondition[] ailootcondition) {
+            return new IntensifyStoneLootModifier(
+                    ailootcondition, object.get("intensifyItemStoneType").getAsString());
+        }
+
+        @Override
+        public JsonObject write(IntensifyStoneLootModifier instance) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("intensifyItemStoneType", instance.intensifyItemStoneType);
+            return jsonObject;
+        }
     }
 }

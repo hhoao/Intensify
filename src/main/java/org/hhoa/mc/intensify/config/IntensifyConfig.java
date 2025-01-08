@@ -159,6 +159,7 @@ import static org.hhoa.mc.intensify.config.IntensifyConstants.ARMOR_NAME_CLASS_M
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
@@ -176,7 +177,7 @@ public class IntensifyConfig {
 
     public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
 
-    private static HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap;
+    private static HashMap<EquipmentSlot, ToolIntensifyConfig> armorClassConfigMap;
     private static HashMap<Class<? extends Item>, ToolIntensifyConfig>
             classToolIntensifyConfigHashMap;
 
@@ -195,7 +196,7 @@ public class IntensifyConfig {
                         IntensifyConstants.TOOL_NAME_CLASS_MAPPING.get(
                                 toolIntensifyConfig.getName());
                 if (aClass == null) {
-                    ArmorItem.Type type =
+                    EquipmentSlot type =
                             ARMOR_NAME_CLASS_MAPPING.get(toolIntensifyConfig.getName());
                     if (type == null) {
                         throw new RuntimeException(toolIntensifyConfig.getName());
@@ -221,15 +222,15 @@ public class IntensifyConfig {
         return classToolIntensifyConfigHashMap;
     }
 
-    public static HashMap<ArmorItem.Type, ToolIntensifyConfig> getArmorClassConfigMap() {
+    public static HashMap<EquipmentSlot, ToolIntensifyConfig> getArmorClassConfigMap() {
         return armorClassConfigMap;
     }
 
     public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
-        HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap = getArmorClassConfigMap();
+        HashMap<EquipmentSlot, ToolIntensifyConfig> armorClassConfigMap = getArmorClassConfigMap();
         if (item instanceof ArmorItem) {
             ArmorItem armorItem = (ArmorItem) item;
-            return armorClassConfigMap.get(armorItem.getType());
+            return armorClassConfigMap.get(armorItem.getSlot());
         } else {
             HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap =
                     getToolWeaponClassConfigMap();

@@ -193,9 +193,9 @@ public class PlayerUtils {
     public static boolean fireItemToPlayer(ItemStack itemStack, Player player) {
         ItemEntity itemEntity =
                 new ItemEntity(
-                        player.level(), player.getX(), player.getY(), player.getZ(), itemStack);
+                        player.level, player.getX(), player.getY(), player.getZ(), itemStack);
 
-        return player.level().addFreshEntity(itemEntity);
+        return player.level.addFreshEntity(itemEntity);
     }
 
     public static void removeSingleItemFromPlayer(Player player, ItemStack itemStack) {

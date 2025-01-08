@@ -161,7 +161,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -292,7 +292,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
 
     private static void sendMessage(ServerPlayer player, String currentLevel) {
         if (player != null) {
-            player.sendSystemMessage(Component.literal(currentLevel));
+            player.sendMessage(new TextComponent(currentLevel), player.getUUID());
         }
     }
 
