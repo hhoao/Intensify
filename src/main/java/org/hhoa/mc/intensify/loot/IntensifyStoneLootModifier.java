@@ -228,7 +228,7 @@ public class IntensifyStoneLootModifier extends LootModifier {
 
         @Override
         public JsonObject write(IntensifyStoneLootModifier instance) {
-            JsonObject jsonObject = new JsonObject();
+            JsonObject jsonObject = this.makeConditions(instance.conditions);
             jsonObject.addProperty("intensifyItemStoneType", instance.intensifyItemStoneType);
             return jsonObject;
         }

@@ -1,49 +1,46 @@
 {
   "advancements": [
     {
+      "conditions": [
+        {
+          "type": "forge:true"
+        }
+      ],
       "advancement": {
         "parent": "minecraft:recipes/root",
-        "criteria": {
-          "intensify:has_stone": {
-            "conditions": {
-              "items": [
-                {
-                  "items": [
-                    "intensify:eternal_stone"
-                  ]
-                }
-              ]
-            },
-            "trigger": "minecraft:inventory_changed"
-          }
-        },
         "display": {
-          "announce_to_chat": true,
+          "icon": {
+            "item": "minecraft:diamond"
+          },
+          "title": {
+            "translate": "advancement.intensify.eternal.title"
+          },
           "description": {
             "translate": "advancement.intensify.eternal.description"
           },
           "frame": "task",
-          "hidden": false,
-          "icon": {
-            "item": "minecraft:diamond"
-          },
           "show_toast": true,
-          "title": {
-            "translate": "advancement.intensify.eternal.title"
+          "announce_to_chat": true,
+          "hidden": false
+        },
+        "criteria": {
+          "intensify:has_stone": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "item": "intensify:eternal_stone"
+                }
+              ]
+            }
           }
         },
         "requirements": [
           [
             "intensify:has_stone"
           ]
-        ],
-        "sends_telemetry_event": false
-      },
-      "conditions": [
-        {
-          "type": "forge:true"
-        }
-      ]
+        ]
+      }
     }
   ]
 }

@@ -161,7 +161,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.LootTableProvider;
+import net.minecraft.loot.ConstantRange;
 import net.minecraft.loot.ItemLootEntry;
 import net.minecraft.loot.LootParameterSet;
 import net.minecraft.loot.LootParameterSets;
@@ -208,6 +208,7 @@ public class IntensifyLootTableProvider extends LootTableProvider {
                                                     .addLootPool(
                                                             LootPool.builder()
                                                                     .bonusRolls(1, 1)
+                                                                    .rolls(new ConstantRange(1))
                                                                     .addEntry(
                                                                             ItemLootEntry.builder(
                                                                                     ItemRegistry
@@ -221,6 +222,7 @@ public class IntensifyLootTableProvider extends LootTableProvider {
                                                     .addLootPool(
                                                             LootPool.builder()
                                                                     .bonusRolls(1, 1)
+                                                                    .rolls(new ConstantRange(1))
                                                                     .addEntry(
                                                                             ItemLootEntry.builder(
                                                                                     ItemRegistry
@@ -233,6 +235,7 @@ public class IntensifyLootTableProvider extends LootTableProvider {
                                                     .addLootPool(
                                                             LootPool.builder()
                                                                     .bonusRolls(1, 1)
+                                                                    .rolls(new ConstantRange(1))
                                                                     .addEntry(
                                                                             ItemLootEntry.builder(
                                                                                     ItemRegistry
@@ -247,6 +250,7 @@ public class IntensifyLootTableProvider extends LootTableProvider {
                                                     .addLootPool(
                                                             LootPool.builder()
                                                                     .bonusRolls(1, 1)
+                                                                    .rolls(new ConstantRange(1))
                                                                     .addEntry(
                                                                             ItemLootEntry.builder(
                                                                                     ItemRegistry
@@ -256,6 +260,6 @@ public class IntensifyLootTableProvider extends LootTableProvider {
                                             ETERNAL_STONE_LOOT_TABLE_ID, eternalStoneLootTable);
                                 },
                         LootParameterSets.GIFT));
-        return super.getTables();
+        return objects;
     }
 }

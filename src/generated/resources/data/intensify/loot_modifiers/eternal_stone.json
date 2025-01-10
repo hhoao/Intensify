@@ -1,10 +1,10 @@
 {
-  "type": "intensify:intensify_stone",
   "conditions": [
     {
       "condition": "intensify:mineral_destruction",
       "intensifyStoneType": "ETERNAL_STONE"
     }
   ],
-  "intensifyItemStoneType": "eternal_stone"
+  "intensifyItemStoneType": "eternal_stone",
+  "type": "intensify:intensify_stone"
 }

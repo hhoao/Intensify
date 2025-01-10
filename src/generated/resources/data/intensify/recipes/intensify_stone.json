@@ -9,8 +9,8 @@
       ],
       "recipe": {
         "type": "intensify:intensify_stone",
-        "cookingtime": 200,
-        "experience": 5.0
+        "experience": 5.0,
+        "cookingtime": 200
       }
     }
   ]

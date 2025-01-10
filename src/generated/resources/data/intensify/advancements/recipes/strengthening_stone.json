@@ -1,49 +1,46 @@
 {
   "advancements": [
     {
+      "conditions": [
+        {
+          "type": "forge:true"
+        }
+      ],
       "advancement": {
         "parent": "minecraft:recipes/root",
-        "criteria": {
-          "intensify:has_stone": {
-            "conditions": {
-              "items": [
-                {
-                  "items": [
-                    "intensify:strengthening_stone"
-                  ]
-                }
-              ]
-            },
-            "trigger": "minecraft:inventory_changed"
-          }
-        },
         "display": {
-          "announce_to_chat": true,
+          "icon": {
+            "item": "minecraft:coal"
+          },
+          "title": {
+            "translate": "advancement.intensify.strengthening.title"
+          },
           "description": {
             "translate": "advancement.intensify.strengthening.description"
           },
           "frame": "task",
-          "hidden": false,
-          "icon": {
-            "item": "minecraft:coal"
-          },
           "show_toast": true,
-          "title": {
-            "translate": "advancement.intensify.strengthening.title"
+          "announce_to_chat": true,
+          "hidden": false
+        },
+        "criteria": {
+          "intensify:has_stone": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "item": "intensify:strengthening_stone"
+                }
+              ]
+            }
           }
         },
         "requirements": [
           [
             "intensify:has_stone"
           ]
-        ],
-        "sends_telemetry_event": false
-      },
-      "conditions": [
-        {
-          "type": "forge:true"
-        }
-      ]
+        ]
+      }
     }
   ]
 }

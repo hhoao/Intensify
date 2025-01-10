@@ -1,34 +1,34 @@
 {
-  "criteria": {
-    "impossible": {
-      "trigger": "minecraft:impossible"
-    }
-  },
   "display": {
-    "announce_to_chat": true,
-    "background": "minecraft:textures/block/furnace.png",
+    "icon": {
+      "item": "minecraft:furnace"
+    },
+    "title": {
+      "translate": "advancement.intensify.first_strengthening.title"
+    },
     "description": {
       "translate": "advancement.intensify.first_strengthening.description"
     },
     "frame": "task",
-    "hidden": false,
-    "icon": {
-      "item": "minecraft:furnace"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancement.intensify.first_strengthening.title"
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:textures/block/furnace.png"
+  },
+  "rewards": {
+    "experience": 100,
+    "loot": [
+      "intensify:protection_stone"
+    ]
+  },
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
     }
   },
   "requirements": [
     [
       "impossible"
     ]
-  ],
-  "rewards": {
-    "loot": [
-      "intensify:protection_stone"
-    ]
-  },
-  "sends_telemetry_event": true
+  ]
 }

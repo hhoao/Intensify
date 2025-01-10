@@ -192,7 +192,13 @@ public abstract class IntensifyRecipe extends FurnaceRecipe implements ComplexRe
     }
 
     public IntensifyRecipe(ResourceLocation resourceLocation, float experience, int cookingTime) {
-        this(resourceLocation, null, null, null, experience, cookingTime);
+        this(
+                resourceLocation,
+                "",
+                Ingredient.EMPTY,
+                new ItemStack(Items.AIR),
+                experience,
+                cookingTime);
     }
 
     public abstract boolean matchesInternal(IInventory container, World level);

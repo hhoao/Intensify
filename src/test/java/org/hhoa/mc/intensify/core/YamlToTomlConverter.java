@@ -164,6 +164,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NotFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -220,7 +221,7 @@ public class YamlToTomlConverter {
                     list =
                             list.stream()
                                     .map(o1 -> convertMapToConfig((Map<String, ?>) o1))
-                                    .toList();
+                                    .collect(Collectors.toList());
                 }
                 commentedConfig.set(key, list);
             } else {

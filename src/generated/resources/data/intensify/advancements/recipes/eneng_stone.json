@@ -1,49 +1,46 @@
 {
   "advancements": [
     {
+      "conditions": [
+        {
+          "type": "forge:true"
+        }
+      ],
       "advancement": {
         "parent": "minecraft:recipes/root",
-        "criteria": {
-          "intensify:has_stone": {
-            "conditions": {
-              "items": [
-                {
-                  "items": [
-                    "intensify:eneng_stone"
-                  ]
-                }
-              ]
-            },
-            "trigger": "minecraft:inventory_changed"
-          }
-        },
         "display": {
-          "announce_to_chat": true,
+          "icon": {
+            "item": "minecraft:lapis_lazuli"
+          },
+          "title": {
+            "translate": "advancement.intensify.eneng.title"
+          },
           "description": {
             "translate": "advancement.intensify.eneng.description"
           },
           "frame": "task",
-          "hidden": false,
-          "icon": {
-            "item": "minecraft:lapis_lazuli"
-          },
           "show_toast": true,
-          "title": {
-            "translate": "advancement.intensify.eneng.title"
+          "announce_to_chat": true,
+          "hidden": false
+        },
+        "criteria": {
+          "intensify:has_stone": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "item": "intensify:eneng_stone"
+                }
+              ]
+            }
           }
         },
         "requirements": [
           [
             "intensify:has_stone"
           ]
-        ],
-        "sends_telemetry_event": false
-      },
-      "conditions": [
-        {
-          "type": "forge:true"
-        }
-      ]
+        ]
+      }
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
+  "replace": false,
   "entries": [
     "intensify:eternal_stone",
     "intensify:strengthening_stone",
     "intensify:eneng_stone",
     "intensify:protection_stone"
-  ],
-  "replace": false
+  ]
 }
