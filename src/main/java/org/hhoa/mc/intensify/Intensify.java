@@ -154,14 +154,17 @@
 
 package org.hhoa.mc.intensify;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hhoa.mc.intensify.capabilities.IFirstLoginCapability;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 import org.hhoa.mc.intensify.registry.LootConditionsRegistry;
@@ -173,6 +176,9 @@ import org.hhoa.mc.intensify.registry.RecipeRegistry;
 public class Intensify {
     public static final String MODID = "intensify";
     private static final Logger LOGGER = LogManager.getLogger(Intensify.class);
+
+    @CapabilityInject(IFirstLoginCapability.class)
+    public static Capability<IFirstLoginCapability> FIRST_LOGIN_CAPABILITY;
 
     public static ResourceLocation location(String path) {
         return new ResourceLocation(MODID, path);

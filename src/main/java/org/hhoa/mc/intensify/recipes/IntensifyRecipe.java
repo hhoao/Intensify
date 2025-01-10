@@ -154,27 +154,28 @@
 
 package org.hhoa.mc.intensify.recipes;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.FurnaceRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
+import net.minecraft.tileentity.FurnaceTileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import org.hhoa.mc.intensify.api.ComplexRecipe;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.item.IntensifyStone;
 import org.hhoa.mc.intensify.util.FurnaceHelper;
 
-public abstract class IntensifyRecipe extends SmeltingRecipe {
+public abstract class IntensifyRecipe extends FurnaceRecipe implements ComplexRecipe {
     private IntensifyRecipe(
             ResourceLocation resourceLocation,
             String group,
@@ -186,7 +187,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getCraftingResult(IInventory p_77572_1_) {
         return new ItemStack(Items.FURNACE);
     }
 
@@ -194,7 +195,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
         this(resourceLocation, null, null, null, experience, cookingTime);
     }
 
-    public abstract boolean matchesInternal(Container container, Level level);
+    public abstract boolean matchesInternal(IInventory container, World level);
 
     // 装备放入时也会进行一次 matches, 会根据matches的结果获取Recipe，然后获取其cookingTime, 默认如果没有matches，则cookingTime为200
     // 那我们如何在放入装备时就匹配成功然后获取相应的cookingTime呢?
@@ -224,8 +225,8 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     // litTime==0
 
     @Override
-    public boolean matches(Container container, net.minecraft.world.level.Level level) {
-        ItemStack tool = container.getItem(0);
+    public boolean matches(IInventory container, World level) {
+        ItemStack tool = container.getStackInSlot(0);
         Item toolItem = tool.getItem();
         ToolIntensifyConfig toolItemIntensifyConfig =
                 IntensifyConfig.getToolIntensifyConfig(toolItem);
@@ -233,17 +234,17 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
             return false;
         }
 
-        AbstractFurnaceBlockEntity furnaceBlockEntity = (AbstractFurnaceBlockEntity) container;
+        AbstractFurnaceTileEntity furnaceBlockEntity = (AbstractFurnaceTileEntity) container;
         int litTime = FurnaceHelper.getLitTime(furnaceBlockEntity);
         if (litTime <= 0) {
             // 开始准备熔炼
-            if (!(container instanceof FurnaceBlockEntity)
-                    || !(container.getItem(1).getItem() instanceof IntensifyStone)) {
+            if (!(container instanceof FurnaceTileEntity)
+                    || !(container.getStackInSlot(1).getItem() instanceof IntensifyStone)) {
                 return false;
             }
 
             boolean matches = matchesInternal(container, level);
-            CompoundTag persistentData = furnaceBlockEntity.getTileData();
+            CompoundNBT persistentData = furnaceBlockEntity.getTileData();
             if (matches) {
                 persistentData.putString(
                         IntensifyConstants.LAST_RECIPE_TAG_ID, this.getId().toString());
@@ -253,7 +254,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
 
             return matches;
         } else {
-            CompoundTag persistentData = furnaceBlockEntity.getTileData();
+            CompoundNBT persistentData = furnaceBlockEntity.getTileData();
             String lastRecipeTagId =
                     persistentData.getString(IntensifyConstants.LAST_RECIPE_TAG_ID);
             return this.getId().toString().equals(lastRecipeTagId);
@@ -261,22 +262,26 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     }
 
     public abstract void intensify(
-            ItemStack tool, ToolIntensifyConfig toolItemIntensifyConfig, ServerPlayer player);
+            ItemStack tool, ToolIntensifyConfig toolItemIntensifyConfig, ServerPlayerEntity player);
 
     @Override
-    public ItemStack assemble(Container container) {
-        ItemStack item = container.getItem(0);
-        FurnaceBlockEntity furnaceBlock = (FurnaceBlockEntity) container;
+    public ItemStack getRecipeOutput() {
+        return new ItemStack(Items.AIR);
+    }
+
+    public ItemStack getRecipeOutput(IInventory container) {
+        ItemStack item = container.getStackInSlot(0);
+        FurnaceTileEntity furnaceBlock = (FurnaceTileEntity) container;
         boolean burningEnd = FurnaceHelper.isBurningEnd(furnaceBlock);
         if (burningEnd) {
             ToolIntensifyConfig toolItemIntensifyConfig =
                     IntensifyConfig.getToolIntensifyConfig(item.getItem());
             String playerName =
                     furnaceBlock.getTileData().getString(IntensifyConstants.FURNACE_OWNER_TAG_ID);
-            ServerPlayer player =
+            ServerPlayerEntity player =
                     ServerLifecycleHooks.getCurrentServer()
                             .getPlayerList()
-                            .getPlayerByName(playerName);
+                            .getPlayerByUsername(playerName);
             ItemStack copy = item.copy();
             intensify(copy, toolItemIntensifyConfig, player);
             return copy;
@@ -287,7 +292,7 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     public abstract IntensifyRecipeSerializer<?> getSerializerInternal();
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public IRecipeSerializer<?> getSerializer() {
         return getSerializerInternal();
     }
 }

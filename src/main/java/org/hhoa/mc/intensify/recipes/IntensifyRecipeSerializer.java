@@ -155,14 +155,13 @@
 package org.hhoa.mc.intensify.recipes;
 
 import com.google.gson.JsonObject;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
 import org.hhoa.mc.intensify.Intensify;
-import org.jetbrains.annotations.Nullable;
 
-public class IntensifyRecipeSerializer<T extends IntensifyRecipe> implements RecipeSerializer<T> {
+public class IntensifyRecipeSerializer<T extends IntensifyRecipe> implements IRecipeSerializer<T> {
     private final int defaultCookingTime;
     private final IntensifyRecipeSerializer.CookieBaker<T> factory;
     private ResourceLocation registryName;
@@ -175,38 +174,38 @@ public class IntensifyRecipeSerializer<T extends IntensifyRecipe> implements Rec
     }
 
     @Override
-    public T fromJson(ResourceLocation resourceLocation, JsonObject jsonObject) {
-        float experience = GsonHelper.getAsFloat(jsonObject, "experience", 0.0F);
-        int cookingTime = GsonHelper.getAsInt(jsonObject, "cookingtime", this.defaultCookingTime);
+    public T read(ResourceLocation resourceLocation, JsonObject jsonObject) {
+        float experience = JSONUtils.getFloat(jsonObject, "experience", 0.0F);
+        int cookingTime = JSONUtils.getInt(jsonObject, "cookingtime", this.defaultCookingTime);
         return this.factory.create(resourceLocation, experience, cookingTime);
     }
 
     @Override
-    public T fromNetwork(ResourceLocation resourceLocation, FriendlyByteBuf byteBuf) {
+    public T read(ResourceLocation resourceLocation, PacketBuffer byteBuf) {
         float experience = byteBuf.readFloat();
         int cookingTime = byteBuf.readVarInt();
         return this.factory.create(resourceLocation, experience, cookingTime);
     }
 
     @Override
-    public void toNetwork(FriendlyByteBuf byteBuf, IntensifyRecipe recipe) {
+    public void write(PacketBuffer byteBuf, IntensifyRecipe recipe) {
         byteBuf.writeFloat(recipe.getExperience());
-        byteBuf.writeVarInt(recipe.getCookingTime());
+        byteBuf.writeVarInt(recipe.getCookTime());
     }
 
     @Override
-    public RecipeSerializer<?> setRegistryName(ResourceLocation name) {
+    public IRecipeSerializer<?> setRegistryName(ResourceLocation name) {
         this.registryName = name;
         return this;
     }
 
     @Override
-    public @Nullable ResourceLocation getRegistryName() {
+    public ResourceLocation getRegistryName() {
         return this.registryName;
     }
 
     @Override
-    public Class<RecipeSerializer<?>> getRegistryType() {
+    public Class<IRecipeSerializer<?>> getRegistryType() {
         return null;
     }
 

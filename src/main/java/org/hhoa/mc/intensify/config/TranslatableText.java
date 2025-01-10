@@ -154,14 +154,13 @@
 
 package org.hhoa.mc.intensify.config;
 
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class TranslatableText {
     private final String key;
-    private MutableComponent component;
+    private IFormattableTextComponent component;
     private String translated;
 
     public TranslatableText(String key) {
@@ -174,14 +173,14 @@ public class TranslatableText {
 
     public String get(Object... args) {
         if (translated == null) {
-            translated = I18n.get(key, args);
+            translated = I18n.format(key, args);
         }
         return translated;
     }
 
-    public Component component(Object... args) {
+    public IFormattableTextComponent component(Object... args) {
         if (component == null) {
-            component = new TranslatableComponent(key, args);
+            component = new TranslationTextComponent(key, args);
         }
         return component;
     }

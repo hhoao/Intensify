@@ -154,8 +154,8 @@
 
 package org.hhoa.mc.intensify.registry;
 
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.eventbus.api.IEventBus;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.loot.MineralDestructionLootCondition;

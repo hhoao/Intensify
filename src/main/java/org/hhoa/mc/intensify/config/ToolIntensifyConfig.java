@@ -159,7 +159,7 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.Attribute;
 import org.hhoa.mc.intensify.util.TypeChecker;
 
 public class ToolIntensifyConfig {

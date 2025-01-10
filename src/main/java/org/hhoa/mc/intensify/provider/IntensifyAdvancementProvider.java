@@ -158,12 +158,10 @@ import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.FrameType;
-import net.minecraft.advancements.critereon.ImpossibleTrigger;
+import net.minecraft.advancements.criterion.ImpossibleTrigger;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.advancements.AdvancementProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraft.item.Items;
+import net.minecraft.util.ResourceLocation;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
@@ -175,25 +173,15 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
     public static final ResourceLocation FIRST_STRENGTHENING_ADVANCEMENT_ID =
             new ResourceLocation(Intensify.MODID, "first_strengthening");
 
-    /**
-     * Constructs an advancement provider using the generators to write the advancements to a file.
-     *
-     * @param output the target directory of the data generator
-     * @param registries a future of a lookup for registries and their objects
-     * @param existingFileHelper a helper used to find whether a file exists
-     * @param subProviders the generators used to create the advancements
-     */
-    public IntensifyAdvancementProvider(
-            DataGenerator output, ExistingFileHelper existingFileHelper) {
-        super(output, existingFileHelper);
+    public IntensifyAdvancementProvider(DataGenerator output) {
+        super(output);
     }
 
     @Override
-    protected void registerAdvancements(
-            Consumer<Advancement> consumer, ExistingFileHelper fileHelper) {
+    protected void registerAdvancements(Consumer<Advancement> consumer) {
         Advancement stoneMiningAdvancement =
-                Advancement.Builder.advancement()
-                        .display(
+                Advancement.Builder.builder()
+                        .withDisplay(
                                 Items.FURNACE,
                                 TranslatableTexts.ADVANCEMENT_INTENSIFY_TITLE.component(),
                                 TranslatableTexts.ADVANCEMENT_INTENSIFY_DESCRIPTION.component(),
@@ -203,15 +191,15 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
                                 true, // announce to chat
                                 false // hidden
                                 )
-                        .addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
-                        .rewards(
-                                AdvancementRewards.Builder.loot(
+                        .withCriterion("impossible", new ImpossibleTrigger.Instance())
+                        .withRewards(
+                                AdvancementRewards.Builder.recipe(
                                         IntensifyLootTableProvider.ENENG_STONE_LOOT_TABLE_ID))
-                        .save(consumer, INTENSIFY_ADVANCEMENT_ID.toString());
+                        .register(consumer, INTENSIFY_ADVANCEMENT_ID.toString());
 
         Advancement enengAdvancement =
-                Advancement.Builder.advancement()
-                        .display(
+                Advancement.Builder.builder()
+                        .withDisplay(
                                 Items.FURNACE,
                                 TranslatableTexts.ADVANCEMENT_FIRST_ENENG_TITLE.component(),
                                 TranslatableTexts.ADVANCEMENT_FIRST_ENENG_DESCRIPTION.component(),
@@ -221,16 +209,16 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
                                 true, // announce to chat
                                 false // hidden
                                 )
-                        .addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
-                        .rewards(
-                                AdvancementRewards.Builder.loot(
+                        .withCriterion("impossible", new ImpossibleTrigger.Instance())
+                        .withRewards(
+                                AdvancementRewards.Builder.recipe(
                                         IntensifyLootTableProvider
                                                 .STRENGTHENING_STONE_LOOT_TABLE_ID))
-                        .save(consumer, FIRST_ENENG_ADVANCEMENT_ID.toString());
+                        .register(consumer, FIRST_ENENG_ADVANCEMENT_ID.toString());
 
         Advancement firstStrnengtheningAdvancement =
-                Advancement.Builder.advancement()
-                        .display(
+                Advancement.Builder.builder()
+                        .withDisplay(
                                 Items.FURNACE,
                                 TranslatableTexts.ADVANCEMENT_FIRST_STRENGTHENING_TITLE.component(),
                                 TranslatableTexts.ADVANCEMENT_FIRST_STRENGTHENING_DESCRIPTION
@@ -241,10 +229,10 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
                                 true, // announce to chat
                                 false // hidden
                                 )
-                        .addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
-                        .rewards(
-                                AdvancementRewards.Builder.loot(
+                        .withCriterion("impossible", new ImpossibleTrigger.Instance())
+                        .withRewards(
+                                AdvancementRewards.Builder.recipe(
                                         IntensifyLootTableProvider.PROTECTION_STONE_LOOT_TABLE_ID))
-                        .save(consumer, FIRST_STRENGTHENING_ADVANCEMENT_ID.toString());
+                        .register(consumer, FIRST_STRENGTHENING_ADVANCEMENT_ID.toString());
     }
 }

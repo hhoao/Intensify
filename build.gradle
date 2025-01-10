@@ -16,7 +16,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
-    id("com.diffplug.spotless") version "6.25.0"
+    id("com.diffplug.spotless") version "6.10.0"
 }
 
 apply plugin: 'org.spongepowered.mixin'
@@ -30,7 +30,7 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
 }
 
 minecraft {
@@ -168,21 +168,115 @@ dependencies {
 
 }
 
+mixin {
+    config "${mod_id}.mixins.json"
+    add sourceSets.main, "${mod_id}.refmap.json"
+
+    debug.verbose = true
+    debug.export = true
+}
+
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
 // When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
 // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
-                             forge_version       : forge_version, forge_version_range: forge_version_range,
-                             loader_version_range: loader_version_range,
-                             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-                             mod_authors         : mod_authors, mod_description: mod_description,]
+    var replaceProperties = [
+            mod_group_id           : mod_group_id,
+            mod_id                 : mod_id,
+            mod_version            : mod_version,
+            version                : version,
+            mod_name               : mod_name,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+            minecraft_version      : minecraft_version,
+            java_version           : java_version,
+            forge_version          : forge_version,
+            loader_version_range   : loader_version_range,
+            forge_version_range    : forge_version_range,
+            minecraft_version_range: minecraft_version_range,
+            mod_license            : mod_license,
+    ]
 
     inputs.properties replaceProperties
 
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
+    }
+
+    filesMatching('mixins.json') {
+        def mixinFiles = []
+        def clientMixinFiles = []
+
+        def path = "${project.projectDir}/src/main/java/${mod_group_id}/${mod_id}/mixin".replaceAll('\\.', '/')
+        fileTree(path).visit { FileVisitDetails details ->
+            def name = details.file.path.replace('\\', '/')
+            name = name.substring(name.indexOf('mixin/') + 'mixin/'.length(), name.length())
+            if (name.endsWith('.java')) {
+                name = name.substring(0, name.length() - '.java'.length())
+                if (name.startsWith('client')) {
+                    clientMixinFiles.add(name)
+                } else {
+                    mixinFiles.add(name)
+                }
+            }
+        }
+        println(path)
+
+        def mixins = ''
+        def clientMixins = ''
+
+        for (int i = 0; i < mixinFiles.size(); i++) {
+            def name = mixinFiles[i]
+            name = name.replaceAll('\\/', '.')
+            mixins += '        "' + name + '"'
+            if (i != mixinFiles.size() - 1) {
+                mixins += ',\n'
+            }
+        }
+
+        for (int i = 0; i < clientMixinFiles.size(); i++) {
+            def name = clientMixinFiles[i]
+            name = name.replaceAll('\\/', '.')
+            clientMixins += '        "' + name + '"'
+            if (i != clientMixinFiles.size() - 1) {
+                clientMixins += ',\n'
+            }
+        }
+
+        replaceProperties.put('mixins', mixins)
+        replaceProperties.put('clientMixins', clientMixins)
+        println(mixins)
+        println(clientMixins)
+
+        expand replaceProperties
+        name "${mod_id}.mixins.json".toString()
+    }
+
+    // Automatically populate coremods.json file from existing coremod js files in /coremods
+    filesMatching('META-INF/coremods.json') {
+        def names = []
+        fileTree("${project.projectDir}/src/main/resources/coremods").visit { FileVisitDetails details ->
+            def name = details.file.path.replace('\\', '/')
+            name = name.substring(name.indexOf('coremods'), name.length())
+            if (name.endsWith('.js')) {
+                names.add(name)
+            }
+        }
+
+        def coremods = ''
+
+        for (int i = 0; i < names.size(); i++) {
+            def name = names[i]
+            coremods += "\t\"${mod_id}_" + name.substring('coremods/'.length(), name.length() - 3) + '": "' + name + '"'
+            if (i != names.size() - 1) {
+                coremods += ',\n'
+            }
+        }
+
+        replaceProperties.put('coremods', coremods)
+
+        expand replaceProperties
     }
 }
 
@@ -216,7 +310,6 @@ tasks.withType(JavaCompile).configureEach {
 spotless {
     java {
         googleJavaFormat().style("AOSP")
-        formatAnnotations()
         var licenseBuilder = new StringBuilder("/*\n")
         for (final def line in Files.readAllLines(Paths.get(rootProject.projectDir.absolutePath, "LICENSE.txt")) ) {
             licenseBuilder.append(" * ${line}\n")

@@ -164,27 +164,28 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.resources.IResource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ConfigLoader {
     public static List<ToolIntensifyConfig> loadToolIntensifyConfigFromDir(String dir) {
         TomlParser tomlParser = new TomlParser();
         Collection<ResourceLocation> resourceLocations =
-                Minecraft.getInstance()
-                        .getResourceManager()
-                        .listResources(dir, (resourceLocation) -> !resourceLocation.isEmpty())
+                Minecraft.getInstance().getResourceManager()
+                        .getAllResourceLocations(
+                                dir, (resourceLocation) -> !resourceLocation.isEmpty())
                         .stream()
                         .filter(
                                 (resourceLocation ->
                                         resourceLocation.getPath().split("/").length == 3))
-                        .toList();
+                        .collect(Collectors.toList());
         List<ToolIntensifyConfig> toolIntensifyConfigs = new ArrayList<>();
         for (ResourceLocation resourceLocation : resourceLocations) {
-            Resource resource;
+            IResource resource;
             try {
                 resource =
                         Minecraft.getInstance().getResourceManager().getResource(resourceLocation);

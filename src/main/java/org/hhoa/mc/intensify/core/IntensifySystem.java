@@ -154,17 +154,17 @@
 
 package org.hhoa.mc.intensify.core;
 
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 
 public interface IntensifySystem {
-    void intensify(ServerPlayer player, ItemStack item, ToolIntensifyConfig intensifyConfig);
+    void intensify(ServerPlayerEntity player, ItemStack item, ToolIntensifyConfig intensifyConfig);
 
     default String getAttributeModifierName(Attribute attribute) {
-        return Intensify.MODID + ".intensify.attribute." + attribute.getDescriptionId();
+        return Intensify.MODID + ".intensify.attribute." + attribute.getAttributeName();
     }
 
     default String getTagId(String id) {

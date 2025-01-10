@@ -154,9 +154,10 @@
 
 package org.hhoa.mc.intensify.item;
 
+import java.util.Collections;
 import java.util.List;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class ProtectionStone extends IntensifyStone {
@@ -165,13 +166,14 @@ public class ProtectionStone extends IntensifyStone {
     }
 
     @Override
-    public ChatFormatting getNameColor() {
-        return ChatFormatting.GREEN;
+    public TextFormatting getNameColor() {
+        return TextFormatting.GREEN;
     }
 
     @Override
-    public List<Component> getDescriptionTexts() {
-        return List.of(TranslatableTexts.PROTECTION_STONE_DESCRIPTION.component());
+    public List<ITextComponent> getDescriptionTexts() {
+        return Collections.singletonList(
+                TranslatableTexts.PROTECTION_STONE_DESCRIPTION.component());
     }
 
     @Override

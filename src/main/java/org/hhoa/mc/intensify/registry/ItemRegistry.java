@@ -154,12 +154,12 @@
 
 package org.hhoa.mc.intensify.registry;
 
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.item.EnengStone;
 import org.hhoa.mc.intensify.item.EternalStone;
@@ -174,28 +174,22 @@ public class ItemRegistry {
     public static final RegistryObject<Item> STRENGTHENING_STONE =
             ITEMS.register(
                     IntensifyStoneType.STRENGTHENING_STONE.getIdentifier(),
-                    () ->
-                            new StrengtheningStone(
-                                    new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
+                    () -> new StrengtheningStone(new Item.Properties().group(ItemGroup.MATERIALS)));
 
     public static final RegistryObject<Item> ENENG_STONE =
             ITEMS.register(
                     IntensifyStoneType.ENENG_STONE.getIdentifier(),
-                    () -> new EnengStone(new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
+                    () -> new EnengStone(new Item.Properties().group(ItemGroup.MATERIALS)));
 
     public static final RegistryObject<Item> ETERNAL_STONE =
             ITEMS.register(
                     IntensifyStoneType.ETERNAL_STONE.getIdentifier(),
-                    () ->
-                            new EternalStone(
-                                    new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
+                    () -> new EternalStone(new Item.Properties().group(ItemGroup.MATERIALS)));
 
     public static final RegistryObject<Item> PROTECTION_STONE =
             ITEMS.register(
                     IntensifyStoneType.PROTECTION_STONE.getIdentifier(),
-                    () ->
-                            new ProtectionStone(
-                                    new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
+                    () -> new ProtectionStone(new Item.Properties().group(ItemGroup.MATERIALS)));
 
     public static void initialize(IEventBus iEventBus) {
         ITEMS.register(iEventBus);

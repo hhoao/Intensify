@@ -152,23 +152,11 @@
  * This Source Code Form is “Incompatible With Secondary Licenses”, as defined by the Mozilla Public License, v. 2.0.
  */
 
-package org.hhoa.mc.intensify.provider;
+package org.hhoa.mc.intensify.api;
 
-import java.util.function.Consumer;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 
-public interface CustomRecipeBuilder {
-    ResourceLocation ROOT_RECIPE_ADVANCEMENT = new ResourceLocation("recipes/root");
-
-    CustomRecipeBuilder unlockedBy(String name, CriterionInstance criterionTriggerInstance);
-
-    void save(Consumer<IFinishedRecipe> finishedRecipeConsumer, ResourceLocation resourceLocation);
-
-    default void save(Consumer<IFinishedRecipe> p_176499_) {
-        this.save(p_176499_, getAdvancementId());
-    }
-
-    ResourceLocation getAdvancementId();
+public interface ComplexRecipe {
+    ItemStack getRecipeOutput(IInventory container);
 }

@@ -152,23 +152,49 @@
  * This Source Code Form is “Incompatible With Secondary Licenses”, as defined by the Mozilla Public License, v. 2.0.
  */
 
-package org.hhoa.mc.intensify.provider;
+package org.hhoa.mc.intensify.mixin;
 
-import java.util.function.Consumer;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
+import org.hhoa.mc.intensify.api.ComplexRecipe;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-public interface CustomRecipeBuilder {
-    ResourceLocation ROOT_RECIPE_ADVANCEMENT = new ResourceLocation("recipes/root");
-
-    CustomRecipeBuilder unlockedBy(String name, CriterionInstance criterionTriggerInstance);
-
-    void save(Consumer<IFinishedRecipe> finishedRecipeConsumer, ResourceLocation resourceLocation);
-
-    default void save(Consumer<IFinishedRecipe> p_176499_) {
-        this.save(p_176499_, getAdvancementId());
+@Mixin(AbstractFurnaceTileEntity.class)
+public abstract class AbstractFurnaceTileEntityMixin {
+    @Redirect(
+            method = "canSmelt(Lnet/minecraft/item/crafting/IRecipe;)Z",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/item/crafting/IRecipe;getRecipeOutput()Lnet/minecraft/item/ItemStack;",
+                            ordinal = 0),
+            require = 1)
+    public ItemStack intensify_canSmelt(IRecipe<?> recipe) {
+        if (recipe instanceof ComplexRecipe) {
+            return ((ComplexRecipe) recipe)
+                    .getRecipeOutput((AbstractFurnaceTileEntity) (Object) this);
+        }
+        return recipe.getRecipeOutput();
     }
 
-    ResourceLocation getAdvancementId();
+    @Redirect(
+            method = "smelt(Lnet/minecraft/item/crafting/IRecipe;)V",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/item/crafting/IRecipe;getRecipeOutput()Lnet/minecraft/item/ItemStack;",
+                            ordinal = 0),
+            require = 1)
+    public ItemStack intensify_smelt(IRecipe<?> recipe) {
+        if (recipe instanceof ComplexRecipe) {
+            return ((ComplexRecipe) recipe)
+                    .getRecipeOutput((AbstractFurnaceTileEntity) (Object) this);
+        }
+        return recipe.getRecipeOutput();
+    }
 }

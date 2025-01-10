@@ -154,11 +154,11 @@
 
 package org.hhoa.mc.intensify.recipes.impl;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.core.EnhancementIntensifySystem;
@@ -177,16 +177,18 @@ public class StrengtheningRecipe extends IntensifyRecipe {
     }
 
     @Override
-    public boolean matchesInternal(Container container, Level level) {
-        ItemStack toolItemStack = container.getItem(0);
+    public boolean matchesInternal(IInventory container, World level) {
+        ItemStack toolItemStack = container.getStackInSlot(0);
 
         return IntensifyConfig.getEnengIntensifySystem().isEneng(toolItemStack)
-                && container.getItem(1).getItem() == ItemRegistry.STRENGTHENING_STONE.get();
+                && container.getStackInSlot(1).getItem() == ItemRegistry.STRENGTHENING_STONE.get();
     }
 
     @Override
     public void intensify(
-            ItemStack tool, ToolIntensifyConfig toolItemIntensifyConfig, ServerPlayer player) {
+            ItemStack tool,
+            ToolIntensifyConfig toolItemIntensifyConfig,
+            ServerPlayerEntity player) {
         EnhancementIntensifySystem enhancementIntensifySystem =
                 IntensifyConfig.getEnhancementIntensifySystem();
         enhancementIntensifySystem.intensify(player, tool, toolItemIntensifyConfig);

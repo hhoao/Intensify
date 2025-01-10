@@ -154,37 +154,36 @@
 
 package org.hhoa.mc.intensify;
 
+import static org.hhoa.mc.intensify.Intensify.FIRST_LOGIN_CAPABILITY;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import java.util.List;
 import java.util.Optional;
-import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.PlayerAdvancements;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerAdvancements;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraft.tileentity.FurnaceTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -207,17 +206,15 @@ import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.util.PlayerUtils;
 
 public class IntensifyForgeEventHandler {
-    public static final Capability<IFirstLoginCapability> FIRST_LOGIN_CAPABILITY =
-            CapabilityManager.get(new CapabilityToken<>() {});
     public static final ResourceLocation FIRST_LOGIN_CAP =
             Intensify.location("first_login_capability");
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        BlockEntity blockEntity = event.getWorld().getBlockEntity(event.getPos());
-        if (blockEntity instanceof FurnaceBlockEntity) {
-            CompoundTag persistentData = blockEntity.getTileData();
-            Player player = event.getPlayer();
+        TileEntity blockEntity = event.getWorld().getTileEntity(event.getPos());
+        if (blockEntity instanceof FurnaceTileEntity) {
+            CompoundNBT persistentData = blockEntity.getTileData();
+            PlayerEntity player = event.getPlayer();
             persistentData.putString(
                     IntensifyConstants.FURNACE_OWNER_TAG_ID, player.getName().getString());
         }
@@ -225,9 +222,9 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        Player player = event.getPlayer();
-        if (player instanceof ServerPlayer) {
-            ServerPlayer serverPlayer = (ServerPlayer) player;
+        PlayerEntity player = event.getPlayer();
+        if (player instanceof ServerPlayerEntity) {
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
             LazyOptional<IFirstLoginCapability> capability =
                     player.getCapability(FIRST_LOGIN_CAPABILITY);
 
@@ -246,14 +243,14 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void attachCapability(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof ServerPlayer) {
+        if (event.getObject() instanceof ServerPlayerEntity) {
             event.addCapability(FIRST_LOGIN_CAP, new FirstLoginCapabilityProvider());
         }
     }
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+        CommandDispatcher<CommandSource> dispatcher = event.getDispatcher();
         dispatcher.register(
                 Commands.literal("intensify")
                         .then(
@@ -276,7 +273,7 @@ public class IntensifyForgeEventHandler {
                                                                             .getTotalRate()
                                                                             .set(rate);
                                                                     context.getSource()
-                                                                            .sendSuccess(
+                                                                            .sendFeedback(
                                                                                     TranslatableTexts
                                                                                             .SET_STONE_DROP_RATE_TIP
                                                                                             .component(
@@ -303,7 +300,7 @@ public class IntensifyForgeEventHandler {
                                                                             .UPGRADE_MULTIPLIER
                                                                             .set(rate);
                                                                     context.getSource()
-                                                                            .sendSuccess(
+                                                                            .sendFeedback(
                                                                                     TranslatableTexts
                                                                                             .SET_UPGRADE_MULTIPLIER_TIP
                                                                                             .component(
@@ -329,7 +326,7 @@ public class IntensifyForgeEventHandler {
                                                                             .ATTRIBUTE_MULTIPLIER
                                                                             .set(rate);
                                                                     context.getSource()
-                                                                            .sendSuccess(
+                                                                            .sendFeedback(
                                                                                     TranslatableTexts
                                                                                             .SET_ATTRIBUTE_MULTIPLIER_TIP
                                                                                             .component(
@@ -341,9 +338,9 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onItemFished(ItemFishedEvent event) {
-        Player player = event.getPlayer();
+        PlayerEntity player = event.getPlayer();
 
-        if (player instanceof ServerPlayer) {
+        if (player instanceof ServerPlayerEntity) {
             LivingEntity entity = event.getEntityLiving();
             Optional<Item> item =
                     ConfigRegistry.stoneDropoutProbabilityConfig.dropStone(
@@ -360,7 +357,7 @@ public class IntensifyForgeEventHandler {
     public void onItemTooltip(ItemTooltipEvent event) {
         ResourceLocation registryName =
                 ForgeRegistries.ITEMS.getKey(event.getItemStack().getItem());
-        List<Component> toolTip = event.getToolTip();
+        List<ITextComponent> toolTip = event.getToolTip();
         if (registryName != null) {
             ItemStack itemStack = event.getItemStack();
             ToolIntensifyConfig toolIntensifyConfig =
@@ -371,32 +368,32 @@ public class IntensifyForgeEventHandler {
         }
     }
 
-    private static void modifyToolTip(ItemStack itemStack, List<Component> toolTip) {
+    private static void modifyToolTip(ItemStack itemStack, List<ITextComponent> toolTip) {
         int level = IntensifyConfig.getEnhancementIntensifySystem().getLevel(itemStack);
         boolean eneng = IntensifyConfig.getEnengIntensifySystem().isEneng(itemStack);
-        Component component = toolTip.get(0);
+        ITextComponent component = toolTip.get(0);
         if (level > 0) {
-            List<Component> siblings = component.getSiblings();
-            siblings.add(new TextComponent("+" + level));
+            List<ITextComponent> siblings = component.getSiblings();
+            siblings.add(new StringTextComponent("+" + level));
         } else if (eneng) {
-            List<Component> siblings = component.getSiblings();
-            siblings.add(new TextComponent("*"));
+            List<ITextComponent> siblings = component.getSiblings();
+            siblings.add(new StringTextComponent("*"));
         }
-        if (component instanceof MutableComponent) {
-            MutableComponent mutableComponent = (MutableComponent) component;
+        if (component instanceof IFormattableTextComponent) {
+            IFormattableTextComponent mutableComponent = (IFormattableTextComponent) component;
             Style newStyle = mutableComponent.getStyle();
             if (level >= 25) {
-                newStyle = component.getStyle().withColor(ChatFormatting.RED);
+                newStyle = component.getStyle().applyFormatting(TextFormatting.RED);
             } else if (level >= 20) {
-                newStyle = component.getStyle().withColor(ChatFormatting.LIGHT_PURPLE);
+                newStyle = component.getStyle().applyFormatting(TextFormatting.LIGHT_PURPLE);
             } else if (level >= 15) {
-                newStyle = component.getStyle().withColor(ChatFormatting.YELLOW);
+                newStyle = component.getStyle().applyFormatting(TextFormatting.YELLOW);
             } else if (level >= 10) {
-                newStyle = component.getStyle().withColor(ChatFormatting.BLUE);
+                newStyle = component.getStyle().applyFormatting(TextFormatting.BLUE);
             } else if (level > 0 && eneng) {
-                newStyle = component.getStyle().withColor(ChatFormatting.GREEN);
+                newStyle = component.getStyle().applyFormatting(TextFormatting.GREEN);
             } else if (eneng) {
-                newStyle = component.getStyle().withColor(ChatFormatting.AQUA);
+                newStyle = component.getStyle().applyFormatting(TextFormatting.AQUA);
             }
             mutableComponent.setStyle(newStyle);
         }
@@ -405,10 +402,11 @@ public class IntensifyForgeEventHandler {
     @SubscribeEvent
     public void onLivingDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntityLiving();
-        Level level = entity.level;
+        World level = entity.world;
 
-        if (!level.isClientSide) {
-            if (entity instanceof Mob && event.getSource().getEntity() instanceof Player) {
+        if (!level.isRemote) {
+            if (entity instanceof MobEntity
+                    && event.getSource().getImmediateSource() instanceof PlayerEntity) {
                 Optional<Item> item =
                         ConfigRegistry.stoneDropoutProbabilityConfig.dropStone(
                                 DropTypeEnum.MOB_KILLED, entity.getType());
@@ -417,10 +415,10 @@ public class IntensifyForgeEventHandler {
                     ItemStack stoneItemStack = new ItemStack(stone);
                     ItemEntity itemEntity =
                             new ItemEntity(
-                                    entity.level,
-                                    entity.getX(),
-                                    entity.getY(),
-                                    entity.getZ(),
+                                    entity.world,
+                                    entity.getPosX(),
+                                    entity.getPosY(),
+                                    entity.getPosZ(),
                                     stoneItemStack);
 
                     event.getDrops().add(itemEntity);
@@ -431,10 +429,10 @@ public class IntensifyForgeEventHandler {
 
     @SubscribeEvent
     public void onItemSmelted(PlayerEvent.ItemSmeltedEvent event) {
-        Level level = event.getEntityLiving().level;
+        World level = event.getEntityLiving().world;
 
-        if (level.isClientSide()) return;
-        ServerPlayer player = (ServerPlayer) event.getEntity();
+        if (level.isRemote) return;
+        ServerPlayerEntity player = (ServerPlayerEntity) event.getEntity();
         ItemStack smelting = event.getSmelting();
         if (player.getServer() != null) {
             boolean eneng = IntensifyConfig.getEnengIntensifySystem().isEneng(smelting);
@@ -458,12 +456,12 @@ public class IntensifyForgeEventHandler {
             PlayerAdvancements advancements,
             MinecraftServer server,
             ResourceLocation advancementId) {
-        Advancement advancement = server.getAdvancements().getAdvancement(advancementId);
+        Advancement advancement = server.getAdvancementManager().getAdvancement(advancementId);
         if (advancement != null) {
-            AdvancementProgress progress = advancements.getOrStartProgress(advancement);
+            AdvancementProgress progress = advancements.getProgress(advancement);
             if (!progress.isDone()) {
-                for (String criterion : progress.getRemainingCriteria()) {
-                    advancements.award(advancement, criterion);
+                for (String criterion : progress.getRemaningCriteria()) {
+                    advancements.grantCriterion(advancement, criterion);
                 }
             }
         }

@@ -158,18 +158,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
-import org.jetbrains.annotations.NotNull;
 
 public class StoneDropoutProbabilityConfig {
     private final HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> stoneRate;
@@ -279,8 +279,8 @@ public class StoneDropoutProbabilityConfig {
         stoneRate = configureStone(builder);
     }
 
-    private @NotNull HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>>
-            configureStone(ForgeConfigSpec.Builder builder) {
+    private HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> configureStone(
+            ForgeConfigSpec.Builder builder) {
         final HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> stoneRate;
         builder.push("stone_rate");
         stoneRate = new HashMap<>();
@@ -300,7 +300,7 @@ public class StoneDropoutProbabilityConfig {
         return stoneRate;
     }
 
-    private @NotNull HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> configureDefault(
+    private HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> configureDefault(
             ForgeConfigSpec.Builder builder) {
         final HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> defaultProbabilities;
         builder.push("defaults");
@@ -347,14 +347,13 @@ public class StoneDropoutProbabilityConfig {
 
     private void configureFishing(ForgeConfigSpec.Builder builder) {
         builder.push(DropTypeEnum.FISHING.getIdentify());
+        HashMap<String, Double> itemNameProbabilityMap = new HashMap<>();
+        itemNameProbabilityMap.put(getRegistryName(Items.COD), 0.02);
+        itemNameProbabilityMap.put(getRegistryName(Items.SALMON), 0.04);
+        itemNameProbabilityMap.put(getRegistryName(Items.TROPICAL_FISH), 0.2);
+        itemNameProbabilityMap.put(getRegistryName(Items.PUFFERFISH), 0.08);
         Map<String, ForgeConfigSpec.ConfigValue<Double>> fishProbability =
-                createProbabilityConfig(
-                        builder,
-                        Map.of(
-                                getRegistryName(Items.COD), 0.02,
-                                getRegistryName(Items.SALMON), 0.04,
-                                getRegistryName(Items.TROPICAL_FISH), 0.2,
-                                getRegistryName(Items.PUFFERFISH), 0.08));
+                createProbabilityConfig(builder, itemNameProbabilityMap);
         stoneDropProbability.put(DropTypeEnum.FISHING, fishProbability);
         builder.pop();
     }
@@ -364,29 +363,19 @@ public class StoneDropoutProbabilityConfig {
 
         HashMap<String, Double> blocksProbability = new HashMap<>();
         blocksProbability.put(getRegistryName(Blocks.COAL_ORE), 0.02);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_COAL_ORE), 0.025);
-
-        blocksProbability.put(getRegistryName(Blocks.COPPER_ORE), 0.025);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_COPPER_ORE), 0.03);
 
         blocksProbability.put(getRegistryName(Blocks.IRON_ORE), 0.04);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_IRON_ORE), 0.045);
 
         blocksProbability.put(getRegistryName(Blocks.GOLD_ORE), 0.05);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_GOLD_ORE), 0.055);
         blocksProbability.put(getRegistryName(Blocks.NETHER_GOLD_ORE), 0.03);
 
         blocksProbability.put(getRegistryName(Blocks.REDSTONE_ORE), 0.03);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_REDSTONE_ORE), 0.035);
 
         blocksProbability.put(getRegistryName(Blocks.LAPIS_ORE), 0.03);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_LAPIS_ORE), 0.035);
 
         blocksProbability.put(getRegistryName(Blocks.DIAMOND_ORE), 0.1);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_DIAMOND_ORE), 0.105);
 
         blocksProbability.put(getRegistryName(Blocks.EMERALD_ORE), 0.1);
-        blocksProbability.put(getRegistryName(Blocks.DEEPSLATE_EMERALD_ORE), 0.105);
 
         blocksProbability.put(getRegistryName(Blocks.NETHER_QUARTZ_ORE), 0.01);
 
@@ -411,11 +400,14 @@ public class StoneDropoutProbabilityConfig {
     }
 
     private static String getRegistryName(Object registryObject) {
-        if (registryObject instanceof net.minecraft.world.level.block.Block block) {
+        if (registryObject instanceof Block) {
+            Block block = (Block) registryObject;
             return ForgeRegistries.BLOCKS.getKey(block).toString();
-        } else if (registryObject instanceof net.minecraft.world.item.Item item) {
+        } else if (registryObject instanceof Item) {
+            Item item = (Item) registryObject;
             return ForgeRegistries.ITEMS.getKey(item).toString();
-        } else if (registryObject instanceof net.minecraft.world.entity.EntityType<?> entityType) {
+        } else if (registryObject instanceof EntityType<?>) {
+            EntityType<?> entityType = (EntityType<?>) registryObject;
             return ForgeRegistries.ENTITIES.getKey(entityType).toString();
         }
         throw new IllegalArgumentException("Unsupported registry object: " + registryObject);

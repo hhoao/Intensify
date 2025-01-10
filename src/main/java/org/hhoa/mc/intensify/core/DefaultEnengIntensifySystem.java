@@ -158,13 +158,13 @@ import static org.hhoa.mc.intensify.config.IntensifyConstants.ENENGED_TAG_ID;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
@@ -173,14 +173,15 @@ import org.hhoa.mc.intensify.util.ItemModifierHelper;
 public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
     @Override
     public boolean isEneng(ItemStack itemStack) {
-        CompoundTag orCreateTag = itemStack.getOrCreateTag();
+        CompoundNBT orCreateTag = itemStack.getOrCreateTag();
         return orCreateTag.getBoolean(ENENGED_TAG_ID);
     }
 
     @Override
     public void intensify(
-            ServerPlayer player, ItemStack itemStack, ToolIntensifyConfig intensifyConfig) {
-        EquipmentSlot equipmentSlotForItem = LivingEntity.getEquipmentSlotForItem(itemStack);
+            ServerPlayerEntity player, ItemStack itemStack, ToolIntensifyConfig intensifyConfig) {
+
+        EquipmentSlotType equipmentSlotForItem = MobEntity.getSlotForItemStack(itemStack);
         List<ToolIntensifyConfig.AttributeConfig> attributes = intensifyConfig.getAttributes();
         for (ToolIntensifyConfig.AttributeConfig attribute : attributes) {
             Attribute attributeType = attribute.getType();
@@ -189,10 +190,10 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
                 attributeEneng(itemStack, eneng, attributeType, equipmentSlotForItem);
             }
         }
-        CompoundTag orCreateTag = itemStack.getOrCreateTag();
+        CompoundNBT orCreateTag = itemStack.getOrCreateTag();
         orCreateTag.putBoolean(ENENGED_TAG_ID, true);
         if (player != null) {
-            player.sendMessage(TranslatableTexts.ENENG_SUCCESS.component(), player.getUUID());
+            player.sendMessage(TranslatableTexts.ENENG_SUCCESS.component(), player.getUniqueID());
         }
     }
 
@@ -200,7 +201,7 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
             ItemStack itemStack,
             ToolIntensifyConfig.EnengConfig eneng,
             Attribute attributeType,
-            EquipmentSlot equipmentSlotForItem) {
+            EquipmentSlotType equipmentSlotForItem) {
         ThreadLocalRandom current = ThreadLocalRandom.current();
         List<Double> value = eneng.getValue();
         double v = randomizeAndMultiply(value, current);

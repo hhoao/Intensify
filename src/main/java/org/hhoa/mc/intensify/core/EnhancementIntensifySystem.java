@@ -154,7 +154,7 @@
 
 package org.hhoa.mc.intensify.core;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 public abstract class EnhancementIntensifySystem implements IntensifySystem {
 

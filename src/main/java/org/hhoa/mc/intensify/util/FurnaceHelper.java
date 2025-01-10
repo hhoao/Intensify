@@ -154,27 +154,27 @@
 
 package org.hhoa.mc.intensify.util;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
+import net.minecraft.tileentity.FurnaceTileEntity;
 
 public class FurnaceHelper {
-    public static int getCookingProgress(AbstractFurnaceBlockEntity furnace) {
-        return furnace.cookingProgress;
+    public static int getCookingProgress(AbstractFurnaceTileEntity furnace) {
+        return furnace.cookTime;
     }
 
-    public static int getLitTime(AbstractFurnaceBlockEntity furnace) {
-        return furnace.litTime;
+    public static int getLitTime(AbstractFurnaceTileEntity furnace) {
+        return furnace.burnTime;
     }
 
-    public static int getCookingTotalTime(AbstractFurnaceBlockEntity furnace) {
-        return furnace.cookingTotalTime;
+    public static int getCookingTotalTime(AbstractFurnaceTileEntity furnace) {
+        return furnace.cookTimeTotal;
     }
 
-    public static boolean isBurningEnd(FurnaceBlockEntity furnaceBlockEntity) {
+    public static boolean isBurningEnd(FurnaceTileEntity furnaceBlockEntity) {
         int cookingProgress = FurnaceHelper.getCookingProgress(furnaceBlockEntity);
         int cookingTotalTime = FurnaceHelper.getCookingTotalTime(furnaceBlockEntity);
-        CompoundTag persistentData = furnaceBlockEntity.getTileData();
+        CompoundNBT persistentData = furnaceBlockEntity.getTileData();
         int phase = persistentData.getInt("phase");
         boolean burningEnd = false;
         if (cookingProgress == 0) {

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "${mod_group_id}.${mod_id}.mixin",
+  "compatibilityLevel": "JAVA_${java_version}",
+  "refmap": "${mod_id}.refmap.json",
+  "maxShiftBy": 5,
+  "mixins": [
+    ${mixins}
+  ],
+  "client": [
+    ${clientMixins}
+  ],
+  "minVersion": "0.8",
+  "maxShiftBy": 5
+}

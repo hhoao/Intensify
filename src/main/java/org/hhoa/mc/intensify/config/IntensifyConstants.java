@@ -155,19 +155,19 @@
 package org.hhoa.mc.intensify.config;
 
 import java.util.HashMap;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.BowItem;
-import net.minecraft.world.item.CrossbowItem;
-import net.minecraft.world.item.ElytraItem;
-import net.minecraft.world.item.FishingRodItem;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.TridentItem;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.BowItem;
+import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.ElytraItem;
+import net.minecraft.item.FishingRodItem;
+import net.minecraft.item.HoeItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ShieldItem;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.item.SwordItem;
+import net.minecraft.item.TridentItem;
 
 public class IntensifyConstants {
     public static final String FURNACE_OWNER_TAG_ID = "Owner";
@@ -176,7 +176,8 @@ public class IntensifyConstants {
 
     public static final HashMap<String, Class<? extends Item>> TOOL_NAME_CLASS_MAPPING =
             new HashMap<>();
-    public static final HashMap<String, EquipmentSlot> ARMOR_NAME_CLASS_MAPPING = new HashMap<>();
+    public static final HashMap<String, EquipmentSlotType> ARMOR_NAME_CLASS_MAPPING =
+            new HashMap<>();
 
     static {
         // tool
@@ -199,9 +200,9 @@ public class IntensifyConstants {
         TOOL_NAME_CLASS_MAPPING.put("trident", TridentItem.class);
 
         // armor
-        ARMOR_NAME_CLASS_MAPPING.put("leggings", EquipmentSlot.LEGS);
-        ARMOR_NAME_CLASS_MAPPING.put("boots", EquipmentSlot.FEET);
-        ARMOR_NAME_CLASS_MAPPING.put("helmet", EquipmentSlot.HEAD);
-        ARMOR_NAME_CLASS_MAPPING.put("chestplate", EquipmentSlot.CHEST);
+        ARMOR_NAME_CLASS_MAPPING.put("leggings", EquipmentSlotType.LEGS);
+        ARMOR_NAME_CLASS_MAPPING.put("boots", EquipmentSlotType.FEET);
+        ARMOR_NAME_CLASS_MAPPING.put("helmet", EquipmentSlotType.HEAD);
+        ARMOR_NAME_CLASS_MAPPING.put("chestplate", EquipmentSlotType.CHEST);
     }
 }

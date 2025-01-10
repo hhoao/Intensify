@@ -160,21 +160,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.StringTextComponent;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
 import org.hhoa.mc.intensify.util.PlayerUtils;
-import org.jetbrains.annotations.NotNull;
 
 public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySystem {
     private final double baseSuccessProbability; // 初始基础成功概率
@@ -212,9 +211,9 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
 
     @Override
     public void intensify(
-            ServerPlayer player, ItemStack itemStack, ToolIntensifyConfig intensifyConfig) {
-        EquipmentSlot equipmentSlotForItem = LivingEntity.getEquipmentSlotForItem(itemStack);
-        CompoundTag tag = itemStack.getOrCreateTag();
+            ServerPlayerEntity player, ItemStack itemStack, ToolIntensifyConfig intensifyConfig) {
+        EquipmentSlotType equipmentSlotForItem = MobEntity.getSlotForItemStack(itemStack);
+        CompoundNBT tag = itemStack.getOrCreateTag();
         int currentLevel = getLevel(itemStack);
         int currentFailuresCount = getFailuresCount(tag);
         EnhanceResult enhanceResult = enhance(currentLevel, currentFailuresCount);
@@ -229,7 +228,8 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         if (enhanceResult != EnhanceResult.NOT_CHANGE) {
             boolean needProtect = false;
             if (enhanceResult == EnhanceResult.DOWNGRADE) {
-                needProtect = PlayerUtils.hasItem(player, ItemRegistry.PROTECTION_STONE.get());
+                needProtect =
+                        PlayerUtils.hasItemCount(player, ItemRegistry.PROTECTION_STONE.get(), 1);
             }
             if (needProtect) {
                 PlayerUtils.removeSingleItemFromPlayer(
@@ -290,9 +290,9 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         return ThreadLocalRandom.current().nextDouble(lower, upper);
     }
 
-    private static void sendMessage(ServerPlayer player, String currentLevel) {
+    private static void sendMessage(ServerPlayerEntity player, String currentLevel) {
         if (player != null) {
-            player.sendMessage(new TextComponent(currentLevel), player.getUUID());
+            player.sendMessage(new StringTextComponent(currentLevel), player.getUniqueID());
         }
     }
 
@@ -301,7 +301,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
             Attribute type,
             Double decreaseValue,
             ToolIntensifyConfig.GrowTypeEnum growType,
-            EquipmentSlot equipmentSlotForItem) {
+            EquipmentSlotType equipmentSlotForItem) {
         List<AttributeModifier> oldModifiers =
                 getAttributeModifiers(itemStack, type, equipmentSlotForItem);
         for (AttributeModifier oldAttributeModifier : oldModifiers) {
@@ -317,7 +317,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                             getAttributeModifierName(type),
                             newValue,
                             AttributeModifier.Operation.ADDITION);
-            ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getId());
+            ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getID());
             itemStack.addAttributeModifier(type, newAttributeModifier, equipmentSlotForItem);
         }
     }
@@ -327,7 +327,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
             Attribute type,
             Double incrementValue,
             ToolIntensifyConfig.GrowTypeEnum growType,
-            EquipmentSlot equipmentSlotForItem) {
+            EquipmentSlotType equipmentSlotForItem) {
         List<AttributeModifier> oldModifiers =
                 getAttributeModifiers(itemStack, type, equipmentSlotForItem);
 
@@ -352,14 +352,14 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                                 getAttributeModifierName(type),
                                 newValue,
                                 AttributeModifier.Operation.ADDITION);
-                ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getId());
+                ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getID());
                 itemStack.addAttributeModifier(type, newAttributeModifier, equipmentSlotForItem);
             }
         }
     }
 
-    private @NotNull List<AttributeModifier> getAttributeModifiers(
-            ItemStack itemStack, Attribute type, EquipmentSlot equipmentSlotForItem) {
+    private List<AttributeModifier> getAttributeModifiers(
+            ItemStack itemStack, Attribute type, EquipmentSlotType equipmentSlotForItem) {
         String attributeModifierName = getAttributeModifierName(type);
 
         Multimap<Attribute, AttributeModifier> attributeAttributeModifierMultimap =
@@ -376,21 +376,21 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         return oldModifiers;
     }
 
-    private int getFailuresCount(CompoundTag tag) {
+    private int getFailuresCount(CompoundNBT tag) {
         return tag.getInt(getTagId("failures_count"));
     }
 
     @Override
     public int getLevel(ItemStack itemStack) {
-        CompoundTag tag = itemStack.getOrCreateTag();
+        CompoundNBT tag = itemStack.getOrCreateTag();
         return tag.getInt(getTagId("level"));
     }
 
-    private void setFailuresCount(CompoundTag tag, int failuresCount) {
+    private void setFailuresCount(CompoundNBT tag, int failuresCount) {
         tag.putInt(getTagId("failures_count"), failuresCount);
     }
 
-    private void setLevel(CompoundTag tag, int level) {
+    private void setLevel(CompoundNBT tag, int level) {
         tag.putInt(getTagId("level"), level);
     }
 

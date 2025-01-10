@@ -158,11 +158,11 @@ import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.data.IFinishedRecipe;
+import net.minecraft.data.RecipeProvider;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.common.crafting.conditions.TrueCondition;
 import org.hhoa.mc.intensify.Intensify;
@@ -183,7 +183,7 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
         ConditionalRecipe.builder()
                 .addCondition(TrueCondition.INSTANCE)
                 .addRecipe(
@@ -195,8 +195,8 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 StrengtheningRecipe.SERIALIZER,
-                                                Advancement.Builder.advancement()
-                                                        .display(
+                                                Advancement.Builder.builder()
+                                                        .withDisplay(
                                                                 new ItemStack(Items.COAL),
                                                                 TranslatableTexts
                                                                         .STRENGTHENING_ADVANCEMENT_TITLE
@@ -211,7 +211,7 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                                 false))
                                         .unlockedBy(
                                                 HAS_STONE,
-                                                has(ItemRegistry.STRENGTHENING_STONE.get()))
+                                                hasItem(ItemRegistry.STRENGTHENING_STONE.get()))
                                 ::save)
                 .generateAdvancement()
                 .build(
@@ -231,8 +231,8 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 EnengRecipe.SERIALIZER,
-                                                Advancement.Builder.advancement()
-                                                        .display(
+                                                Advancement.Builder.builder()
+                                                        .withDisplay(
                                                                 new ItemStack(Items.LAPIS_LAZULI),
                                                                 TranslatableTexts
                                                                         .ENENG_ADVANCEMENT_TITLE
@@ -245,7 +245,8 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                                 true,
                                                                 true,
                                                                 false))
-                                        .unlockedBy(HAS_STONE, has(ItemRegistry.ENENG_STONE.get()))
+                                        .unlockedBy(
+                                                HAS_STONE, hasItem(ItemRegistry.ENENG_STONE.get()))
                                 ::save)
                 .generateAdvancement()
                 .build(
@@ -264,8 +265,8 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_EXPERIENCE,
                                                 IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME,
                                                 CommonIntensifyRecipe.SERIALIZER,
-                                                Advancement.Builder.advancement()
-                                                        .display(
+                                                Advancement.Builder.builder()
+                                                        .withDisplay(
                                                                 new ItemStack(Items.DIAMOND),
                                                                 TranslatableTexts
                                                                         .ETERNAL_ADVANCEMENT_TITLE
@@ -279,7 +280,8 @@ public class IntensifyStoneRecipeProvider extends RecipeProvider {
                                                                 true,
                                                                 false))
                                         .unlockedBy(
-                                                HAS_STONE, has(ItemRegistry.ETERNAL_STONE.get()))
+                                                HAS_STONE,
+                                                hasItem(ItemRegistry.ETERNAL_STONE.get()))
                                 ::save)
                 .generateAdvancement()
                 .build(

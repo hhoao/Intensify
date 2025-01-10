@@ -157,9 +157,9 @@ package org.hhoa.mc.intensify.item;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class StrengtheningStone extends IntensifyStone {
@@ -168,13 +168,13 @@ public class StrengtheningStone extends IntensifyStone {
     }
 
     @Override
-    public ChatFormatting getNameColor() {
-        return ChatFormatting.BLUE;
+    public TextFormatting getNameColor() {
+        return TextFormatting.BLUE;
     }
 
     @Override
-    public List<Component> getDescriptionTexts() {
-        ArrayList<Component> components = new ArrayList<>();
+    public List<ITextComponent> getDescriptionTexts() {
+        ArrayList<ITextComponent> components = new ArrayList<>();
         components.add(TranslatableTexts.STRENGTHENING_STONE_DESCRIPTION.component());
         components.add(TranslatableTexts.STRENGTHENING_STONE_DESCRIPTION_TIP.component());
         return components;
@@ -186,7 +186,7 @@ public class StrengtheningStone extends IntensifyStone {
     }
 
     @Override
-    public Collection<CreativeModeTab> getCreativeTabs() {
+    public Collection<ItemGroup> getCreativeTabs() {
         return super.getCreativeTabs();
     }
 }

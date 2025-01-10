@@ -154,12 +154,11 @@
 
 package org.hhoa.mc.intensify.recipes.impl;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.World;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
@@ -173,23 +172,27 @@ public class CommonIntensifyRecipe extends IntensifyRecipe {
                     CommonIntensifyRecipe::new, IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME);
 
     public CommonIntensifyRecipe(
-            ResourceLocation resourceLocation, float experience, int cookingTime) {
+            net.minecraft.util.ResourceLocation resourceLocation,
+            float experience,
+            int cookingTime) {
         super(resourceLocation, experience, cookingTime);
     }
 
     @Override
-    public boolean matchesInternal(Container container, Level level) {
-        ItemStack fuel = container.getItem(1);
+    public boolean matchesInternal(IInventory container, World level) {
+        ItemStack fuel = container.getStackInSlot(1);
 
         return fuel.getItem() == ItemRegistry.ETERNAL_STONE.get();
     }
 
     @Override
     public void intensify(
-            ItemStack tool, ToolIntensifyConfig toolItemIntensifyConfig, ServerPlayer player) {
-        CompoundTag tag = tool.getOrCreateTag();
+            ItemStack tool,
+            ToolIntensifyConfig toolItemIntensifyConfig,
+            ServerPlayerEntity player) {
+        CompoundNBT tag = tool.getOrCreateTag();
         tag.putBoolean("Unbreakable", true);
-        player.sendMessage(TranslatableTexts.ETERNAL_SUCCESS.component(), player.getUUID());
+        player.sendMessage(TranslatableTexts.ETERNAL_SUCCESS.component(), player.getUniqueID());
     }
 
     @Override

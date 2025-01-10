@@ -158,9 +158,9 @@ import static org.hhoa.mc.intensify.Intensify.MODID;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
 import org.hhoa.mc.intensify.provider.IntensifyItemModelProvider;
@@ -175,7 +175,7 @@ public class IntensifyModEventHandler {
     }
 
     @SubscribeEvent
-    public void onConfigLoad(ModConfigEvent event) {
+    public void onConfigLoad(ModConfig.ModConfigEvent event) {
         CommentedConfig configData = event.getConfig().getConfigData();
         System.out.println(configData);
     }
@@ -190,10 +190,7 @@ public class IntensifyModEventHandler {
                                 event.getGenerator(), MODID, event.getExistingFileHelper()));
         event.getGenerator().addProvider(new IntensifyStoneRecipeProvider(event.getGenerator()));
 
-        event.getGenerator()
-                .addProvider(
-                        new IntensifyAdvancementProvider(
-                                event.getGenerator(), event.getExistingFileHelper()));
+        event.getGenerator().addProvider(new IntensifyAdvancementProvider(event.getGenerator()));
         event.getGenerator().addProvider(new IntensifyLootTableProvider(event.getGenerator()));
     }
 }

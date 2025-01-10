@@ -152,23 +152,22 @@
  * This Source Code Form is “Incompatible With Secondary Licenses”, as defined by the Mozilla Public License, v. 2.0.
  */
 
-package org.hhoa.mc.intensify.provider;
+package org.hhoa.mc.intensify.core;
 
-import java.util.function.Consumer;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.util.ResourceLocation;
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.toml.TomlParser;
+import java.io.File;
+import java.net.MalformedURLException;
 
-public interface CustomRecipeBuilder {
-    ResourceLocation ROOT_RECIPE_ADVANCEMENT = new ResourceLocation("recipes/root");
-
-    CustomRecipeBuilder unlockedBy(String name, CriterionInstance criterionTriggerInstance);
-
-    void save(Consumer<IFinishedRecipe> finishedRecipeConsumer, ResourceLocation resourceLocation);
-
-    default void save(Consumer<IFinishedRecipe> p_176499_) {
-        this.save(p_176499_, getAdvancementId());
+public class YamlToTomlConverterTest {
+    public static void main(String[] args) throws MalformedURLException {
+        TomlParser tomlParser = new TomlParser();
+        CommentedConfig parse =
+                tomlParser.parse(
+                        new File(
+                                        "C:\\Users\\haung\\git\\opensource\\Intensify\\src\\main\\resources\\result\\axe.toml")
+                                .toURI()
+                                .toURL());
+        System.out.println(parse);
     }
-
-    ResourceLocation getAdvancementId();
 }

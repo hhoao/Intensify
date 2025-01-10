@@ -158,11 +158,11 @@ import com.google.gson.JsonObject;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.advancements.RequirementsStrategy;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.advancements.IRequirementsStrategy;
+import net.minecraft.advancements.criterion.CriterionInstance;
+import net.minecraft.data.IFinishedRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.util.ResourceLocation;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.recipes.IntensifyRecipeSerializer;
 
@@ -198,14 +198,16 @@ public class IntensifyStoneRecipeBuilder implements CustomRecipeBuilder {
 
     @Override
     public IntensifyStoneRecipeBuilder unlockedBy(
-            String name, CriterionTriggerInstance criterionTriggerInstance) {
-        this.advancement.addCriterion(name, criterionTriggerInstance);
+            String name, CriterionInstance criterionTriggerInstance) {
+        this.advancement.withCriterion(name, criterionTriggerInstance);
         return this;
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> recipeConsumer, ResourceLocation resourceLocation) {
-        this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).requirements(RequirementsStrategy.OR);
+    public void save(Consumer<IFinishedRecipe> recipeConsumer, ResourceLocation resourceLocation) {
+        this.advancement
+                .withParentId(ROOT_RECIPE_ADVANCEMENT)
+                .withRequirementsStrategy(IRequirementsStrategy.OR);
         recipeConsumer.accept(
                 new IntensifyStoneRecipeBuilder.Result(
                         this.id,
@@ -221,7 +223,7 @@ public class IntensifyStoneRecipeBuilder implements CustomRecipeBuilder {
         return new ResourceLocation(Intensify.MODID, "recipes/");
     }
 
-    static class Result implements FinishedRecipe {
+    static class Result implements IFinishedRecipe {
         private final ResourceLocation id;
         private final float experience;
         private final int cookingTime;
@@ -245,28 +247,29 @@ public class IntensifyStoneRecipeBuilder implements CustomRecipeBuilder {
         }
 
         @Override
-        public void serializeRecipeData(JsonObject jsonObject) {
+        public void serialize(JsonObject jsonObject) {
             jsonObject.addProperty("experience", this.experience);
             jsonObject.addProperty("cookingtime", this.cookingTime);
         }
 
         @Override
-        public RecipeSerializer<?> getType() {
+        public IRecipeSerializer<?> getSerializer() {
             return this.serializer;
         }
 
         @Override
-        public ResourceLocation getId() {
+        public ResourceLocation getID() {
             return this.id;
         }
 
         @Override
-        @javax.annotation.Nullable public JsonObject serializeAdvancement() {
-            return this.advancement.serializeToJson();
+        public JsonObject getAdvancementJson() {
+            return this.advancement.serialize();
         }
 
         @Override
-        @Nullable public ResourceLocation getAdvancementId() {
+        @Nullable
+        public ResourceLocation getAdvancementID() {
             return this.advancementId;
         }
     }

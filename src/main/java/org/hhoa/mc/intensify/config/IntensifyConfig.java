@@ -159,10 +159,9 @@ import static org.hhoa.mc.intensify.config.IntensifyConstants.ARMOR_NAME_CLASS_M
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.Item;
 import org.hhoa.mc.intensify.core.DefaultEnengIntensifySystem;
 import org.hhoa.mc.intensify.core.DefaultEnhancementIntensifySystem;
 import org.hhoa.mc.intensify.core.EnengIntensifySystem;
@@ -172,12 +171,11 @@ public class IntensifyConfig {
     private static DefaultEnengIntensifySystem defaultEnengIntensifySystem;
     private static DefaultEnhancementIntensifySystem defaultEnhancementIntensifySystem;
 
-    public static final Integer DEFAULT_INTENSIFY_STONE_BURN_TIME =
-            AbstractFurnaceBlockEntity.BURN_TIME_STANDARD;
+    public static final Integer DEFAULT_INTENSIFY_STONE_BURN_TIME = 200;
 
     public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
 
-    private static HashMap<EquipmentSlot, ToolIntensifyConfig> armorClassConfigMap;
+    private static HashMap<EquipmentSlotType, ToolIntensifyConfig> armorClassConfigMap;
     private static HashMap<Class<? extends Item>, ToolIntensifyConfig>
             classToolIntensifyConfigHashMap;
 
@@ -196,7 +194,7 @@ public class IntensifyConfig {
                         IntensifyConstants.TOOL_NAME_CLASS_MAPPING.get(
                                 toolIntensifyConfig.getName());
                 if (aClass == null) {
-                    EquipmentSlot type =
+                    EquipmentSlotType type =
                             ARMOR_NAME_CLASS_MAPPING.get(toolIntensifyConfig.getName());
                     if (type == null) {
                         throw new RuntimeException(toolIntensifyConfig.getName());
@@ -222,15 +220,16 @@ public class IntensifyConfig {
         return classToolIntensifyConfigHashMap;
     }
 
-    public static HashMap<EquipmentSlot, ToolIntensifyConfig> getArmorClassConfigMap() {
+    public static HashMap<EquipmentSlotType, ToolIntensifyConfig> getArmorClassConfigMap() {
         return armorClassConfigMap;
     }
 
     public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
-        HashMap<EquipmentSlot, ToolIntensifyConfig> armorClassConfigMap = getArmorClassConfigMap();
+        HashMap<EquipmentSlotType, ToolIntensifyConfig> armorClassConfigMap =
+                getArmorClassConfigMap();
         if (item instanceof ArmorItem) {
             ArmorItem armorItem = (ArmorItem) item;
-            return armorClassConfigMap.get(armorItem.getSlot());
+            return armorClassConfigMap.get(armorItem.getEquipmentSlot());
         } else {
             HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap =
                     getToolWeaponClassConfigMap();

@@ -158,22 +158,23 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.concurrent.ThreadLocalRandom;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.loot.ILootSerializer;
+import net.minecraft.loot.LootConditionType;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
+import net.minecraft.loot.conditions.ILootCondition;
 import org.hhoa.mc.intensify.config.StoneDropoutProbabilityConfig;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 
-public class MineralDestructionLootCondition implements LootItemCondition {
+public class MineralDestructionLootCondition implements ILootCondition {
     public static final String IDENTIFIER = "mineral_destruction";
-    public static final LootItemConditionType LOOT_ITEM_CONDITION_TYPE =
-            new LootItemConditionType(new Serializer());
+    public static final LootConditionType LOOT_ITEM_CONDITION_TYPE =
+            new LootConditionType(new Serializer());
     private final IntensifyStoneType intensifyStoneType;
 
     public MineralDestructionLootCondition(IntensifyStoneType intensifyStoneType) {
@@ -183,12 +184,11 @@ public class MineralDestructionLootCondition implements LootItemCondition {
     @Override
     public boolean test(LootContext lootContext) {
         StoneDropoutProbabilityConfig configValueMap = ConfigRegistry.stoneDropoutProbabilityConfig;
-        BlockState blockState = lootContext.getParamOrNull(LootContextParams.BLOCK_STATE);
+        BlockState blockState = lootContext.get(LootParameters.BLOCK_STATE);
         if (blockState == null
-                || !lootContext.hasParam(LootContextParams.TOOL)
-                || EnchantmentHelper.getItemEnchantmentLevel(
-                                Enchantments.SILK_TOUCH,
-                                lootContext.getParam(LootContextParams.TOOL))
+                || !lootContext.has(LootParameters.TOOL)
+                || EnchantmentHelper.getEnchantmentLevel(
+                                Enchantments.SILK_TOUCH, lootContext.get(LootParameters.TOOL))
                         > 0) {
             return false;
         }
@@ -203,13 +203,11 @@ public class MineralDestructionLootCondition implements LootItemCondition {
     }
 
     @Override
-    public LootItemConditionType getType() {
+    public LootConditionType func_230419_b_() {
         return LOOT_ITEM_CONDITION_TYPE;
     }
 
-    public static class Serializer
-            implements net.minecraft.world.level.storage.loot.Serializer<
-                    MineralDestructionLootCondition> {
+    public static class Serializer implements ILootSerializer<MineralDestructionLootCondition> {
         @Override
         public void serialize(
                 JsonObject jsonObject,
