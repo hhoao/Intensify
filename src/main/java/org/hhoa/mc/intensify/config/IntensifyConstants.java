@@ -155,6 +155,10 @@
 package org.hhoa.mc.intensify.config;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.BowItem;
@@ -204,5 +208,28 @@ public class IntensifyConstants {
         ARMOR_NAME_CLASS_MAPPING.put("boots", EquipmentSlotType.FEET);
         ARMOR_NAME_CLASS_MAPPING.put("helmet", EquipmentSlotType.HEAD);
         ARMOR_NAME_CLASS_MAPPING.put("chestplate", EquipmentSlotType.CHEST);
+    }
+
+    public static final Set<Block> LIMITED_REPLACED_BLOCKS = new HashSet<>();
+
+    static {
+        LIMITED_REPLACED_BLOCKS.add(Blocks.COAL_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.IRON_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.GOLD_ORE);
+        LIMITED_REPLACED_BLOCKS.add(Blocks.NETHER_GOLD_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.REDSTONE_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.LAPIS_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.DIAMOND_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.EMERALD_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.NETHER_QUARTZ_ORE);
+
+        LIMITED_REPLACED_BLOCKS.add(Blocks.ANCIENT_DEBRIS);
     }
 }

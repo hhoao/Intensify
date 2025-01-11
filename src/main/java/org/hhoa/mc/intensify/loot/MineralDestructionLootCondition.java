@@ -166,7 +166,14 @@ import net.minecraft.loot.LootConditionType;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
 import net.minecraft.loot.conditions.ILootCondition;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerChunkProvider;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.DimensionSavedDataManager;
 import org.hhoa.mc.intensify.config.StoneDropoutProbabilityConfig;
+import org.hhoa.mc.intensify.data.ChunkBlockDataStorage;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
@@ -183,7 +190,6 @@ public class MineralDestructionLootCondition implements ILootCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        StoneDropoutProbabilityConfig configValueMap = ConfigRegistry.stoneDropoutProbabilityConfig;
         BlockState blockState = lootContext.get(LootParameters.BLOCK_STATE);
         if (blockState == null
                 || !lootContext.has(LootParameters.TOOL)
@@ -192,6 +198,7 @@ public class MineralDestructionLootCondition implements ILootCondition {
                         > 0) {
             return false;
         }
+        StoneDropoutProbabilityConfig configValueMap = ConfigRegistry.stoneDropoutProbabilityConfig;
 
         Double stoneDropOutProbability =
                 configValueMap.getStoneDropOutProbability(
@@ -199,7 +206,23 @@ public class MineralDestructionLootCondition implements ILootCondition {
                         DropTypeEnum.MINERAL_BLOCK_DESTROYED,
                         blockState.getBlock());
 
-        return ThreadLocalRandom.current().nextDouble() < stoneDropOutProbability;
+        boolean randomResult = ThreadLocalRandom.current().nextDouble() < stoneDropOutProbability;
+        if (!randomResult) {
+            return false;
+        }
+
+        ServerWorld world = lootContext.getWorld();
+        ServerChunkProvider chunkProvider = world.getChunkProvider();
+        DimensionSavedDataManager savedData = chunkProvider.getSavedData();
+        Vector3d origin = lootContext.get(LootParameters.field_237457_g_);
+        BlockPos blockPos = new BlockPos(origin);
+        ChunkPos chunkPos = new ChunkPos(blockPos);
+        ChunkBlockDataStorage orCreate =
+                savedData.getOrCreate(
+                        () -> new ChunkBlockDataStorage(chunkPos),
+                        ChunkBlockDataStorage.getChunkBlockDataName(chunkPos));
+        boolean placed = orCreate.getBlockData(new BlockPos(origin));
+        return !placed;
     }
 
     @Override

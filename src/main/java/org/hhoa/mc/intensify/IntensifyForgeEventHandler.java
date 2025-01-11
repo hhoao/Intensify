@@ -155,6 +155,7 @@
 package org.hhoa.mc.intensify;
 
 import static org.hhoa.mc.intensify.Intensify.FIRST_LOGIN_CAPABILITY;
+import static org.hhoa.mc.intensify.config.IntensifyConstants.LIMITED_REPLACED_BLOCKS;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -178,12 +179,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.FurnaceTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -192,6 +197,7 @@ import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.hhoa.mc.intensify.capabilities.FirstLoginCapabilityProvider;
@@ -200,6 +206,7 @@ import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
+import org.hhoa.mc.intensify.data.ChunkBlockDataStorage;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
@@ -217,6 +224,34 @@ public class IntensifyForgeEventHandler {
             PlayerEntity player = event.getPlayer();
             persistentData.putString(
                     IntensifyConstants.FURNACE_OWNER_TAG_ID, player.getName().getString());
+        }
+    }
+
+    @SubscribeEvent
+    public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getWorld() instanceof ServerWorld)
+                || !LIMITED_REPLACED_BLOCKS.contains(event.getPlacedBlock().getBlock())) {
+            return;
+        }
+
+        ServerWorld world = (ServerWorld) event.getWorld();
+        BlockPos pos = event.getPos();
+        ChunkPos chunkPos = new ChunkPos(pos);
+
+        ChunkBlockDataStorage chunkDataStorage =
+                world.getSavedData()
+                        .getOrCreate(
+                                () -> new ChunkBlockDataStorage(chunkPos),
+                                ChunkBlockDataStorage.getChunkBlockDataName(chunkPos));
+
+        chunkDataStorage.setBlockData(pos, true);
+    }
+
+    @SubscribeEvent
+    public void onBlockPlace(BlockEvent.EntityMultiPlaceEvent event) {
+        List<BlockSnapshot> replacedBlockSnapshots = event.getReplacedBlockSnapshots();
+        for (BlockSnapshot replacedBlockSnapshot : replacedBlockSnapshots) {
+            System.out.println(replacedBlockSnapshot.getTileEntity());
         }
     }
 
