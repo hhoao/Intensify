@@ -162,10 +162,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hhoa.mc.intensify.capabilities.IFirstLoginCapability;
+import org.hhoa.mc.intensify.command.CommandIntensify;
+import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.proxy.CommonProxy;
+import org.hhoa.mc.intensify.registry.ConfigRegistry;
 
 @Mod(
         modid = Intensify.MODID,
@@ -201,12 +205,19 @@ public class Intensify {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         LOGGER.info("Intensify enable");
+        ConfigRegistry.initialize(event.getModConfigurationDirectory());
         MinecraftForge.EVENT_BUS.register(new IntensifyForgeEventHandler());
         PROXY.preInit(event);
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        IntensifyConfig.initialize();
         PROXY.init(event);
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandIntensify());
     }
 }

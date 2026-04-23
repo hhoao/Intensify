@@ -157,51 +157,65 @@ package org.hhoa.mc.intensify.config;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.toml.TomlParser;
-import java.io.IOException;
+import dev.shadowsoffire.attributeslib.api.ALObjects;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.resources.IResource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import org.hhoa.mc.intensify.Intensify;
 
 public class ConfigLoader {
+    private static final Map<String, IAttribute> ATTRIBUTE_BY_NAME = new HashMap<>();
+
+    static {
+        registerVanilla("generic.attack_damage", SharedMonsterAttributes.ATTACK_DAMAGE);
+        registerVanilla("generic.attack_speed", SharedMonsterAttributes.ATTACK_SPEED);
+        registerVanilla("generic.max_health", SharedMonsterAttributes.MAX_HEALTH);
+        registerVanilla("generic.armor", SharedMonsterAttributes.ARMOR);
+        registerVanilla("generic.armor_toughness", SharedMonsterAttributes.ARMOR_TOUGHNESS);
+        registerVanilla("generic.knockback_resistance", SharedMonsterAttributes.KNOCKBACK_RESISTANCE);
+        registerVanilla("generic.movement_speed", SharedMonsterAttributes.MOVEMENT_SPEED);
+        registerVanilla("generic.luck", SharedMonsterAttributes.LUCK);
+
+        registerCustom("armor_pierce", ALObjects.Attributes.ARMOR_PIERCE.get());
+        registerCustom("armor_shred", ALObjects.Attributes.ARMOR_SHRED.get());
+        registerCustom("arrow_damage", ALObjects.Attributes.ARROW_DAMAGE.get());
+        registerCustom("arrow_velocity", ALObjects.Attributes.ARROW_VELOCITY.get());
+        registerCustom("crit_chance", ALObjects.Attributes.CRIT_CHANCE.get());
+        registerCustom("crit_damage", ALObjects.Attributes.CRIT_DAMAGE.get());
+        registerCustom("current_hp_damage", ALObjects.Attributes.CURRENT_HP_DAMAGE.get());
+        registerCustom("dodge_chance", ALObjects.Attributes.DODGE_CHANCE.get());
+        registerCustom("draw_speed", ALObjects.Attributes.DRAW_SPEED.get());
+        registerCustom("experience_gained", ALObjects.Attributes.EXPERIENCE_GAINED.get());
+        registerCustom("ghost_health", ALObjects.Attributes.GHOST_HEALTH.get());
+        registerCustom("healing_received", ALObjects.Attributes.HEALING_RECEIVED.get());
+        registerCustom("life_steal", ALObjects.Attributes.LIFE_STEAL.get());
+        registerCustom("mining_speed", ALObjects.Attributes.MINING_SPEED.get());
+        registerCustom("overheal", ALObjects.Attributes.OVERHEAL.get());
+    }
+
     public static List<ToolIntensifyConfig> loadToolIntensifyConfigFromDir(String dir) {
         TomlParser tomlParser = new TomlParser();
-        Collection<ResourceLocation> resourceLocations =
-                Minecraft.getInstance().getResourceManager()
-                        .getAllResourceLocations(
-                                dir, (resourceLocation) -> !resourceLocation.isEmpty())
-                        .stream()
-                        .filter(
-                                (resourceLocation ->
-                                        resourceLocation.getPath().split("/").length == 3))
-                        .collect(Collectors.toList());
         List<ToolIntensifyConfig> toolIntensifyConfigs = new ArrayList<>();
-        for (ResourceLocation resourceLocation : resourceLocations) {
-            IResource resource;
-            try {
-                resource =
-                        Minecraft.getInstance().getResourceManager().getResource(resourceLocation);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try (InputStream bufferedReader = resource.getInputStream()) {
-                CommentedConfig tomlConfig = tomlParser.parse(bufferedReader);
+        for (String configName : IntensifyConstants.TOOL_CONFIG_RESOURCE_NAMES) {
+            String resourcePath =
+                    "/assets/" + Intensify.MODID + "/" + dir + "/" + configName + ".toml";
+            try (InputStream inputStream = ConfigLoader.class.getResourceAsStream(resourcePath)) {
+                if (inputStream == null) {
+                    continue;
+                }
 
-                Map<String, Object> toolConfig = tomlConfig.valueMap();
-                Set<Map.Entry<String, Object>> entries = toolConfig.entrySet();
+                CommentedConfig tomlConfig = tomlParser.parse(inputStream);
+                Set<Map.Entry<String, Object>> entries = tomlConfig.valueMap().entrySet();
                 for (Map.Entry<String, Object> entry : entries) {
                     toolIntensifyConfigs.add(loadToolIntensifyConfig(tomlConfig, entry.getKey()));
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException("Error loading config " + resourcePath, e);
             }
         }
 
@@ -264,12 +278,7 @@ public class ConfigLoader {
         if (type == null) {
             throw new RuntimeException(String.format("Attribute type %s not set", type));
         }
-        ResourceLocation resourceLocation = new ResourceLocation(type);
-        Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(resourceLocation);
-        if (attribute == null) {
-            resourceLocation = new ResourceLocation("attributeslib", type);
-            attribute = ForgeRegistries.ATTRIBUTES.getValue(resourceLocation);
-        }
+        IAttribute attribute = ATTRIBUTE_BY_NAME.get(type);
         if (attribute == null) {
             throw new RuntimeException(String.format("Attribute type %s not register", type));
         }
@@ -325,5 +334,14 @@ public class ConfigLoader {
             enengConfig.setValue(enengNode.get("value"));
             attributeConfig.setEneng(enengConfig);
         }
+    }
+
+    private static void registerVanilla(String key, IAttribute attribute) {
+        ATTRIBUTE_BY_NAME.put(key, attribute);
+    }
+
+    private static void registerCustom(String key, IAttribute attribute) {
+        ATTRIBUTE_BY_NAME.put(key, attribute);
+        ATTRIBUTE_BY_NAME.put("attributeslib." + key, attribute);
     }
 }

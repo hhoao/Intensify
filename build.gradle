@@ -72,6 +72,7 @@ dependencies {
 
     annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
     compile 'org.spongepowered:mixin:0.8.3'
+    implementation 'com.electronwill.night-config:toml:3.6.5'
     implementation 'org.yaml:snakeyaml:2.0'
     implementation fg.deobf("dev.shadowsoffire:attributeslib:${attributeslib_version}")
 }

@@ -155,13 +155,11 @@
 package org.hhoa.mc.intensify.config;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 
 public class TranslatableText {
     private final String key;
-    private IFormattableTextComponent component;
-    private String translated;
 
     public TranslatableText(String key) {
         this.key = key;
@@ -172,16 +170,10 @@ public class TranslatableText {
     }
 
     public String get(Object... args) {
-        if (translated == null) {
-            translated = I18n.format(key, args);
-        }
-        return translated;
+        return I18n.format(key, args);
     }
 
-    public IFormattableTextComponent component(Object... args) {
-        if (component == null) {
-            component = new TranslationTextComponent(key, args);
-        }
-        return component;
+    public ITextComponent component(Object... args) {
+        return new TextComponentTranslation(key, args);
     }
 }

@@ -157,15 +157,11 @@ package org.hhoa.mc.intensify;
 import static org.hhoa.mc.intensify.Intensify.FIRST_LOGIN_CAPABILITY;
 import static org.hhoa.mc.intensify.config.IntensifyConstants.LIMITED_REPLACED_BLOCKS;
 
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.PlayerAdvancements;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
@@ -191,7 +187,6 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -281,94 +276,6 @@ public class IntensifyForgeEventHandler {
         if (event.getObject() instanceof ServerPlayerEntity) {
             event.addCapability(FIRST_LOGIN_CAP, new FirstLoginCapabilityProvider());
         }
-    }
-
-    @SubscribeEvent
-    public void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSource> dispatcher = event.getDispatcher();
-        dispatcher.register(
-                Commands.literal("intensify")
-                        .then(
-                                Commands.literal("stone_dropout_rate")
-                                        .then(
-                                                Commands.argument(
-                                                                "rate",
-                                                                DoubleArgumentType.doubleArg(
-                                                                        0,
-                                                                        Double.MAX_VALUE)) // 设定倍率范围
-                                                        .executes(
-                                                                context -> {
-                                                                    double rate =
-                                                                            DoubleArgumentType
-                                                                                    .getDouble(
-                                                                                            context,
-                                                                                            "rate");
-                                                                    ConfigRegistry
-                                                                            .stoneDropoutProbabilityConfig
-                                                                            .getTotalRate()
-                                                                            .set(rate);
-                                                                    context.getSource()
-                                                                            .sendFeedback(
-                                                                                    TranslatableTexts
-                                                                                            .SET_STONE_DROP_RATE_TIP
-                                                                                            .component(
-                                                                                                    rate),
-                                                                                    true);
-                                                                    return 1;
-                                                                })))
-                        .then(
-                                Commands.literal("upgrade_multiplier")
-                                        .then(
-                                                Commands.argument(
-                                                                "rate",
-                                                                DoubleArgumentType.doubleArg(
-                                                                        0,
-                                                                        Double.MAX_VALUE)) // 设定倍率范围
-                                                        .executes(
-                                                                context -> {
-                                                                    double rate =
-                                                                            DoubleArgumentType
-                                                                                    .getDouble(
-                                                                                            context,
-                                                                                            "rate");
-                                                                    ConfigRegistry
-                                                                            .UPGRADE_MULTIPLIER
-                                                                            .set(rate);
-                                                                    context.getSource()
-                                                                            .sendFeedback(
-                                                                                    TranslatableTexts
-                                                                                            .SET_UPGRADE_MULTIPLIER_TIP
-                                                                                            .component(
-                                                                                                    rate),
-                                                                                    true);
-                                                                    return 1;
-                                                                })))
-                        .then(
-                                Commands.literal("attribute_multiplier")
-                                        .then(
-                                                Commands.argument(
-                                                                "rate",
-                                                                DoubleArgumentType.doubleArg(
-                                                                        0, Double.MAX_VALUE))
-                                                        .executes(
-                                                                context -> {
-                                                                    double rate =
-                                                                            DoubleArgumentType
-                                                                                    .getDouble(
-                                                                                            context,
-                                                                                            "rate");
-                                                                    ConfigRegistry
-                                                                            .ATTRIBUTE_MULTIPLIER
-                                                                            .set(rate);
-                                                                    context.getSource()
-                                                                            .sendFeedback(
-                                                                                    TranslatableTexts
-                                                                                            .SET_ATTRIBUTE_MULTIPLIER_TIP
-                                                                                            .component(
-                                                                                                    rate),
-                                                                                    true);
-                                                                    return 1;
-                                                                }))));
     }
 
     @SubscribeEvent
