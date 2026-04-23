@@ -155,16 +155,14 @@
 package org.hhoa.mc.intensify.item;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class StrengtheningStone extends IntensifyStone {
-    public StrengtheningStone(Properties properties) {
-        super(properties);
+    public StrengtheningStone() {
+        super();
     }
 
     @Override
@@ -183,10 +181,5 @@ public class StrengtheningStone extends IntensifyStone {
     @Override
     public IntensifyStoneType getIdentifier() {
         return IntensifyStoneType.STRENGTHENING_STONE;
-    }
-
-    @Override
-    public Collection<ItemGroup> getCreativeTabs() {
-        return super.getCreativeTabs();
     }
 }

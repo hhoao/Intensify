@@ -161,8 +161,8 @@ import net.minecraft.util.text.TextFormatting;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class ProtectionStone extends IntensifyStone {
-    public ProtectionStone(Properties properties) {
-        super(properties);
+    public ProtectionStone() {
+        super();
     }
 
     @Override

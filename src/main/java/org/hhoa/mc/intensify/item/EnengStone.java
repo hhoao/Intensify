@@ -161,8 +161,8 @@ import net.minecraft.util.text.TextFormatting;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class EnengStone extends IntensifyStone {
-    public EnengStone(Properties properties) {
-        super(properties);
+    public EnengStone() {
+        super();
     }
 
     @Override
