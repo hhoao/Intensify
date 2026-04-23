@@ -159,15 +159,18 @@ import static org.hhoa.mc.intensify.config.IntensifyConstants.ARMOR_NAME_CLASS_M
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hhoa.mc.intensify.core.DefaultEnengIntensifySystem;
 import org.hhoa.mc.intensify.core.DefaultEnhancementIntensifySystem;
 import org.hhoa.mc.intensify.core.EnengIntensifySystem;
 import org.hhoa.mc.intensify.core.EnhancementIntensifySystem;
 
 public class IntensifyConfig {
+    private static final Logger LOGGER = LogManager.getLogger(IntensifyConfig.class);
     private static DefaultEnengIntensifySystem defaultEnengIntensifySystem;
     private static DefaultEnhancementIntensifySystem defaultEnhancementIntensifySystem;
 
@@ -175,7 +178,7 @@ public class IntensifyConfig {
 
     public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
 
-    private static HashMap<EquipmentSlotType, ToolIntensifyConfig> armorClassConfigMap;
+    private static HashMap<EntityEquipmentSlot, ToolIntensifyConfig> armorClassConfigMap;
     private static HashMap<Class<? extends Item>, ToolIntensifyConfig>
             classToolIntensifyConfigHashMap;
 
@@ -194,10 +197,13 @@ public class IntensifyConfig {
                         IntensifyConstants.TOOL_NAME_CLASS_MAPPING.get(
                                 toolIntensifyConfig.getName());
                 if (aClass == null) {
-                    EquipmentSlotType type =
+                    EntityEquipmentSlot type =
                             ARMOR_NAME_CLASS_MAPPING.get(toolIntensifyConfig.getName());
                     if (type == null) {
-                        throw new RuntimeException(toolIntensifyConfig.getName());
+                        LOGGER.warn(
+                                "Skipping unsupported intensify config for {} on 1.12.2",
+                                toolIntensifyConfig.getName());
+                        continue;
                     }
                     armorClassConfigMap.put(type, toolIntensifyConfig);
                 } else {
@@ -220,16 +226,16 @@ public class IntensifyConfig {
         return classToolIntensifyConfigHashMap;
     }
 
-    public static HashMap<EquipmentSlotType, ToolIntensifyConfig> getArmorClassConfigMap() {
+    public static HashMap<EntityEquipmentSlot, ToolIntensifyConfig> getArmorClassConfigMap() {
         return armorClassConfigMap;
     }
 
     public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
-        HashMap<EquipmentSlotType, ToolIntensifyConfig> armorClassConfigMap =
+        HashMap<EntityEquipmentSlot, ToolIntensifyConfig> armorClassConfigMap =
                 getArmorClassConfigMap();
-        if (item instanceof ArmorItem) {
-            ArmorItem armorItem = (ArmorItem) item;
-            return armorClassConfigMap.get(armorItem.getEquipmentSlot());
+        if (item instanceof ItemArmor) {
+            ItemArmor armorItem = (ItemArmor) item;
+            return armorClassConfigMap.get(armorItem.armorType);
         } else {
             HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap =
                     getToolWeaponClassConfigMap();

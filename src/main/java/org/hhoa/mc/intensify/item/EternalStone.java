@@ -161,8 +161,8 @@ import net.minecraft.util.text.TextFormatting;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public class EternalStone extends IntensifyStone {
-    public EternalStone(Properties properties) {
-        super(properties);
+    public EternalStone() {
+        super();
     }
 
     @Override

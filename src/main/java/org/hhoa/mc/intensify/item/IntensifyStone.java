@@ -158,17 +158,15 @@ import java.util.List;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
 public abstract class IntensifyStone extends Item {
-    public IntensifyStone(Properties properties) {
-        super(properties);
+    public IntensifyStone() {
+        super();
     }
 
     @Override
@@ -176,35 +174,31 @@ public abstract class IntensifyStone extends Item {
         return true;
     }
 
-    @Override
     public int getBurnTime(ItemStack itemStack) {
         return IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME;
     }
 
     @Override
     public void addInformation(
-            ItemStack itemStack,
-            World level,
-            List<ITextComponent> components,
-            ITooltipFlag tooltipFlag) {
-        ITextComponent component = components.get(0);
-        if (component instanceof IFormattableTextComponent && getNameColor() != null) {
-            IFormattableTextComponent mutableComponent = (IFormattableTextComponent) component;
-            Style newStyle = component.getStyle().applyFormatting(getNameColor());
-            mutableComponent.setStyle(newStyle);
+            ItemStack itemStack, World level, List<String> components, ITooltipFlag tooltipFlag) {
+        if (!components.isEmpty() && getNameColor() != null) {
+            components.set(0, getNameColor() + components.get(0));
         }
+
         List<ITextComponent> descriptions = getDescriptionTexts();
         if (descriptions != null) {
             for (ITextComponent description : descriptions) {
-                if (description instanceof IFormattableTextComponent) {
-                    Style style =
-                            description.getStyle().applyFormatting(TextFormatting.DARK_PURPLE);
-                    ((IFormattableTextComponent) description).setStyle(style);
-                    components.add(description);
-                }
+                ITextComponent styledDescription =
+                        description.createCopy()
+                                .setStyle(
+                                        description
+                                                .getStyle()
+                                                .createShallowCopy()
+                                                .setColor(TextFormatting.DARK_PURPLE));
+                components.add(styledDescription.getFormattedText());
             }
         }
-        components.add(TranslatableTexts.INTENSIFY_ITEM_TIP.component());
+        components.add(TranslatableTexts.INTENSIFY_ITEM_TIP.component().getFormattedText());
         super.addInformation(itemStack, level, components, tooltipFlag);
     }
 

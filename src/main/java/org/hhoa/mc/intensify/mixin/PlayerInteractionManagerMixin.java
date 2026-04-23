@@ -154,48 +154,63 @@
 
 package org.hhoa.mc.intensify.mixin;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import org.hhoa.mc.intensify.config.StoneDropoutProbabilityConfig;
 import org.hhoa.mc.intensify.data.ChunkBlockDataStorage;
+import org.hhoa.mc.intensify.enums.DropTypeEnum;
+import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(PlayerInteractionManager.class)
 public class PlayerInteractionManagerMixin {
-    @Shadow public ServerWorld world;
-
     @Redirect(
             method = "tryHarvestBlock(Lnet/minecraft/util/math/BlockPos;)Z",
             at =
                     @At(
                             value = "INVOKE",
                             target =
-                                    "Lnet/minecraft/block/Block;harvestBlock(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/item/ItemStack;)V",
+                                    "Lnet/minecraft/block/Block;harvestBlock(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/item/ItemStack;)V",
                             ordinal = 0))
     private void apoth_cachePredicate(
             Block block,
             World worldIn,
-            PlayerEntity player,
+            EntityPlayer player,
             BlockPos pos,
-            BlockState state,
+            IBlockState state,
             @Nullable TileEntity te,
             ItemStack stack) {
         block.harvestBlock(worldIn, player, pos, state, te, stack);
 
-        ChunkBlockDataStorage orCreate = ChunkBlockDataStorage.getOrCreate(world, pos);
+        ChunkBlockDataStorage storage = ChunkBlockDataStorage.getOrCreate(worldIn, pos);
+        if (storage.getBlockData(pos)) {
+            storage.setBlockData(pos, false);
+            return;
+        }
 
-        if (!orCreate.getBlockData(pos)) return;
+        if (worldIn.isRemote
+                || stack.isEmpty()
+                || EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0) {
+            return;
+        }
 
-        orCreate.setBlockData(pos, false);
+        StoneDropoutProbabilityConfig probabilities = ConfigRegistry.stoneDropoutProbabilityConfig;
+        Optional<net.minecraft.item.Item> stone =
+                probabilities.dropStone(DropTypeEnum.MINERAL_BLOCK_DESTROYED, state.getBlock());
+        if (stone.isPresent()) {
+            Block.spawnAsEntity(worldIn, pos, new ItemStack(stone.get()));
+        }
     }
 }

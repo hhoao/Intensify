@@ -159,7 +159,7 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.IAttribute;
 import org.hhoa.mc.intensify.util.TypeChecker;
 
 public class ToolIntensifyConfig {
@@ -192,15 +192,15 @@ public class ToolIntensifyConfig {
     }
 
     public static class AttributeConfig {
-        private Attribute type;
+        private IAttribute type;
         private EnengConfig eneng;
         private List<GrowConfig> grows = new ArrayList<>();
 
-        public Attribute getType() {
+        public IAttribute getType() {
             return type;
         }
 
-        public void setType(Attribute type) {
+        public void setType(IAttribute type) {
             this.type = type;
         }
 

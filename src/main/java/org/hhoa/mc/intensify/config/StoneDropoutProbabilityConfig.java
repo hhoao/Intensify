@@ -154,260 +154,277 @@
 
 package org.hhoa.mc.intensify.config;
 
-import java.util.HashMap;
+import java.io.File;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraftforge.common.config.Configuration;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
+import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class StoneDropoutProbabilityConfig {
-    private final HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> stoneRate;
+    private static final Map<IntensifyStoneType, Double> DEFAULT_STONE_RATE =
+            new EnumMap<>(IntensifyStoneType.class);
+    private static final Map<DropTypeEnum, Double> DEFAULT_DROP_TYPE_RATE =
+            new EnumMap<>(DropTypeEnum.class);
+    private static final Map<DropTypeEnum, Map<String, Double>> DEFAULT_DROP_PROBABILITIES =
+            new EnumMap<>(DropTypeEnum.class);
 
-    private final HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> defaultProbabilities;
+    static {
+        DEFAULT_STONE_RATE.put(IntensifyStoneType.STRENGTHENING_STONE, 1.0D);
+        DEFAULT_STONE_RATE.put(IntensifyStoneType.ENENG_STONE, 0.1D);
+        DEFAULT_STONE_RATE.put(IntensifyStoneType.ETERNAL_STONE, 0.001D);
+        DEFAULT_STONE_RATE.put(IntensifyStoneType.PROTECTION_STONE, 0.01D);
 
-    private final ForgeConfigSpec.ConfigValue<Double> totalRate;
+        DEFAULT_DROP_TYPE_RATE.put(DropTypeEnum.FISHING, 0.045D);
+        DEFAULT_DROP_TYPE_RATE.put(DropTypeEnum.MINERAL_BLOCK_DESTROYED, 0.0D);
+        DEFAULT_DROP_TYPE_RATE.put(DropTypeEnum.MOB_KILLED, 0.015D);
 
-    private final Map<DropTypeEnum, Map<String, ForgeConfigSpec.ConfigValue<Double>>>
-            stoneDropProbability;
-
-    public static Pair<ForgeConfigSpec, StoneDropoutProbabilityConfig> create() {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        StoneDropoutProbabilityConfig stoneDropoutProbabilityConfig =
-                new StoneDropoutProbabilityConfig(builder);
-        ForgeConfigSpec build = builder.build();
-        return Pair.of(build, stoneDropoutProbabilityConfig);
+        DEFAULT_DROP_PROBABILITIES.put(
+                DropTypeEnum.MINERAL_BLOCK_DESTROYED, createMineDefaults());
+        DEFAULT_DROP_PROBABILITIES.put(DropTypeEnum.FISHING, createFishingDefaults());
+        DEFAULT_DROP_PROBABILITIES.put(DropTypeEnum.MOB_KILLED, createMobDefaults());
     }
 
-    public ForgeConfigSpec.ConfigValue<Double> getTotalRate() {
-        return totalRate;
+    private final Map<IntensifyStoneType, Double> stoneRate = new EnumMap<>(IntensifyStoneType.class);
+    private final Map<DropTypeEnum, Double> defaultProbabilities = new EnumMap<>(DropTypeEnum.class);
+    private final Map<DropTypeEnum, Map<String, Double>> stoneDropProbability =
+            new EnumMap<>(DropTypeEnum.class);
+    private final ConfigRegistry.MutableDoubleValue totalRate =
+            new ConfigRegistry.MutableDoubleValue("total_rate", 1.0D);
+    private Configuration configuration;
+
+    public void initialize(File file) {
+        this.configuration = new Configuration(file);
+        sync();
+    }
+
+    public ConfigRegistry.MutableDoubleValue getTotalRate() {
+        return this.totalRate;
+    }
+
+    public void save() {
+        if (this.configuration == null) {
+            return;
+        }
+        writeCurrentValues();
+        if (this.configuration.hasChanged()) {
+            this.configuration.save();
+        }
     }
 
     public Optional<Item> dropStone(DropTypeEnum dropTypeEnum, Object key) {
-        Map<?, Double> probabilities = getEntityStoneDropOutProbabilities(dropTypeEnum);
-        Double probability =
-                probabilities.getOrDefault(key, defaultProbabilities.get(dropTypeEnum).get())
-                        * totalRate.get();
+        double probability =
+                getProbabilityFor(dropTypeEnum, key) * this.totalRate.get();
+        if (ThreadLocalRandom.current().nextDouble() > probability) {
+            return Optional.empty();
+        }
 
-        double v = ThreadLocalRandom.current().nextDouble();
-        if (v <= probability) {
-            double totalValue = 0;
-            for (Map.Entry<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> entry :
-                    stoneRate.entrySet()) {
-                ForgeConfigSpec.ConfigValue<Double> value = entry.getValue();
-                totalValue += value.get();
-            }
-            double v1 = probability / totalValue;
-            for (Map.Entry<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> entry :
-                    stoneRate.entrySet()) {
-                if (v <= v1 * entry.getValue().get()) {
-                    IntensifyStoneType key1 = entry.getKey();
-                    switch (key1) {
-                        case ENENG_STONE:
-                            return Optional.of(ItemRegistry.ENENG_STONE.get());
-                        case STRENGTHENING_STONE:
-                            return Optional.of(ItemRegistry.STRENGTHENING_STONE.get());
-                        case ETERNAL_STONE:
-                            return Optional.of(ItemRegistry.ETERNAL_STONE.get());
-                        case PROTECTION_STONE:
-                            return Optional.of(ItemRegistry.PROTECTION_STONE.get());
-                    }
-                }
+        double totalWeight = 0.0D;
+        for (double value : this.stoneRate.values()) {
+            totalWeight += value;
+        }
+        if (totalWeight <= 0.0D) {
+            return Optional.empty();
+        }
+
+        double selection = ThreadLocalRandom.current().nextDouble(totalWeight);
+        double consumed = 0.0D;
+        for (Map.Entry<IntensifyStoneType, Double> entry : this.stoneRate.entrySet()) {
+            consumed += entry.getValue();
+            if (selection <= consumed) {
+                return Optional.of(resolveStone(entry.getKey()));
             }
         }
-        return Optional.empty();
+
+        return Optional.of(resolveStone(IntensifyStoneType.STRENGTHENING_STONE));
     }
 
     public Double getStoneDropOutProbability(
             IntensifyStoneType intensifyStone, DropTypeEnum dropTypeEnum, Object key) {
-        Map<?, Double> probabilities = getEntityStoneDropOutProbabilities(dropTypeEnum);
-        Double stoneRate = this.stoneRate.get(intensifyStone).get();
-        Double stoneDropProperties =
-                probabilities.getOrDefault(key, defaultProbabilities.get(dropTypeEnum).get())
-                        * totalRate.get();
-        return stoneDropProperties * stoneRate;
+        double stoneWeight = this.stoneRate.get(intensifyStone);
+        return getProbabilityFor(dropTypeEnum, key) * this.totalRate.get() * stoneWeight;
     }
 
-    private Map<?, Double> getEntityStoneDropOutProbabilities(DropTypeEnum dropTypeEnum) {
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> mineralBlocksProbability =
-                stoneDropProbability.get(dropTypeEnum);
-        Map<Object, Double> stoneDropoutProbability = new HashMap<>();
-        for (Map.Entry<String, ForgeConfigSpec.ConfigValue<Double>> blockNameWithProbability :
-                mineralBlocksProbability.entrySet()) {
-            ResourceLocation resourceLocation =
-                    new ResourceLocation(blockNameWithProbability.getKey());
-            Object value;
-            if (dropTypeEnum == DropTypeEnum.MINERAL_BLOCK_DESTROYED) {
-                value = ForgeRegistries.BLOCKS.getValue(resourceLocation);
-            } else if (dropTypeEnum == DropTypeEnum.FISHING) {
-                value = ForgeRegistries.ITEMS.getValue(resourceLocation);
-            } else if (dropTypeEnum == DropTypeEnum.MOB_KILLED) {
-                value = ForgeRegistries.ENTITIES.getValue(resourceLocation);
-            } else {
-                throw new RuntimeException("No such drop type");
-            }
-            stoneDropoutProbability.put(value, blockNameWithProbability.getValue().get());
+    private void sync() {
+        if (this.configuration == null) {
+            return;
         }
-        return stoneDropoutProbability;
-    }
 
-    private StoneDropoutProbabilityConfig(ForgeConfigSpec.Builder builder) {
-        builder.push("probabilities");
+        this.configuration.load();
+        this.totalRate.set(readDouble("general", this.totalRate.getKey(), 1.0D));
 
-        // 矿石概率配置
-        stoneDropProbability = new HashMap<>();
-        configureMineProbability(builder);
-
-        // 钓鱼概率配置
-        configureFishing(builder);
-
-        // 生物概率配置
-        configureMob(builder);
-
-        defaultProbabilities = configureDefault(builder);
-        totalRate = builder.define("total_rate", 1.0);
-        stoneRate = configureStone(builder);
-    }
-
-    private HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> configureStone(
-            ForgeConfigSpec.Builder builder) {
-        final HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> stoneRate;
-        builder.push("stone_rate");
-        stoneRate = new HashMap<>();
-        stoneRate.put(
-                IntensifyStoneType.STRENGTHENING_STONE,
-                builder.define(IntensifyStoneType.STRENGTHENING_STONE.getIdentifier(), 1.0));
-        stoneRate.put(
-                IntensifyStoneType.ENENG_STONE,
-                builder.define(IntensifyStoneType.ENENG_STONE.getIdentifier(), 0.1));
-        stoneRate.put(
-                IntensifyStoneType.ETERNAL_STONE,
-                builder.define(IntensifyStoneType.ETERNAL_STONE.getIdentifier(), 0.001));
-        stoneRate.put(
-                IntensifyStoneType.PROTECTION_STONE,
-                builder.define(IntensifyStoneType.PROTECTION_STONE.getIdentifier(), 0.01));
-        builder.pop();
-        return stoneRate;
-    }
-
-    private HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> configureDefault(
-            ForgeConfigSpec.Builder builder) {
-        final HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> defaultProbabilities;
-        builder.push("defaults");
-        defaultProbabilities = new HashMap<>();
-        ForgeConfigSpec.ConfigValue<Double> defaultFishing =
-                builder.define(DropTypeEnum.FISHING.getIdentify(), 0.045);
-        ForgeConfigSpec.ConfigValue<Double> defaultMineralBlockDestroyed =
-                builder.define(DropTypeEnum.MINERAL_BLOCK_DESTROYED.getIdentify(), 0.0);
-        ForgeConfigSpec.ConfigValue<Double> defaultMobKilled =
-                builder.define(DropTypeEnum.MOB_KILLED.getIdentify(), 0.015);
-
-        defaultProbabilities.put(DropTypeEnum.FISHING, defaultFishing);
-        defaultProbabilities.put(
-                DropTypeEnum.MINERAL_BLOCK_DESTROYED, defaultMineralBlockDestroyed);
-        defaultProbabilities.put(DropTypeEnum.MOB_KILLED, defaultMobKilled);
-
-        builder.pop();
-        return defaultProbabilities;
-    }
-
-    private void configureMob(ForgeConfigSpec.Builder builder) {
-        builder.push(DropTypeEnum.MOB_KILLED.getIdentify());
-        HashMap<String, Double> mobsProbability = new HashMap<>();
-        mobsProbability.put(getRegistryName(EntityType.WITHER), 10.0);
-        mobsProbability.put(getRegistryName(EntityType.ENDER_DRAGON), 100.0);
-        mobsProbability.put(getRegistryName(EntityType.SKELETON_HORSE), 0.8);
-        mobsProbability.put(getRegistryName(EntityType.ZOMBIE_HORSE), 0.8);
-        mobsProbability.put(getRegistryName(EntityType.IRON_GOLEM), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.DOLPHIN), 0.08);
-        mobsProbability.put(getRegistryName(EntityType.GUARDIAN), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.ELDER_GUARDIAN), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.PARROT), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.FOX), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.PANDA), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.POLAR_BEAR), 0.05);
-        mobsProbability.put(getRegistryName(EntityType.SLIME), 0.02);
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> mobProbability =
-                createProbabilityConfig(builder, mobsProbability);
-        stoneDropProbability.put(DropTypeEnum.MOB_KILLED, mobProbability);
-        builder.pop();
-    }
-
-    private void configureFishing(ForgeConfigSpec.Builder builder) {
-        builder.push(DropTypeEnum.FISHING.getIdentify());
-        HashMap<String, Double> itemNameProbabilityMap = new HashMap<>();
-        itemNameProbabilityMap.put(getRegistryName(Items.COD), 0.02);
-        itemNameProbabilityMap.put(getRegistryName(Items.SALMON), 0.04);
-        itemNameProbabilityMap.put(getRegistryName(Items.TROPICAL_FISH), 0.2);
-        itemNameProbabilityMap.put(getRegistryName(Items.PUFFERFISH), 0.08);
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> fishProbability =
-                createProbabilityConfig(builder, itemNameProbabilityMap);
-        stoneDropProbability.put(DropTypeEnum.FISHING, fishProbability);
-        builder.pop();
-    }
-
-    private void configureMineProbability(ForgeConfigSpec.Builder builder) {
-        builder.push(DropTypeEnum.MINERAL_BLOCK_DESTROYED.getIdentify());
-
-        HashMap<String, Double> blocksProbability = new HashMap<>();
-        blocksProbability.put(getRegistryName(Blocks.COAL_ORE), 0.02);
-
-        blocksProbability.put(getRegistryName(Blocks.IRON_ORE), 0.04);
-
-        blocksProbability.put(getRegistryName(Blocks.GOLD_ORE), 0.05);
-        blocksProbability.put(getRegistryName(Blocks.NETHER_GOLD_ORE), 0.03);
-
-        blocksProbability.put(getRegistryName(Blocks.REDSTONE_ORE), 0.03);
-
-        blocksProbability.put(getRegistryName(Blocks.LAPIS_ORE), 0.03);
-
-        blocksProbability.put(getRegistryName(Blocks.DIAMOND_ORE), 0.1);
-
-        blocksProbability.put(getRegistryName(Blocks.EMERALD_ORE), 0.1);
-
-        blocksProbability.put(getRegistryName(Blocks.NETHER_QUARTZ_ORE), 0.01);
-
-        blocksProbability.put(getRegistryName(Blocks.ANCIENT_DEBRIS), 0.2);
-
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> mineralBlocksProbability =
-                createProbabilityConfig(builder, blocksProbability);
-        stoneDropProbability.put(DropTypeEnum.MINERAL_BLOCK_DESTROYED, mineralBlocksProbability);
-        builder.pop();
-    }
-
-    private Map<String, ForgeConfigSpec.ConfigValue<Double>> createProbabilityConfig(
-            ForgeConfigSpec.Builder builder, Map<String, Double> defaults) {
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> configMap = new HashMap<>();
-        for (Map.Entry<String, Double> entry : defaults.entrySet()) {
-            configMap.put(
+        this.stoneRate.clear();
+        for (Map.Entry<IntensifyStoneType, Double> entry : DEFAULT_STONE_RATE.entrySet()) {
+            this.stoneRate.put(
                     entry.getKey(),
-                    builder.comment("Probability for " + entry.getKey())
-                            .defineInRange(entry.getKey(), entry.getValue(), 0.0, 1.0));
+                    readDouble("stone_rate", entry.getKey().getIdentifier(), entry.getValue()));
         }
-        return configMap;
+
+        this.defaultProbabilities.clear();
+        for (Map.Entry<DropTypeEnum, Double> entry : DEFAULT_DROP_TYPE_RATE.entrySet()) {
+            this.defaultProbabilities.put(
+                    entry.getKey(),
+                    readDouble("defaults", entry.getKey().getIdentify(), entry.getValue()));
+        }
+
+        this.stoneDropProbability.clear();
+        for (Map.Entry<DropTypeEnum, Map<String, Double>> entry :
+                DEFAULT_DROP_PROBABILITIES.entrySet()) {
+            Map<String, Double> configured = new LinkedHashMap<>();
+            for (Map.Entry<String, Double> probability : entry.getValue().entrySet()) {
+                configured.put(
+                        probability.getKey(),
+                        readDouble(
+                                entry.getKey().getIdentify(),
+                                probability.getKey(),
+                                probability.getValue()));
+            }
+            this.stoneDropProbability.put(entry.getKey(), configured);
+        }
+
+        save();
     }
 
-    private static String getRegistryName(Object registryObject) {
-        if (registryObject instanceof Block) {
-            Block block = (Block) registryObject;
-            return ForgeRegistries.BLOCKS.getKey(block).toString();
-        } else if (registryObject instanceof Item) {
-            Item item = (Item) registryObject;
-            return ForgeRegistries.ITEMS.getKey(item).toString();
-        } else if (registryObject instanceof EntityType<?>) {
-            EntityType<?> entityType = (EntityType<?>) registryObject;
-            return ForgeRegistries.ENTITIES.getKey(entityType).toString();
+    private void writeCurrentValues() {
+        this.configuration
+                .get("general", this.totalRate.getKey(), this.totalRate.getDefaultValue())
+                .set(this.totalRate.get());
+
+        for (Map.Entry<IntensifyStoneType, Double> entry : this.stoneRate.entrySet()) {
+            this.configuration
+                    .get("stone_rate", entry.getKey().getIdentifier(), entry.getValue())
+                    .set(entry.getValue());
         }
-        throw new IllegalArgumentException("Unsupported registry object: " + registryObject);
+
+        for (Map.Entry<DropTypeEnum, Double> entry : this.defaultProbabilities.entrySet()) {
+            this.configuration
+                    .get("defaults", entry.getKey().getIdentify(), entry.getValue())
+                    .set(entry.getValue());
+        }
+
+        for (Map.Entry<DropTypeEnum, Map<String, Double>> entry : this.stoneDropProbability.entrySet()) {
+            for (Map.Entry<String, Double> probability : entry.getValue().entrySet()) {
+                this.configuration
+                        .get(entry.getKey().getIdentify(), probability.getKey(), probability.getValue())
+                        .set(probability.getValue());
+            }
+        }
+    }
+
+    private double getProbabilityFor(DropTypeEnum dropTypeEnum, Object key) {
+        Map<String, Double> probabilities = this.stoneDropProbability.get(dropTypeEnum);
+        String lookupKey = toLookupKey(key);
+        if (lookupKey != null && probabilities.containsKey(lookupKey)) {
+            return probabilities.get(lookupKey);
+        }
+        return this.defaultProbabilities.get(dropTypeEnum);
+    }
+
+    private double readDouble(String category, String key, double defaultValue) {
+        return this.configuration.get(category, key, defaultValue).getDouble(defaultValue);
+    }
+
+    private static Item resolveStone(IntensifyStoneType type) {
+        switch (type) {
+            case ENENG_STONE:
+                return ItemRegistry.ENENG_STONE;
+            case ETERNAL_STONE:
+                return ItemRegistry.ETERNAL_STONE;
+            case PROTECTION_STONE:
+                return ItemRegistry.PROTECTION_STONE;
+            case STRENGTHENING_STONE:
+            default:
+                return ItemRegistry.STRENGTHENING_STONE;
+        }
+    }
+
+    private static String toLookupKey(Object key) {
+        if (key == null) {
+            return null;
+        }
+        if (key instanceof ItemStack) {
+            ItemStack stack = (ItemStack) key;
+            ResourceLocation id = Item.REGISTRY.getNameForObject(stack.getItem());
+            return id == null ? null : id.toString() + "." + stack.getMetadata();
+        }
+        if (key instanceof Block) {
+            ResourceLocation id = Block.REGISTRY.getNameForObject((Block) key);
+            return id == null ? null : id.toString();
+        }
+        if (key instanceof Item) {
+            ResourceLocation id = Item.REGISTRY.getNameForObject((Item) key);
+            return id == null ? null : id.toString();
+        }
+        if (key instanceof Entity) {
+            ResourceLocation id = EntityList.getKey((Entity) key);
+            return id == null ? null : id.toString();
+        }
+        if (key instanceof ResourceLocation) {
+            return key.toString();
+        }
+        if (key instanceof String) {
+            return (String) key;
+        }
+        return null;
+    }
+
+    private static Map<String, Double> createMineDefaults() {
+        Map<String, Double> defaults = new LinkedHashMap<>();
+        defaults.put(getRegistryName(Blocks.COAL_ORE), 0.02D);
+        defaults.put(getRegistryName(Blocks.IRON_ORE), 0.04D);
+        defaults.put(getRegistryName(Blocks.GOLD_ORE), 0.05D);
+        defaults.put(getRegistryName(Blocks.REDSTONE_ORE), 0.03D);
+        defaults.put(getRegistryName(Blocks.LAPIS_ORE), 0.03D);
+        defaults.put(getRegistryName(Blocks.DIAMOND_ORE), 0.1D);
+        defaults.put(getRegistryName(Blocks.EMERALD_ORE), 0.1D);
+        defaults.put(getRegistryName(Blocks.QUARTZ_ORE), 0.01D);
+        return defaults;
+    }
+
+    private static Map<String, Double> createFishingDefaults() {
+        Map<String, Double> defaults = new LinkedHashMap<>();
+        defaults.put(getRegistryName(new ItemStack(Items.FISH, 1, 0)), 0.02D);
+        defaults.put(getRegistryName(new ItemStack(Items.FISH, 1, 1)), 0.04D);
+        defaults.put(getRegistryName(new ItemStack(Items.FISH, 1, 2)), 0.2D);
+        defaults.put(getRegistryName(new ItemStack(Items.FISH, 1, 3)), 0.08D);
+        return defaults;
+    }
+
+    private static Map<String, Double> createMobDefaults() {
+        Map<String, Double> defaults = new LinkedHashMap<>();
+        defaults.put("minecraft:wither", 10.0D);
+        defaults.put("minecraft:ender_dragon", 100.0D);
+        defaults.put("minecraft:skeleton_horse", 0.8D);
+        defaults.put("minecraft:zombie_horse", 0.8D);
+        defaults.put("minecraft:villager_golem", 0.05D);
+        defaults.put("minecraft:guardian", 0.05D);
+        defaults.put("minecraft:elder_guardian", 0.05D);
+        defaults.put("minecraft:parrot", 0.05D);
+        defaults.put("minecraft:polar_bear", 0.05D);
+        defaults.put("minecraft:slime", 0.02D);
+        return defaults;
+    }
+
+    private static String getRegistryName(Block block) {
+        ResourceLocation id = Block.REGISTRY.getNameForObject(block);
+        return id == null ? "" : id.toString();
+    }
+
+    private static String getRegistryName(ItemStack stack) {
+        ResourceLocation id = Item.REGISTRY.getNameForObject(stack.getItem());
+        return id == null ? "" : id.toString() + "." + stack.getMetadata();
     }
 }

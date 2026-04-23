@@ -160,14 +160,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.TextComponentString;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
@@ -211,14 +211,14 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
 
     @Override
     public void intensify(
-            ServerPlayerEntity player, ItemStack itemStack, ToolIntensifyConfig intensifyConfig) {
-        EquipmentSlotType equipmentSlotForItem = MobEntity.getSlotForItemStack(itemStack);
-        CompoundNBT tag = itemStack.getOrCreateTag();
+            EntityPlayerMP player, ItemStack itemStack, ToolIntensifyConfig intensifyConfig) {
+        EntityEquipmentSlot equipmentSlotForItem = EntityLiving.getSlotForItemStack(itemStack);
+        NBTTagCompound tag = getOrCreateTag(itemStack);
         int currentLevel = getLevel(itemStack);
         int currentFailuresCount = getFailuresCount(tag);
         EnhanceResult enhanceResult = enhance(currentLevel, currentFailuresCount);
         if (enhanceResult == EnhanceResult.NOT_CHANGE) {
-            setFailuresCount(itemStack.getOrCreateTag(), currentFailuresCount + 1);
+            setFailuresCount(getOrCreateTag(itemStack), currentFailuresCount + 1);
             sendMessage(
                     player,
                     TranslatableTexts.STRENGTHENING_UNCHANGED.get(
@@ -228,13 +228,11 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         if (enhanceResult != EnhanceResult.NOT_CHANGE) {
             boolean needProtect = false;
             if (enhanceResult == EnhanceResult.DOWNGRADE) {
-                needProtect =
-                        PlayerUtils.hasItemCount(player, ItemRegistry.PROTECTION_STONE.get(), 1);
+                needProtect = PlayerUtils.hasItemCount(player, ItemRegistry.PROTECTION_STONE, 1);
             }
             if (needProtect) {
-                PlayerUtils.removeSingleItemFromPlayer(
-                        player, ItemRegistry.PROTECTION_STONE.get(), 1);
-                setFailuresCount(itemStack.getOrCreateTag(), currentFailuresCount + 1);
+                PlayerUtils.removeSingleItemFromPlayer(player, ItemRegistry.PROTECTION_STONE, 1);
+                setFailuresCount(getOrCreateTag(itemStack), currentFailuresCount + 1);
                 sendMessage(
                         player,
                         TranslatableTexts.STRENGTHENING_PROTECTED.get(
@@ -243,7 +241,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                 List<ToolIntensifyConfig.AttributeConfig> attributes =
                         intensifyConfig.getAttributes();
                 for (ToolIntensifyConfig.AttributeConfig attribute : attributes) {
-                    Attribute type = attribute.getType();
+                    IAttribute type = attribute.getType();
                     List<ToolIntensifyConfig.GrowConfig> grows = attribute.getGrows();
                     for (ToolIntensifyConfig.GrowConfig grow : grows) {
                         Double value = randomizeAndMultiply(grow.getValue());
@@ -266,14 +264,14 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                 }
                 if (enhanceResult == EnhanceResult.UPGRADE) {
                     int nextLevel = currentLevel + 1;
-                    setLevel(itemStack.getOrCreateTag(), nextLevel);
-                    setFailuresCount(itemStack.getOrCreateTag(), 0);
+                    setLevel(getOrCreateTag(itemStack), nextLevel);
+                    setFailuresCount(getOrCreateTag(itemStack), 0);
                     sendMessage(
                             player, TranslatableTexts.STRENGTHENING_UPGRADE.get(currentLevel + 1));
                 } else if (enhanceResult == EnhanceResult.DOWNGRADE) {
                     int nextLevel = currentLevel - 1;
-                    setLevel(itemStack.getOrCreateTag(), nextLevel);
-                    setFailuresCount(itemStack.getOrCreateTag(), currentFailuresCount + 1);
+                    setLevel(getOrCreateTag(itemStack), nextLevel);
+                    setFailuresCount(getOrCreateTag(itemStack), currentFailuresCount + 1);
                     sendMessage(
                             player,
                             TranslatableTexts.STRENGTHENING_DOWNGRADE.get(
@@ -290,18 +288,18 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         return ThreadLocalRandom.current().nextDouble(lower, upper);
     }
 
-    private static void sendMessage(ServerPlayerEntity player, String currentLevel) {
+    private static void sendMessage(EntityPlayerMP player, String currentLevel) {
         if (player != null) {
-            player.sendMessage(new StringTextComponent(currentLevel), player.getUniqueID());
+            player.sendMessage(new TextComponentString(currentLevel));
         }
     }
 
     private void downgradeAttribute(
             ItemStack itemStack,
-            Attribute type,
+            IAttribute type,
             Double decreaseValue,
             ToolIntensifyConfig.GrowTypeEnum growType,
-            EquipmentSlotType equipmentSlotForItem) {
+            EntityEquipmentSlot equipmentSlotForItem) {
         List<AttributeModifier> oldModifiers =
                 getAttributeModifiers(itemStack, type, equipmentSlotForItem);
         for (AttributeModifier oldAttributeModifier : oldModifiers) {
@@ -316,18 +314,18 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                     new AttributeModifier(
                             getAttributeModifierName(type),
                             newValue,
-                            AttributeModifier.Operation.ADDITION);
+                            0);
             ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getID());
-            itemStack.addAttributeModifier(type, newAttributeModifier, equipmentSlotForItem);
+            itemStack.addAttributeModifier(type.getName(), newAttributeModifier, equipmentSlotForItem);
         }
     }
 
     private void upgradeAttribute(
             ItemStack itemStack,
-            Attribute type,
+            IAttribute type,
             Double incrementValue,
             ToolIntensifyConfig.GrowTypeEnum growType,
-            EquipmentSlotType equipmentSlotForItem) {
+            EntityEquipmentSlot equipmentSlotForItem) {
         List<AttributeModifier> oldModifiers =
                 getAttributeModifiers(itemStack, type, equipmentSlotForItem);
 
@@ -336,8 +334,8 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                     new AttributeModifier(
                             getAttributeModifierName(type),
                             incrementValue,
-                            AttributeModifier.Operation.ADDITION);
-            itemStack.addAttributeModifier(type, attributeModifier, equipmentSlotForItem);
+                            0);
+            itemStack.addAttributeModifier(type.getName(), attributeModifier, equipmentSlotForItem);
         } else {
             for (AttributeModifier oldAttributeModifier : oldModifiers) {
                 double amount = oldAttributeModifier.getAmount();
@@ -351,21 +349,22 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                         new AttributeModifier(
                                 getAttributeModifierName(type),
                                 newValue,
-                                AttributeModifier.Operation.ADDITION);
+                                0);
                 ItemModifierHelper.removeAttributeModifier(itemStack, oldAttributeModifier.getID());
-                itemStack.addAttributeModifier(type, newAttributeModifier, equipmentSlotForItem);
+                itemStack.addAttributeModifier(
+                        type.getName(), newAttributeModifier, equipmentSlotForItem);
             }
         }
     }
 
     private List<AttributeModifier> getAttributeModifiers(
-            ItemStack itemStack, Attribute type, EquipmentSlotType equipmentSlotForItem) {
+            ItemStack itemStack, IAttribute type, EntityEquipmentSlot equipmentSlotForItem) {
         String attributeModifierName = getAttributeModifierName(type);
 
-        Multimap<Attribute, AttributeModifier> attributeAttributeModifierMultimap =
+        Multimap<String, AttributeModifier> attributeAttributeModifierMultimap =
                 itemStack.getAttributeModifiers(equipmentSlotForItem);
         Collection<AttributeModifier> attributeModifiers =
-                attributeAttributeModifierMultimap.get(type);
+                attributeAttributeModifierMultimap.get(type.getName());
         List<AttributeModifier> oldModifiers = new ArrayList<>();
         for (AttributeModifier attributeModifier : attributeModifiers) {
             String name = attributeModifier.getName();
@@ -376,22 +375,21 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         return oldModifiers;
     }
 
-    private int getFailuresCount(CompoundNBT tag) {
-        return tag.getInt(getTagId("failures_count"));
+    private int getFailuresCount(NBTTagCompound tag) {
+        return tag.getInteger(getTagId("failures_count"));
     }
 
     @Override
     public int getLevel(ItemStack itemStack) {
-        CompoundNBT tag = itemStack.getOrCreateTag();
-        return tag.getInt(getTagId("level"));
+        return getOrCreateTag(itemStack).getInteger(getTagId("level"));
     }
 
-    private void setFailuresCount(CompoundNBT tag, int failuresCount) {
-        tag.putInt(getTagId("failures_count"), failuresCount);
+    private void setFailuresCount(NBTTagCompound tag, int failuresCount) {
+        tag.setInteger(getTagId("failures_count"), failuresCount);
     }
 
-    private void setLevel(CompoundNBT tag, int level) {
-        tag.putInt(getTagId("level"), level);
+    private void setLevel(NBTTagCompound tag, int level) {
+        tag.setInteger(getTagId("level"), level);
     }
 
     /**
@@ -420,5 +418,12 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         UPGRADE,
         NOT_CHANGE,
         DOWNGRADE
+    }
+
+    private static NBTTagCompound getOrCreateTag(ItemStack itemStack) {
+        if (!itemStack.hasTagCompound()) {
+            itemStack.setTagCompound(new NBTTagCompound());
+        }
+        return itemStack.getTagCompound();
     }
 }
