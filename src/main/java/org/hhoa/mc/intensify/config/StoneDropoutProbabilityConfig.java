@@ -264,7 +264,7 @@ public class StoneDropoutProbabilityConfig {
         }
 
         this.configuration.load();
-        this.totalRate.setInternal(readDouble("general", this.totalRate.getKey(), 1.0D));
+        this.totalRate.set(readDouble("general", this.totalRate.getKey(), 1.0D));
 
         this.stoneRate.clear();
         for (Map.Entry<IntensifyStoneType, Double> entry : DEFAULT_STONE_RATE.entrySet()) {

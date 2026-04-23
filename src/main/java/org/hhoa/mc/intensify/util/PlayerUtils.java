@@ -154,8 +154,8 @@
 
 package org.hhoa.mc.intensify.util;
 
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -166,25 +166,20 @@ import net.minecraft.item.ItemStack;
  * @since 2024/11/2
  */
 public class PlayerUtils {
-    public static boolean fireItemToPlayer(ItemStack itemStack, PlayerEntity player) {
-        ItemEntity itemEntity =
-                new ItemEntity(
-                        player.world,
-                        player.getPosX(),
-                        player.getPosY(),
-                        player.getPosZ(),
-                        itemStack);
+    public static boolean fireItemToPlayer(ItemStack itemStack, EntityPlayer player) {
+        EntityItem itemEntity =
+                new EntityItem(player.world, player.posX, player.posY, player.posZ, itemStack);
 
-        return player.world.addEntity(itemEntity);
+        return player.world.spawnEntity(itemEntity);
     }
 
-    public static void removeSingleItemFromPlayer(PlayerEntity player, ItemStack itemStack) {
+    public static void removeSingleItemFromPlayer(EntityPlayer player, ItemStack itemStack) {
         int count = itemStack.getCount();
         Item item = itemStack.getItem();
         removeSingleItemFromPlayer(player, item, count);
     }
 
-    public static void removeSingleItemFromPlayer(PlayerEntity player, Item item, int count) {
+    public static void removeSingleItemFromPlayer(EntityPlayer player, Item item, int count) {
         for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
             ItemStack stack = player.inventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() == item) {
@@ -203,14 +198,14 @@ public class PlayerUtils {
         }
     }
 
-    public static boolean hasItemCount(PlayerEntity player, ItemStack itemStack) {
+    public static boolean hasItemCount(EntityPlayer player, ItemStack itemStack) {
         return hasItemCount(player, itemStack.getItem(), itemStack.getCount());
     }
 
-    public static boolean hasItemCount(PlayerEntity player, Item targetItem, int requiredCount) {
+    public static boolean hasItemCount(EntityPlayer player, Item targetItem, int requiredCount) {
         int totalCount = 0;
 
-        for (ItemStack stack : player.container.getInventory()) {
+        for (ItemStack stack : player.inventoryContainer.getInventory()) {
             if (stack.getItem() == targetItem) {
                 totalCount += stack.getCount();
 
@@ -223,7 +218,7 @@ public class PlayerUtils {
         return false;
     }
 
-    public static void addItemToPlayer(ItemStack itemStack, PlayerEntity player) {
+    public static void addItemToPlayer(ItemStack itemStack, EntityPlayer player) {
         if (!player.addItemStackToInventory(itemStack)) {
             player.dropItem(itemStack, false);
         }

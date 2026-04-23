@@ -185,11 +185,11 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.hhoa.mc.intensify.capabilities.FirstLoginCapabilityProvider;
 import org.hhoa.mc.intensify.capabilities.IFirstLoginCapability;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
@@ -198,7 +198,7 @@ import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.data.ChunkBlockDataStorage;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
-import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
+import org.hhoa.mc.intensify.registry.AdvancementRegistry;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.util.PlayerUtils;
 
@@ -212,7 +212,7 @@ public class IntensifyForgeEventHandler {
         if (blockEntity instanceof TileEntityFurnace) {
             NBTTagCompound persistentData = blockEntity.getTileData();
             EntityPlayer player = event.getEntityPlayer();
-            persistentData.putString(
+            persistentData.setString(
                     IntensifyConstants.FURNACE_OWNER_TAG_ID, player.getName());
         }
     }
@@ -247,7 +247,7 @@ public class IntensifyForgeEventHandler {
                 completeAdvancement(
                         serverPlayer.getAdvancements(),
                         serverPlayer.getServer(),
-                        IntensifyAdvancementProvider.INTENSIFY_ADVANCEMENT_ID);
+                        AdvancementRegistry.INTENSIFY_ADVANCEMENT_ID);
                 capability.setHasLoggedIn(true);
             }
         }
@@ -347,21 +347,21 @@ public class IntensifyForgeEventHandler {
 
         if (level.isRemote || !(event.player instanceof EntityPlayerMP)) return;
         EntityPlayerMP player = (EntityPlayerMP) event.player;
-        ItemStack smelting = event.getSmelting();
+        ItemStack smelting = event.smelting;
         if (player.getServer() != null) {
             boolean eneng = IntensifyConfig.getEnengIntensifySystem().isEneng(smelting);
             if (eneng && player.getServer() != null) {
                 completeAdvancement(
                         player.getAdvancements(),
                         player.getServer(),
-                        IntensifyAdvancementProvider.FIRST_ENENG_ADVANCEMENT_ID);
+                        AdvancementRegistry.FIRST_ENENG_ADVANCEMENT_ID);
             }
             int itemLevel = IntensifyConfig.getEnhancementIntensifySystem().getLevel(smelting);
             if (itemLevel > 0) {
                 completeAdvancement(
                         player.getAdvancements(),
                         player.getServer(),
-                        IntensifyAdvancementProvider.FIRST_STRENGTHENING_ADVANCEMENT_ID);
+                        AdvancementRegistry.FIRST_STRENGTHENING_ADVANCEMENT_ID);
             }
         }
     }

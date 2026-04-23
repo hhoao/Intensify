@@ -168,7 +168,7 @@ public class ChunkBlockDataStorage extends WorldSavedData {
     private Map<Long, Boolean> chunkDataMap = new HashMap<>();
 
     public static String getChunkBlockDataName(ChunkPos chunkPos) {
-        return "placed_" + chunkPos.asLong();
+        return "placed_" + ChunkPos.asLong(chunkPos.x, chunkPos.z);
     }
 
     public ChunkBlockDataStorage(String name) {

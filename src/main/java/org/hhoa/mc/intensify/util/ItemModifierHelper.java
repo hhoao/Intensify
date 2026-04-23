@@ -158,21 +158,20 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 
 public class ItemModifierHelper {
-    public static void initAttributeModifiers(
-            ItemStack itemStack, EquipmentSlotType equipmentSlot) {
-        if (!itemStack.hasTag() || !itemStack.getTag().contains("AttributeModifiers", 9)) {
-            Multimap<Attribute, AttributeModifier> attributeModifiers =
+    public static void initAttributeModifiers(ItemStack itemStack, EntityEquipmentSlot equipmentSlot) {
+        if (!itemStack.hasTagCompound()
+                || !itemStack.getTagCompound().hasKey("AttributeModifiers", Constants.NBT.TAG_LIST)) {
+            Multimap<String, AttributeModifier> attributeModifiers =
                     itemStack.getAttributeModifiers(equipmentSlot);
-            for (Map.Entry<Attribute, Collection<AttributeModifier>> attributeCollectionEntry :
+            for (Map.Entry<String, Collection<AttributeModifier>> attributeCollectionEntry :
                     attributeModifiers.asMap().entrySet()) {
                 for (AttributeModifier attributeModifier : attributeCollectionEntry.getValue()) {
                     itemStack.addAttributeModifier(
@@ -183,17 +182,18 @@ public class ItemModifierHelper {
     }
 
     public static void replaceAttributeModifier(
-            ItemStack stack, UUID modifierId, CompoundNBT newModifierData) {
-        if (stack.hasTag()) {
-            CompoundNBT tag = stack.getTag();
-            if (tag != null && tag.contains("AttributeModifiers", Constants.NBT.TAG_LIST)) {
-                ListNBT modifiers = tag.getList("AttributeModifiers", Constants.NBT.TAG_COMPOUND);
+            ItemStack stack, UUID modifierId, NBTTagCompound newModifierData) {
+        if (stack.hasTagCompound()) {
+            NBTTagCompound tag = stack.getTagCompound();
+            if (tag != null && tag.hasKey("AttributeModifiers", Constants.NBT.TAG_LIST)) {
+                NBTTagList modifiers =
+                        tag.getTagList("AttributeModifiers", Constants.NBT.TAG_COMPOUND);
 
-                for (int i = 0; i < modifiers.size(); i++) {
-                    CompoundNBT modifierTag = modifiers.getCompound(i);
+                for (int i = 0; i < modifiers.tagCount(); i++) {
+                    NBTTagCompound modifierTag = modifiers.getCompoundTagAt(i);
 
-                    if (UUID.fromString(modifierTag.getString("UUID")).equals(modifierId)) {
-                        modifiers.set(i, newModifierData); // 替换指定的 AttributeModifier
+                    if (modifierTag.getUniqueId("UUID").equals(modifierId)) {
+                        modifiers.set(i, newModifierData);
                         break;
                     }
                 }
@@ -202,21 +202,22 @@ public class ItemModifierHelper {
     }
 
     public static void removeAttributeModifier(ItemStack stack, UUID modifierId) {
-        if (stack.hasTag()) {
-            CompoundNBT tag = stack.getTag();
-            if (tag != null && tag.contains("AttributeModifiers", Constants.NBT.TAG_LIST)) {
-                ListNBT modifiers = tag.getList("AttributeModifiers", Constants.NBT.TAG_COMPOUND);
+        if (stack.hasTagCompound()) {
+            NBTTagCompound tag = stack.getTagCompound();
+            if (tag != null && tag.hasKey("AttributeModifiers", Constants.NBT.TAG_LIST)) {
+                NBTTagList modifiers =
+                        tag.getTagList("AttributeModifiers", Constants.NBT.TAG_COMPOUND);
 
-                // 遍历寻找需要移除的 AttributeModifier
-                modifiers.removeIf(
-                        modifier -> {
-                            CompoundNBT modifierTag = (CompoundNBT) modifier;
-                            return modifierTag.getUniqueId("UUID").equals(modifierId);
-                        });
+                for (int i = 0; i < modifiers.tagCount(); i++) {
+                    NBTTagCompound modifierTag = modifiers.getCompoundTagAt(i);
+                    if (modifierTag.getUniqueId("UUID").equals(modifierId)) {
+                        modifiers.removeTag(i);
+                        break;
+                    }
+                }
 
-                // 如果列表为空，移除整个标签
-                if (modifiers.isEmpty()) {
-                    tag.remove("AttributeModifiers");
+                if (modifiers.tagCount() == 0) {
+                    tag.removeTag("AttributeModifiers");
                 }
             }
         }
