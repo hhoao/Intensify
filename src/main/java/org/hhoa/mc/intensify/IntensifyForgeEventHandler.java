@@ -157,14 +157,17 @@ package org.hhoa.mc.intensify;
 import static org.hhoa.mc.intensify.Intensify.FIRST_LOGIN_CAPABILITY;
 import static org.hhoa.mc.intensify.config.IntensifyConstants.LIMITED_REPLACED_BLOCKS;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -197,6 +200,7 @@ import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.data.ChunkBlockDataStorage;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
+import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.AdvancementRegistry;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.util.PlayerUtils;
@@ -204,6 +208,12 @@ import org.hhoa.mc.intensify.util.PlayerUtils;
 public class IntensifyForgeEventHandler {
     public static final ResourceLocation FIRST_LOGIN_CAP =
             Intensify.location("first_login_capability");
+    private static final List<IntensifyStoneType> MINING_DROP_STONE_TYPES =
+            Arrays.asList(
+                    IntensifyStoneType.STRENGTHENING_STONE,
+                    IntensifyStoneType.ENENG_STONE,
+                    IntensifyStoneType.ETERNAL_STONE,
+                    IntensifyStoneType.PROTECTION_STONE);
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -226,6 +236,43 @@ public class IntensifyForgeEventHandler {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         ChunkBlockDataStorage.getOrCreate(world, pos).setBlockData(pos, true);
+    }
+
+    @SubscribeEvent
+    public void onHarvestDrops(BlockEvent.HarvestDropsEvent event) {
+        World world = event.getWorld();
+        if (world.isRemote) {
+            return;
+        }
+        BlockPos pos = event.getPos();
+        ChunkBlockDataStorage storage = ChunkBlockDataStorage.getOrCreate(world, pos);
+        boolean playerPlaced = storage.getBlockData(pos);
+
+        List<ItemStack> stoneDrops =
+                createMiningStoneDrops(
+                        event.getState(),
+                        event.getHarvester() instanceof EntityPlayerMP,
+                        event.isSilkTouching(),
+                        playerPlaced);
+        if (playerPlaced) {
+            storage.setBlockData(pos, false);
+        }
+        event.getDrops().addAll(stoneDrops);
+    }
+
+    static List<ItemStack> createMiningStoneDrops(
+            IBlockState state, boolean playerHarvested, boolean silkTouching, boolean playerPlaced) {
+        List<ItemStack> drops = new ArrayList<>();
+        if (!playerHarvested || silkTouching || playerPlaced) {
+            return drops;
+        }
+        for (IntensifyStoneType stoneType : MINING_DROP_STONE_TYPES) {
+            Optional<Item> item =
+                    ConfigRegistry.stoneDropoutProbabilityConfig.dropStone(
+                            stoneType, DropTypeEnum.MINERAL_BLOCK_DESTROYED, state.getBlock());
+            item.map(ItemStack::new).ifPresent(drops::add);
+        }
+        return drops;
     }
 
     @SubscribeEvent
@@ -312,24 +359,33 @@ public class IntensifyForgeEventHandler {
         EntityLivingBase entity = event.getEntityLiving();
         World level = entity.world;
 
-        if (!level.isRemote
-                && entity instanceof EntityMob
-                && event.getSource().getTrueSource() instanceof EntityPlayer) {
-            Optional<Item> item =
-                    ConfigRegistry.stoneDropoutProbabilityConfig.dropStone(
-                            DropTypeEnum.MOB_KILLED, entity);
-            if (item.isPresent()) {
-                ItemStack stoneItemStack = new ItemStack(item.get());
+        if (!level.isRemote) {
+            Optional<ItemStack> itemStack =
+                    createMobKillStoneDrop(
+                            entity,
+                            entity instanceof EntityLiving,
+                            event.getSource().getImmediateSource() instanceof EntityPlayer);
+            if (itemStack.isPresent()) {
                 EntityItem itemEntity =
                         new EntityItem(
                                 entity.world,
                                 entity.posX,
                                 entity.posY,
                                 entity.posZ,
-                                stoneItemStack);
+                                itemStack.get());
                 event.getDrops().add(itemEntity);
             }
         }
+    }
+
+    static Optional<ItemStack> createMobKillStoneDrop(
+            Object lookupKey, boolean livingMob, boolean directlyKilledByPlayer) {
+        if (!livingMob || !directlyKilledByPlayer) {
+            return Optional.empty();
+        }
+        return ConfigRegistry.stoneDropoutProbabilityConfig
+                .dropStone(DropTypeEnum.MOB_KILLED, lookupKey)
+                .map(ItemStack::new);
     }
 
     @SubscribeEvent

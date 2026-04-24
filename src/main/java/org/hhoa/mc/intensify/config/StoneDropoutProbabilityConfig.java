@@ -252,6 +252,15 @@ public class StoneDropoutProbabilityConfig {
         return Optional.of(resolveStone(IntensifyStoneType.STRENGTHENING_STONE));
     }
 
+    public Optional<Item> dropStone(
+            IntensifyStoneType intensifyStone, DropTypeEnum dropTypeEnum, Object key) {
+        double probability = getStoneDropOutProbability(intensifyStone, dropTypeEnum, key);
+        if (ThreadLocalRandom.current().nextDouble() >= probability) {
+            return Optional.empty();
+        }
+        return Optional.of(resolveStone(intensifyStone));
+    }
+
     public Double getStoneDropOutProbability(
             IntensifyStoneType intensifyStone, DropTypeEnum dropTypeEnum, Object key) {
         double stoneWeight = this.stoneRate.get(intensifyStone);

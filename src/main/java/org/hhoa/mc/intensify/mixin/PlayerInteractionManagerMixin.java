@@ -154,22 +154,16 @@
 
 package org.hhoa.mc.intensify.mixin;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.hhoa.mc.intensify.config.StoneDropoutProbabilityConfig;
 import org.hhoa.mc.intensify.data.ChunkBlockDataStorage;
-import org.hhoa.mc.intensify.enums.DropTypeEnum;
-import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -197,20 +191,6 @@ public class PlayerInteractionManagerMixin {
         ChunkBlockDataStorage storage = ChunkBlockDataStorage.getOrCreate(worldIn, pos);
         if (storage.getBlockData(pos)) {
             storage.setBlockData(pos, false);
-            return;
-        }
-
-        if (worldIn.isRemote
-                || stack.isEmpty()
-                || EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0) {
-            return;
-        }
-
-        StoneDropoutProbabilityConfig probabilities = ConfigRegistry.stoneDropoutProbabilityConfig;
-        Optional<net.minecraft.item.Item> stone =
-                probabilities.dropStone(DropTypeEnum.MINERAL_BLOCK_DESTROYED, state.getBlock());
-        if (stone.isPresent()) {
-            Block.spawnAsEntity(worldIn, pos, new ItemStack(stone.get()));
         }
     }
 }
