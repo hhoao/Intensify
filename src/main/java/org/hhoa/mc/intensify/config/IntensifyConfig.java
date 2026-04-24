@@ -231,14 +231,20 @@ public class IntensifyConfig {
     }
 
     public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
+        if (item == null) {
+            return null;
+        }
         HashMap<EntityEquipmentSlot, ToolIntensifyConfig> armorClassConfigMap =
                 getArmorClassConfigMap();
         if (item instanceof ItemArmor) {
             ItemArmor armorItem = (ItemArmor) item;
-            return armorClassConfigMap.get(armorItem.armorType);
+            return armorClassConfigMap == null ? null : armorClassConfigMap.get(armorItem.armorType);
         } else {
             HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap =
                     getToolWeaponClassConfigMap();
+            if (configsMap == null) {
+                return null;
+            }
             for (Map.Entry<Class<? extends Item>, ToolIntensifyConfig>
                     classToolIntensifyConfigEntry : configsMap.entrySet()) {
                 if (classToolIntensifyConfigEntry.getKey().isInstance(item)) {

@@ -213,13 +213,13 @@ public class Intensify {
                 new FirstLoginCapabilityStorage(),
                 FirstLoginCapabilityImpl::new);
         ConfigRegistry.initialize(event.getModConfigurationDirectory());
+        IntensifyConfig.initialize();
         MinecraftForge.EVENT_BUS.register(new IntensifyForgeEventHandler());
         PROXY.preInit(event);
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        IntensifyConfig.initialize();
         PROXY.init(event);
     }
 

@@ -75,6 +75,7 @@ dependencies {
     implementation 'com.electronwill.night-config:toml:3.6.5'
     implementation 'org.yaml:snakeyaml:2.0'
     implementation fg.deobf("dev.shadowsoffire:attributeslib:${attributeslib_version}")
+    testImplementation 'junit:junit:4.13.2'
 }
 
 processResources {
@@ -175,11 +176,36 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.register('mirrorResourcesForDevRun', Copy) {
     dependsOn tasks.named('processResources')
+    doFirst {
+        File resourcesDir = sourceSets.main.output.resourcesDir
+        File classesDir = file("${buildDir}/classes/java/main")
+        if (resourcesDir.exists()) {
+            resourcesDir.listFiles()?.each { File child ->
+                delete new File(classesDir, child.name)
+            }
+        }
+    }
     from sourceSets.main.output.resourcesDir
     into file("${buildDir}/classes/java/main")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+def localDependencyLibsJars =
+        fileTree(dir: 'libs', include: '*.jar')
+
+tasks.register('syncDependencyLibsDevMod') {
+    doLast {
+        File modsDir = file("${projectDir}/run/mods")
+        modsDir.mkdirs()
+
+        delete fileTree(modsDir) {
+            include '*.jar'
+        }
+
+        copy { from localDependencyLibsJars into modsDir }
+    }
+}
+
 tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEach {
-    dependsOn('mirrorResourcesForDevRun')
+    dependsOn('mirrorResourcesForDevRun', 'syncDependencyLibsDevMod')
 }
