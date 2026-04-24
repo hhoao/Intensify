@@ -28,6 +28,10 @@ public class TranslatableTexts {
     public static final TranslatableText STRENGTHENING_DOWNGRADE = text("strengthening.downgrade");
     public static final TranslatableText ETERNAL_SUCCESS = text("eternal.success");
     public static final TranslatableText INTENSIFY_ITEM_TIP = text("item.intensify.stone.tip");
+    public static final TranslatableText ANNOUNCEMENT_STRENGTHENING =
+            text("announcement.intensify.strengthening");
+    public static final TranslatableText ANNOUNCEMENT_ETERNAL_STONE_DROP =
+            text("announcement.intensify.eternal_stone_drop");
 
     public static final TranslatableText SET_UPGRADE_MULTIPLIER_TIP =
             text("command.set.upgrade_multiplier");

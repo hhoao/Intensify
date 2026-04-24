@@ -11,6 +11,7 @@ import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
+import org.hhoa.mc.intensify.util.WorldAnnouncements;
 
 public class IntensifyStoneLootModifier extends LootModifier {
     public static final Serializer SERIALIZER = new Serializer();
@@ -59,7 +60,9 @@ public class IntensifyStoneLootModifier extends LootModifier {
 
     @Override
     protected List<ItemStack> doApply(List<ItemStack> list, LootContext lootContext) {
-        list.add(new ItemStack(intensifyStone, 1));
+        ItemStack drop = new ItemStack(intensifyStone, 1);
+        list.add(drop);
+        WorldAnnouncements.announceMiningDrop(lootContext, drop);
         return list;
     }
 

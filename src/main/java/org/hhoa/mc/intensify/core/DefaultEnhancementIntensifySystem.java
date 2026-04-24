@@ -20,6 +20,7 @@ import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
 import org.hhoa.mc.intensify.util.PlayerUtils;
+import org.hhoa.mc.intensify.util.WorldAnnouncements;
 
 public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySystem {
     private final double baseSuccessProbability; // 初始基础成功概率
@@ -116,6 +117,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                     setFailuresCount(itemStack.getOrCreateTag(), 0);
                     sendMessage(
                             player, TranslatableTexts.STRENGTHENING_UPGRADE.get(currentLevel + 1));
+                    WorldAnnouncements.announceStrengthening(player, itemStack, nextLevel);
                 } else if (enhanceResult == EnhanceResult.DOWNGRADE) {
                     int nextLevel = currentLevel - 1;
                     setLevel(itemStack.getOrCreateTag(), nextLevel);

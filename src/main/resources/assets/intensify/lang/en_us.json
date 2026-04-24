@@ -21,6 +21,8 @@
   "strengthening.protected": "Enhancement failed!!! Level protected. Current level: %s, Current fail count: %s",
   "strengthening.downgrade": "Enhancement failed!!! Level decreased. Current level: %s, Current fail count: %s",
   "eternal.success": "The item is now unbreakable!!",
+  "announcement.intensify.strengthening": "§6[Enhancement] §e%s §fstrengthened §b%s §fto §c+%s§f!",
+  "announcement.intensify.eternal_stone_drop": "§6[Rare Find] §e%s §ffound a rare §d%s §fwhile mining!",
   "command.set.upgrade_multiplier": "The enhancement upgrade rate has been set to: %s",
   "command.set.stone_dropout_rate": "The ore drop rate has been set to: %s",
   "command.set.attribute_multiplier": "The enhancement attribute multiplier has been set to: %s",
