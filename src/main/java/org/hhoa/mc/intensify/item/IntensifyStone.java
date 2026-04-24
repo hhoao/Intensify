@@ -174,7 +174,8 @@ public abstract class IntensifyStone extends Item {
         return true;
     }
 
-    public int getBurnTime(ItemStack itemStack) {
+    @Override
+    public int getItemBurnTime(ItemStack itemStack) {
         return IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME;
     }
 

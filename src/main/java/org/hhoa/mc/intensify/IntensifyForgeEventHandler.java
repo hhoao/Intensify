@@ -180,7 +180,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
@@ -227,14 +226,6 @@ public class IntensifyForgeEventHandler {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         ChunkBlockDataStorage.getOrCreate(world, pos).setBlockData(pos, true);
-    }
-
-    @SubscribeEvent
-    public void onBlockPlace(BlockEvent.MultiPlaceEvent event) {
-        List<BlockSnapshot> replacedBlockSnapshots = event.getReplacedBlockSnapshots();
-        for (BlockSnapshot replacedBlockSnapshot : replacedBlockSnapshots) {
-            System.out.println(replacedBlockSnapshot.getTileEntity());
-        }
     }
 
     @SubscribeEvent

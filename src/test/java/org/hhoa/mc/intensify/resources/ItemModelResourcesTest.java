@@ -3,6 +3,8 @@ package org.hhoa.mc.intensify.resources;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
@@ -57,6 +59,14 @@ public class ItemModelResourcesTest {
         assertModelUsesOneTwelveTexturePath("assets/intensify/models/item/eternal_stone.json");
     }
 
+    @Test
+    public void generatedStoneModelsUseOneTwelveTexturePaths() throws IOException {
+        assertGeneratedModelUsesOneTwelveTexturePath("strengthening_stone");
+        assertGeneratedModelUsesOneTwelveTexturePath("eneng_stone");
+        assertGeneratedModelUsesOneTwelveTexturePath("protection_stone");
+        assertGeneratedModelUsesOneTwelveTexturePath("eternal_stone");
+    }
+
     private static void assertResource(String path) {
         Assert.assertNotNull(path, ItemModelResourcesTest.class.getClassLoader().getResource(path));
     }
@@ -69,6 +79,16 @@ public class ItemModelResourcesTest {
             Assert.assertFalse(path, content.contains("\"layer0\": \"minecraft:item/"));
             Assert.assertTrue(path, content.contains("\"layer0\": \"minecraft:items/"));
         }
+    }
+
+    private static void assertGeneratedModelUsesOneTwelveTexturePath(String id) throws IOException {
+        String path = "src/generated/resources/assets/intensify/models/item/" + id + ".json";
+        String content =
+                new String(
+                        Files.readAllBytes(Paths.get(System.getProperty("user.dir"), path)),
+                        StandardCharsets.UTF_8);
+        Assert.assertFalse(path, content.contains("\"layer0\": \"minecraft:item/"));
+        Assert.assertTrue(path, content.contains("\"layer0\": \"minecraft:items/"));
     }
 
     private static byte[] readAllBytes(InputStream stream) throws IOException {

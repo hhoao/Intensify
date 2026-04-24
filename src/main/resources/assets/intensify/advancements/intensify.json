@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:furnace"
+    },
+    "title": {
+      "translate": "advancement.intensify.intensify.title"
+    },
+    "description": {
+      "translate": "advancement.intensify.intensify.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:textures/blocks/furnace_side.png"
+  },
+  "rewards": {
+    "experience": 100,
+    "loot": [
+      "intensify:eneng_stone"
+    ]
+  },
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    ["impossible"]
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "intensify:strengthening_stone"
+    },
+    "title": {
+      "translate": "advancement.intensify.first_strengthening.title"
+    },
+    "description": {
+      "translate": "advancement.intensify.first_strengthening.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "intensify:intensify",
+  "rewards": {
+    "experience": 100,
+    "loot": [
+      "intensify:protection_stone"
+    ]
+  },
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    ["impossible"]
+  ]
+}

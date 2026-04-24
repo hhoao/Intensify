@@ -167,7 +167,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.ITextComponent;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
@@ -221,7 +221,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
             setFailuresCount(getOrCreateTag(itemStack), currentFailuresCount + 1);
             sendMessage(
                     player,
-                    TranslatableTexts.STRENGTHENING_UNCHANGED.get(
+                    TranslatableTexts.STRENGTHENING_UNCHANGED.component(
                             currentLevel, currentFailuresCount + 1));
         }
 
@@ -235,7 +235,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                 setFailuresCount(getOrCreateTag(itemStack), currentFailuresCount + 1);
                 sendMessage(
                         player,
-                        TranslatableTexts.STRENGTHENING_PROTECTED.get(
+                        TranslatableTexts.STRENGTHENING_PROTECTED.component(
                                 currentLevel, currentFailuresCount + 1));
             } else {
                 List<ToolIntensifyConfig.AttributeConfig> attributes =
@@ -267,14 +267,15 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                     setLevel(getOrCreateTag(itemStack), nextLevel);
                     setFailuresCount(getOrCreateTag(itemStack), 0);
                     sendMessage(
-                            player, TranslatableTexts.STRENGTHENING_UPGRADE.get(currentLevel + 1));
+                            player,
+                            TranslatableTexts.STRENGTHENING_UPGRADE.component(currentLevel + 1));
                 } else if (enhanceResult == EnhanceResult.DOWNGRADE) {
                     int nextLevel = currentLevel - 1;
                     setLevel(getOrCreateTag(itemStack), nextLevel);
                     setFailuresCount(getOrCreateTag(itemStack), currentFailuresCount + 1);
                     sendMessage(
                             player,
-                            TranslatableTexts.STRENGTHENING_DOWNGRADE.get(
+                            TranslatableTexts.STRENGTHENING_DOWNGRADE.component(
                                     nextLevel, currentFailuresCount + 1));
                 }
             }
@@ -288,9 +289,9 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         return ThreadLocalRandom.current().nextDouble(lower, upper);
     }
 
-    private static void sendMessage(EntityPlayerMP player, String currentLevel) {
+    private static void sendMessage(EntityPlayerMP player, ITextComponent message) {
         if (player != null) {
-            player.sendMessage(new TextComponentString(currentLevel));
+            player.sendMessage(message);
         }
     }
 

@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "intensify:eneng_stone"
+    },
+    "title": {
+      "translate": "advancement.intensify.first_eneng.title"
+    },
+    "description": {
+      "translate": "advancement.intensify.first_eneng.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "intensify:intensify",
+  "rewards": {
+    "experience": 100,
+    "loot": [
+      "intensify:strengthening_stone"
+    ]
+  },
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    ["impossible"]
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "pools": [
+    {
+      "name": "main",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "intensify:eneng_stone",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}
