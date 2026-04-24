@@ -258,6 +258,12 @@ public class IntensifyForgeEventHandler {
             storage.setBlockData(pos, false);
         }
         event.getDrops().addAll(stoneDrops);
+        if (event.getHarvester() instanceof EntityPlayerMP) {
+            EntityPlayerMP player = (EntityPlayerMP) event.getHarvester();
+            for (ItemStack stoneDrop : stoneDrops) {
+                WorldAnnouncements.announceMiningDrop(player, stoneDrop);
+            }
+        }
     }
 
     static List<ItemStack> createMiningStoneDrops(

@@ -189,6 +189,10 @@ public class TranslatableTexts {
             text("command.set.stone_dropout_rate");
     public static final TranslatableText SET_ATTRIBUTE_MULTIPLIER_TIP =
             text("command.set.attribute_multiplier");
+    public static final TranslatableText ANNOUNCEMENT_STRENGTHENING =
+            text("announcement.intensify.strengthening");
+    public static final TranslatableText ANNOUNCEMENT_ETERNAL_STONE_DROP =
+            text("announcement.intensify.eternal_stone_drop");
     public static final TranslatableText ADVANCEMENT_INTENSIFY_TITLE =
             text("advancement.intensify.intensify.title");
     public static final TranslatableText ADVANCEMENT_INTENSIFY_DESCRIPTION =

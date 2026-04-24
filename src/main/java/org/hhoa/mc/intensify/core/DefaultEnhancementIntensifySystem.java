@@ -168,6 +168,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
+import org.hhoa.mc.intensify.WorldAnnouncements;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
@@ -269,6 +270,7 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                     sendMessage(
                             player,
                             TranslatableTexts.STRENGTHENING_UPGRADE.component(currentLevel + 1));
+                    WorldAnnouncements.announceStrengthening(player, itemStack, nextLevel);
                 } else if (enhanceResult == EnhanceResult.DOWNGRADE) {
                     int nextLevel = currentLevel - 1;
                     setLevel(getOrCreateTag(itemStack), nextLevel);

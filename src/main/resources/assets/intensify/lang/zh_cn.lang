@@ -29,3 +29,5 @@ eternal.success=物品将不可破坏!!
 command.set.upgrade_multiplier=强化升级倍率已设置为: %s
 command.set.stone_dropout_rate=矿石掉落倍率已设置为: %s
 command.set.attribute_multiplier=强化属性倍率已设置为: %s
+announcement.intensify.strengthening=%s 成功将 %s 强化到了 +%s！
+announcement.intensify.eternal_stone_drop=%s 挖矿时发现了稀有的 %s！
