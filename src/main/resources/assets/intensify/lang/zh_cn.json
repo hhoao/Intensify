@@ -21,6 +21,8 @@
   "strengthening.protected": "强化失败!，保护等级，当前等级为: %s, 当前失败次数为: %s",
   "strengthening.downgrade": "强化失败!，降低等级，当前等级为: %s, 当前失败次数为: %s",
   "eternal.success": "物品将不可破坏!!",
+  "announcement.intensify.strengthening": "§6[强化通告] §e%s §f将 §b%s §f强化到了 §c+%s§f！",
+  "announcement.intensify.eternal_stone_drop": "§6[奇遇通告] §e%s §f挖矿时发现了稀有的 §d%s§f！",
   "command.set.upgrade_multiplier": "强化升级倍率已设置为: %s",
   "command.set.stone_dropout_rate": "矿石掉落倍率已设置为: %s",
   "command.set.attribute_multiplier": "强化属性倍率已设置为: %s",

@@ -14,6 +14,7 @@ import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.common.loot.LootModifier;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
+import org.hhoa.mc.intensify.util.WorldAnnouncements;
 
 public class IntensifyStoneLootModifier extends LootModifier {
     public static final Supplier<Codec<IntensifyStoneLootModifier>> CODEC =
@@ -79,7 +80,9 @@ public class IntensifyStoneLootModifier extends LootModifier {
     @Override
     public ObjectArrayList<ItemStack> doApply(
             ObjectArrayList<ItemStack> original, LootContext context) {
-        original.add(new ItemStack(intensifyStone, 1));
+        ItemStack drop = new ItemStack(intensifyStone, 1);
+        original.add(drop);
+        WorldAnnouncements.announceMiningDrop(context, drop);
         return original;
     }
 
