@@ -247,8 +247,51 @@ public final class FurnaceGameTests {
                                         "expected vanilla furnace recipe to finish as iron ingot, got "
                                                 + result));
                     }
-                });
+        });
         helper.runAtTickTime(221, helper::succeed);
+    }
+
+    public static void vanillaFurnaceRecipePlacementUsesStandardSlots(GameTestHelper helper) {
+        helper.setBlock(FURNACE_POS, Blocks.FURNACE);
+        FurnaceBlockEntity furnace = helper.getBlockEntity(FURNACE_POS, FurnaceBlockEntity.class);
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.getInventory().add(new ItemStack(Items.RAW_IRON));
+        player.getInventory().add(new ItemStack(Items.COAL));
+
+        FurnaceMenu menu =
+                new FurnaceMenu(0, player.getInventory(), furnace, new SimpleContainerData(4));
+        RecipeHolder<?> recipeHolder =
+                vanillaRecipeHolder(helper, "iron_ingot_from_smelting_raw_iron")
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                "missing vanilla smelting recipe for placement test"));
+
+        RecipeBookMenu.PostPlaceAction action =
+                menu.handlePlacement(false, false, recipeHolder, helper.getLevel(), player.getInventory());
+
+        if (!menu.getSlot(0).getItem().is(Items.RAW_IRON)) {
+            helper.fail(
+                    Component.literal(
+                            "vanilla furnace recipe placement should fill the input slot"));
+            return;
+        }
+
+        if (!menu.getSlot(1).getItem().is(Items.COAL)) {
+            helper.fail(
+                    Component.literal(
+                            "vanilla furnace recipe placement should fill the fuel slot"));
+            return;
+        }
+
+        if (action != RecipeBookMenu.PostPlaceAction.NOTHING) {
+            helper.fail(
+                    Component.literal(
+                            "vanilla furnace recipe placement should not request ghost recipe feedback"));
+            return;
+        }
+
+        helper.succeed();
     }
 
     public static void recipeBookDisplayRecipesLoadAndRemainNonExecutable(GameTestHelper helper) {
@@ -489,6 +532,7 @@ public final class FurnaceGameTests {
         register(event, "stale_last_recipe_does_not_let_strengthening_stone_start", 80, environment, FurnaceGameTests::staleLastRecipeDoesNotLetStrengtheningStoneStart);
         register(event, "blast_furnace_does_not_run_intensify_flow", 80, environment, FurnaceGameTests::blastFurnaceDoesNotRunIntensifyFlow);
         register(event, "vanilla_furnace_recipe_still_cooks_normally", 260, environment, FurnaceGameTests::vanillaFurnaceRecipeStillCooksNormally);
+        register(event, "vanilla_furnace_recipe_placement_uses_standard_slots", 40, environment, FurnaceGameTests::vanillaFurnaceRecipePlacementUsesStandardSlots);
         register(event, "recipe_book_display_recipes_load_and_remain_non_executable", 40, environment, FurnaceGameTests::recipeBookDisplayRecipesLoadAndRemainNonExecutable);
         register(event, "player_login_awards_display_recipes_and_removes_legacy_entries", 40, environment, FurnaceGameTests::playerLoginAwardsDisplayRecipesAndRemovesLegacyEntries);
         register(event, "recipe_book_display_placement_only_fills_fuel_slot", 40, environment, FurnaceGameTests::recipeBookDisplayPlacementOnlyFillsFuelSlot);
@@ -588,6 +632,14 @@ public final class FurnaceGameTests {
 
     private static Optional<RecipeHolder<?>> recipeHolder(GameTestHelper helper, String path) {
         return helper.getLevel().getServer().getRecipeManager().byKey(recipeKey(path));
+    }
+
+    private static Optional<RecipeHolder<?>> vanillaRecipeHolder(GameTestHelper helper, String path) {
+        return helper
+                .getLevel()
+                .getServer()
+                .getRecipeManager()
+                .byKey(ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("minecraft", path)));
     }
 
     private static ResourceKey<Recipe<?>> recipeKey(String path) {
