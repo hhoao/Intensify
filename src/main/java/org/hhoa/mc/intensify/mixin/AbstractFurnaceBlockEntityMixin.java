@@ -65,6 +65,10 @@ public abstract class AbstractFurnaceBlockEntityMixin {
     @Unique
     private static void intensify$runCustomFlow(
             Level level, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity furnace) {
+        if (!(level instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
+        }
+
         boolean wasLit = furnace.litTimeRemaining > 0;
         boolean changed = false;
 
@@ -92,7 +96,7 @@ public abstract class AbstractFurnaceBlockEntityMixin {
                     && hasInput
                     && hasFuel
                     && intensify$canBurn(startRecipe, furnace, input)) {
-                int burnDuration = fuel.getBurnTime(RecipeType.SMELTING);
+                int burnDuration = fuel.getBurnTime(RecipeType.SMELTING, serverLevel.fuelValues());
                 furnace.litTimeRemaining = burnDuration;
                 furnace.litTotalTime = burnDuration;
                 if (furnace.litTimeRemaining > 0) {
