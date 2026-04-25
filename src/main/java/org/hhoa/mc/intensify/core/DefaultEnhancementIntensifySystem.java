@@ -312,11 +312,15 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
             }
             AttributeModifier newAttributeModifier =
                     new AttributeModifier(
-                            oldAttributeModifier.id(),
+                            getAttributeModifierId(type, equipmentSlotForItem),
                             newValue,
                             AttributeModifier.Operation.ADD_VALUE);
             ItemModifierHelper.setAttributeModifier(
-                    itemStack, type, newAttributeModifier, equipmentSlotForItem);
+                    itemStack,
+                    type,
+                    newAttributeModifier,
+                    equipmentSlotForItem,
+                    getCompatibleAttributeModifierIds(type, equipmentSlotForItem));
         }
     }
 
@@ -332,11 +336,15 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
         if (oldModifiers.isEmpty()) {
             AttributeModifier attributeModifier =
                     new AttributeModifier(
-                            getAttributeModifierId(type),
+                            getAttributeModifierId(type, equipmentSlotForItem),
                             incrementValue,
                             AttributeModifier.Operation.ADD_VALUE);
             ItemModifierHelper.setAttributeModifier(
-                    itemStack, type, attributeModifier, equipmentSlotForItem);
+                    itemStack,
+                    type,
+                    attributeModifier,
+                    equipmentSlotForItem,
+                    getCompatibleAttributeModifierIds(type, equipmentSlotForItem));
         } else {
             for (AttributeModifier oldAttributeModifier : oldModifiers) {
                 double amount = oldAttributeModifier.amount();
@@ -348,11 +356,15 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
                 }
                 AttributeModifier newAttributeModifier =
                         new AttributeModifier(
-                                oldAttributeModifier.id(),
+                                getAttributeModifierId(type, equipmentSlotForItem),
                                 newValue,
                                 AttributeModifier.Operation.ADD_VALUE);
                 ItemModifierHelper.setAttributeModifier(
-                        itemStack, type, newAttributeModifier, equipmentSlotForItem);
+                        itemStack,
+                        type,
+                        newAttributeModifier,
+                        equipmentSlotForItem,
+                        getCompatibleAttributeModifierIds(type, equipmentSlotForItem));
             }
         }
     }
@@ -360,7 +372,10 @@ public class DefaultEnhancementIntensifySystem extends EnhancementIntensifySyste
     private @NotNull List<AttributeModifier> getAttributeModifiers(
             ItemStack itemStack, Attribute type, EquipmentSlot equipmentSlotForItem) {
         return ItemModifierHelper.getAttributeModifiers(
-                itemStack, type, equipmentSlotForItem, getAttributeModifierId(type));
+                itemStack,
+                type,
+                equipmentSlotForItem,
+                getCompatibleAttributeModifierIds(type, equipmentSlotForItem));
     }
 
     private int getFailuresCount(ItemStack itemStack) {

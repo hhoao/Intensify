@@ -169,11 +169,26 @@ public interface IntensifySystem {
     void intensify(ServerPlayer player, ItemStack item, ToolIntensifyConfig intensifyConfig);
 
     default ResourceLocation getAttributeModifierId(Attribute attribute) {
+        return getAttributeModifierId(attribute, null);
+    }
+
+    default ResourceLocation getAttributeModifierId(Attribute attribute, EquipmentSlot equipmentSlot) {
         ResourceLocation attributeKey = BuiltInRegistries.ATTRIBUTE.getKey(attribute);
         String normalizedAttributeId =
                 attributeKey != null ? attributeKey.toString() : attribute.getDescriptionId();
+        String slotName = usesSlotScopedModifierIds(equipmentSlot) ? equipmentSlot.getName() : null;
         return ResourceLocation.fromNamespaceAndPath(
-                Intensify.MODID, AttributeModifierIds.buildPath(normalizedAttributeId));
+                Intensify.MODID, AttributeModifierIds.buildPath(normalizedAttributeId, slotName));
+    }
+
+    default ResourceLocation[] getCompatibleAttributeModifierIds(
+            Attribute attribute, EquipmentSlot equipmentSlot) {
+        ResourceLocation slotScopedId = getAttributeModifierId(attribute, equipmentSlot);
+        ResourceLocation legacyId = getAttributeModifierId(attribute);
+        if (slotScopedId.equals(legacyId)) {
+            return new ResourceLocation[] {slotScopedId};
+        }
+        return new ResourceLocation[] {slotScopedId, legacyId};
     }
 
     default String getTagId(String id) {
@@ -186,5 +201,12 @@ public interface IntensifySystem {
             return equipable.getEquipmentSlot();
         }
         return EquipmentSlot.MAINHAND;
+    }
+
+    private static boolean usesSlotScopedModifierIds(EquipmentSlot equipmentSlot) {
+        return equipmentSlot == EquipmentSlot.HEAD
+                || equipmentSlot == EquipmentSlot.CHEST
+                || equipmentSlot == EquipmentSlot.LEGS
+                || equipmentSlot == EquipmentSlot.FEET;
     }
 }

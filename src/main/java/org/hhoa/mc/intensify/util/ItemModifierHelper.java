@@ -155,7 +155,9 @@
 package org.hhoa.mc.intensify.util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -187,13 +189,27 @@ public class ItemModifierHelper {
             Attribute attribute,
             AttributeModifier newModifier,
             EquipmentSlot equipmentSlot) {
+        setAttributeModifier(stack, attribute, newModifier, equipmentSlot, newModifier.id());
+    }
+
+    public static void setAttributeModifier(
+            ItemStack stack,
+            Attribute attribute,
+            AttributeModifier newModifier,
+            EquipmentSlot equipmentSlot,
+            ResourceLocation... replaceModifierIds) {
         initAttributeModifiers(stack);
         Holder<Attribute> attributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+        Set<ResourceLocation> idsToReplace = new LinkedHashSet<>();
+        idsToReplace.add(newModifier.id());
+        for (ResourceLocation replaceModifierId : replaceModifierIds) {
+            idsToReplace.add(replaceModifierId);
+        }
 
         for (ItemAttributeModifiers.Entry entry : getCurrentAttributeModifiers(stack).modifiers()) {
             if (!(entry.attribute().equals(attributeHolder)
-                    && entry.modifier().id().equals(newModifier.id()))) {
+                    && idsToReplace.contains(entry.modifier().id()))) {
                 builder.add(entry.attribute(), entry.modifier(), entry.slot());
             }
         }
@@ -207,14 +223,24 @@ public class ItemModifierHelper {
             Attribute attribute,
             EquipmentSlot equipmentSlot,
             ResourceLocation modifierId) {
+        return getAttributeModifiers(stack, attribute, equipmentSlot, new ResourceLocation[] {modifierId});
+    }
+
+    public static List<AttributeModifier> getAttributeModifiers(
+            ItemStack stack,
+            Attribute attribute,
+            EquipmentSlot equipmentSlot,
+            ResourceLocation... modifierIds) {
         Holder<Attribute> attributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);
         List<AttributeModifier> modifiers = new ArrayList<>();
+        Set<ResourceLocation> acceptedModifierIds = new LinkedHashSet<>(List.of(modifierIds));
 
         getCurrentAttributeModifiers(stack)
                 .forEach(
                         equipmentSlot,
                         (holder, modifier) -> {
-                            if (holder.equals(attributeHolder) && modifier.id().equals(modifierId)) {
+                            if (holder.equals(attributeHolder)
+                                    && acceptedModifierIds.contains(modifier.id())) {
                                 modifiers.add(modifier);
                             }
                         });

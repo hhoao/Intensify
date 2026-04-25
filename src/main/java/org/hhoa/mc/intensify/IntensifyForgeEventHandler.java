@@ -173,6 +173,7 @@ import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -185,6 +186,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -199,6 +201,7 @@ import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
 import org.hhoa.mc.intensify.registry.AttachmentRegistry;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
+import org.hhoa.mc.intensify.util.ItemModifierHelper;
 import org.hhoa.mc.intensify.util.PlayerUtils;
 
 public class IntensifyForgeEventHandler {
@@ -227,6 +230,23 @@ public class IntensifyForgeEventHandler {
                 player.setData(AttachmentRegistry.FIRST_LOGIN, true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onLivingEquipmentChange(LivingEquipmentChangeEvent event) {
+        if (event.getEntity().level().isClientSide()) {
+            return;
+        }
+
+        EquipmentSlot slot = event.getSlot();
+        if (slot != EquipmentSlot.HEAD
+                && slot != EquipmentSlot.CHEST
+                && slot != EquipmentSlot.LEGS
+                && slot != EquipmentSlot.FEET) {
+            return;
+        }
+
+        migrateLegacyArmorModifiers(event.getTo(), slot);
     }
 
     @SubscribeEvent
@@ -449,6 +469,45 @@ public class IntensifyForgeEventHandler {
                     advancements.award(advancement, criterion);
                 }
             }
+        }
+    }
+
+    private static void migrateLegacyArmorModifiers(ItemStack itemStack, EquipmentSlot slot) {
+        if (itemStack.isEmpty()) {
+            return;
+        }
+
+        ToolIntensifyConfig intensifyConfig = IntensifyConfig.getToolIntensifyConfig(itemStack.getItem());
+        if (intensifyConfig == null) {
+            return;
+        }
+
+        for (ToolIntensifyConfig.AttributeConfig attributeConfig : intensifyConfig.getAttributes()) {
+            ResourceLocation slotScopedId =
+                    IntensifyConfig.getEnhancementIntensifySystem()
+                            .getAttributeModifierId(attributeConfig.getType(), slot);
+            ResourceLocation legacyId =
+                    IntensifyConfig.getEnhancementIntensifySystem()
+                            .getAttributeModifierId(attributeConfig.getType());
+
+            if (slotScopedId.equals(legacyId)) {
+                continue;
+            }
+
+            ItemModifierHelper.getAttributeModifiers(
+                            itemStack, attributeConfig.getType(), slot, legacyId)
+                    .forEach(
+                            modifier ->
+                                    ItemModifierHelper.setAttributeModifier(
+                                            itemStack,
+                                            attributeConfig.getType(),
+                                            new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                                                    slotScopedId,
+                                                    modifier.amount(),
+                                                    modifier.operation()),
+                                            slot,
+                                            legacyId,
+                                            slotScopedId));
         }
     }
 

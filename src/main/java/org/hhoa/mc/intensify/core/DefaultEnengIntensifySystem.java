@@ -205,10 +205,11 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
                 itemStack,
                 attributeType,
                 new AttributeModifier(
-                        getAttributeModifierId(attributeType),
+                        getAttributeModifierId(attributeType, equipmentSlotForItem),
                         v,
                         AttributeModifier.Operation.ADD_VALUE),
-                equipmentSlotForItem);
+                equipmentSlotForItem,
+                getCompatibleAttributeModifierIds(attributeType, equipmentSlotForItem));
     }
 
     private static double randomizeAndMultiply(List<Double> value, ThreadLocalRandom current) {
