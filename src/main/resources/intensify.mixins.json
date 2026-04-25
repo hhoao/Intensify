@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_${java_version}",
   "refmap": "${mod_id}.refmap.json",
   "mixins": [
-    "AbstractFurnaceBlockEntityMixin"
+    "AbstractFurnaceBlockEntityMixin",
+    "AbstractFurnaceMenuMixin"
   ],
   "minVersion": "0.8"
 }

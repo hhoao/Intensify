@@ -29,6 +29,9 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.display.FurnaceRecipeDisplay;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.inventory.FurnaceMenu;
+import net.minecraft.world.inventory.RecipeBookMenu;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlastFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
@@ -261,6 +264,49 @@ public final class FurnaceGameTests {
         helper.succeed();
     }
 
+    public static void recipeBookDisplayPlacementOnlyFillsFuelSlot(GameTestHelper helper) {
+        helper.setBlock(FURNACE_POS, Blocks.FURNACE);
+        FurnaceBlockEntity furnace = helper.getBlockEntity(FURNACE_POS, FurnaceBlockEntity.class);
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.getInventory().add(new ItemStack(Items.DIAMOND_SWORD));
+        player.getInventory().add(ItemRegistry.ENENG_STONE.get().getDefaultInstance());
+
+        FurnaceMenu menu =
+                new FurnaceMenu(0, player.getInventory(), furnace, new SimpleContainerData(4));
+        RecipeHolder<?> recipeHolder =
+                recipeHolder(helper, "recipe_book_display/eneng_stone")
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                "missing display recipe for placement test"));
+
+        RecipeBookMenu.PostPlaceAction action =
+                menu.handlePlacement(false, false, recipeHolder, helper.getLevel(), player.getInventory());
+
+        if (!menu.getSlot(0).getItem().isEmpty()) {
+            helper.fail(
+                    Component.literal(
+                            "display recipe placement should not write to furnace input slot"));
+            return;
+        }
+
+        if (!menu.getSlot(1).getItem().is(ItemRegistry.ENENG_STONE.get())) {
+            helper.fail(
+                    Component.literal(
+                            "display recipe placement should put the intensify stone in the fuel slot"));
+            return;
+        }
+
+        if (action != RecipeBookMenu.PostPlaceAction.NOTHING) {
+            helper.fail(
+                    Component.literal(
+                            "successful fuel-only placement should not request ghost recipe feedback"));
+            return;
+        }
+
+        helper.succeed();
+    }
+
     public static void mineralBlockDropsAddConfiguredStones(GameTestHelper helper) {
         double originalTotalRate = ConfigRegistry.stoneDropoutProbabilityConfig.getTotalRate().get();
         double originalStrengtheningRate =
@@ -372,6 +418,7 @@ public final class FurnaceGameTests {
         register(event, "blast_furnace_does_not_run_intensify_flow", 80, environment, FurnaceGameTests::blastFurnaceDoesNotRunIntensifyFlow);
         register(event, "recipe_book_display_recipes_load_and_remain_non_executable", 40, environment, FurnaceGameTests::recipeBookDisplayRecipesLoadAndRemainNonExecutable);
         register(event, "player_login_awards_display_recipes_and_removes_legacy_entries", 40, environment, FurnaceGameTests::playerLoginAwardsDisplayRecipesAndRemovesLegacyEntries);
+        register(event, "recipe_book_display_placement_only_fills_fuel_slot", 40, environment, FurnaceGameTests::recipeBookDisplayPlacementOnlyFillsFuelSlot);
         register(event, "mineral_block_drops_add_configured_stones", 40, environment, FurnaceGameTests::mineralBlockDropsAddConfiguredStones);
     }
 
