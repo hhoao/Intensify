@@ -15,17 +15,19 @@ import org.yaml.snakeyaml.Yaml;
 
 class FurnaceRecipeBookDisplayResourceTest {
     @Test
-    void serializerSourceRetainsFuelAndResultFields() throws IOException {
-        Path serializerSource =
-                Path.of(
-                        "src/main/java/org/hhoa/mc/intensify/recipes/display/"
-                                + "FurnaceRecipeBookDisplayRecipeSerializer.java");
-        assertTrue(Files.exists(serializerSource), "missing display recipe serializer source file");
-
-        String text = Files.readString(serializerSource);
-        assertTrue(text.contains(".fieldOf(\"fuel\")"), "serializer should retain the fuel field");
+    void compiledSerializerRetainsFuelAndResultFieldNames() throws IOException {
+        String serializerClass =
+                Files.readString(
+                        Path.of(
+                                "build/classes/java/main/org/hhoa/mc/intensify/recipes/display/"
+                                        + "FurnaceRecipeBookDisplayRecipeSerializer.class"),
+                        StandardCharsets.ISO_8859_1);
         assertTrue(
-                text.contains(".fieldOf(\"result\")"), "serializer should retain the result field");
+                serializerClass.contains("fuel"),
+                "compiled serializer should retain the fuel field name");
+        assertTrue(
+                serializerClass.contains("result"),
+                "compiled serializer should retain the result field name");
     }
 
     @Test

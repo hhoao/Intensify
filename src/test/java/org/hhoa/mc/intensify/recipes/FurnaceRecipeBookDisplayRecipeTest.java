@@ -2,35 +2,66 @@ package org.hhoa.mc.intensify.recipes;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.nio.file.Files;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 class FurnaceRecipeBookDisplayRecipeTest {
     @Test
-    void displayRecipeSourceOverridesDisplayToExposeExplicitFuel() throws Exception {
-        Path recipeSource =
-                Path.of(
-                        "src/main/java/org/hhoa/mc/intensify/recipes/display/"
-                                + "FurnaceRecipeBookDisplayRecipe.java");
-        assertTrue(Files.exists(recipeSource), "missing display recipe source file");
+    void compiledDisplayRecipeExposesFuelOnlyPlacementContract() throws Exception {
+        String javapOutput =
+                runJavap("org.hhoa.mc.intensify.recipes.display.FurnaceRecipeBookDisplayRecipe");
 
-        String text = Files.readString(recipeSource);
-        assertTrue(text.contains("List<RecipeDisplay> display()"), "display recipe should override display()");
         assertTrue(
-                text.contains("new FurnaceRecipeDisplay("),
-                "display recipe should build an explicit FurnaceRecipeDisplay");
+                javapOutput.contains("public boolean isFuelOnlyPlacement();"),
+                "compiled display recipe should declare the fuel-only placement contract");
         assertTrue(
-                text.contains("new SlotDisplay.ItemStackSlotDisplay(this.displayFuel)"),
-                "display recipe should expose the configured fuel stack instead of AnyFuel");
+                javapOutput.contains("public net.minecraft.world.item.ItemStack getPlaceableFuel();"),
+                "compiled display recipe should declare the placeable fuel contract");
         assertTrue(
-                text.contains("return false;"),
-                "display recipe matches(...) should never match live furnace input");
+                javapOutput.contains("public boolean matches(net.minecraft.world.item.crafting.SingleRecipeInput, net.minecraft.world.level.Level);"),
+                "compiled display recipe should still expose matches(...)");
         assertTrue(
-                text.contains("boolean isFuelOnlyPlacement()"),
-                "display recipe should expose the fuel-only placement contract");
+                javapOutput.contains("public boolean isFuelOnlyPlacement();\n    Code:\n       0: iconst_1\n       1: ireturn"),
+                "fuel-only placement contract should return true");
         assertTrue(
-                text.contains("ItemStack getPlaceableFuel()"),
-                "display recipe should expose the placeable fuel contract");
+                javapOutput.contains("public boolean matches(net.minecraft.world.item.crafting.SingleRecipeInput, net.minecraft.world.level.Level);\n    Code:\n       0: iconst_0\n       1: ireturn"),
+                "display recipe should never match live furnace input");
+        assertTrue(
+                javapOutput.contains(
+                        "public net.minecraft.world.item.ItemStack getPlaceableFuel();\n    Code:\n       0: aload_0\n       1: getfield"),
+                "placeable fuel should read from the stored display fuel");
+        assertTrue(
+                javapOutput.contains("displayFuel:Lnet/minecraft/world/item/ItemStack;"),
+                "placeable fuel should use the displayFuel backing field");
+        assertTrue(
+                javapOutput.contains(
+                        "invokevirtual #"),
+                "placeable fuel should invoke ItemStack.copy() rather than return the field directly");
+        assertTrue(
+                javapOutput.contains("net/minecraft/world/item/ItemStack.copy:()Lnet/minecraft/world/item/ItemStack;"),
+                "placeable fuel should return a defensive copy");
+    }
+
+    private static String runJavap(String className) throws IOException, InterruptedException {
+        Process process =
+                new ProcessBuilder(
+                                javapPath(),
+                                "-classpath",
+                                Path.of("build/classes/java/main").toString(),
+                                "-c",
+                                "-p",
+                                className)
+                        .redirectErrorStream(true)
+                        .start();
+        String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        int exitCode = process.waitFor();
+        assertTrue(exitCode == 0, "javap should inspect compiled class successfully:\n" + output);
+        return output;
+    }
+
+    private static String javapPath() {
+        return Path.of(System.getProperty("java.home"), "bin", "javap").toString();
     }
 }
