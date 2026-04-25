@@ -100,4 +100,12 @@ public class FurnaceRecipeBookDisplayRecipe extends AbstractCookingRecipe {
     public ItemStack getDisplayResult() {
         return this.displayResult.copy();
     }
+
+    public boolean isFuelOnlyPlacement() {
+        return true;
+    }
+
+    public ItemStack getPlaceableFuel() {
+        return this.displayFuel.copy();
+    }
 }

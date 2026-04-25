@@ -7,11 +7,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.Yaml;
 
 class FurnaceRecipeBookDisplayResourceTest {
+    @Test
+    void serializerSourceRetainsFuelAndResultFields() throws IOException {
+        Path serializerSource =
+                Path.of(
+                        "src/main/java/org/hhoa/mc/intensify/recipes/display/"
+                                + "FurnaceRecipeBookDisplayRecipeSerializer.java");
+        assertTrue(Files.exists(serializerSource), "missing display recipe serializer source file");
+
+        String text = Files.readString(serializerSource);
+        assertTrue(text.contains(".fieldOf(\"fuel\")"), "serializer should retain the fuel field");
+        assertTrue(
+                text.contains(".fieldOf(\"result\")"), "serializer should retain the result field");
+    }
+
     @Test
     void recipeBookDisplayResourcesExistOnClasspathWithDiamondSwordStoneExamples()
             throws IOException {

@@ -26,5 +26,11 @@ class FurnaceRecipeBookDisplayRecipeTest {
         assertTrue(
                 text.contains("return false;"),
                 "display recipe matches(...) should never match live furnace input");
+        assertTrue(
+                text.contains("boolean isFuelOnlyPlacement()"),
+                "display recipe should expose the fuel-only placement contract");
+        assertTrue(
+                text.contains("ItemStack getPlaceableFuel()"),
+                "display recipe should expose the placeable fuel contract");
     }
 }
