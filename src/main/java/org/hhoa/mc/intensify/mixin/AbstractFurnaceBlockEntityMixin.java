@@ -4,6 +4,7 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class AbstractFurnaceBlockEntityMixin {
     @Inject(method = "serverTick", at = @At("HEAD"), cancellable = true)
     private static void intensify$serverTick(
-            Level level,
+            ServerLevel level,
             BlockPos pos,
             BlockState state,
             AbstractFurnaceBlockEntity furnace,

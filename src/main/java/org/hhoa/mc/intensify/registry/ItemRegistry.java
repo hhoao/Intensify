@@ -154,6 +154,8 @@
 
 package org.hhoa.mc.intensify.registry;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -171,22 +173,34 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, Item> STRENGTHENING_STONE =
             ITEMS.register(
                     IntensifyStoneType.STRENGTHENING_STONE.getIdentifier(),
-                    () -> new StrengtheningStone(new Item.Properties()));
+                    key ->
+                            new StrengtheningStone(
+                                    new Item.Properties()
+                                            .setId(ResourceKey.create(Registries.ITEM, key))));
 
     public static final DeferredHolder<Item, Item> ENENG_STONE =
             ITEMS.register(
                     IntensifyStoneType.ENENG_STONE.getIdentifier(),
-                    () -> new EnengStone(new Item.Properties()));
+                    key ->
+                            new EnengStone(
+                                    new Item.Properties()
+                                            .setId(ResourceKey.create(Registries.ITEM, key))));
 
     public static final DeferredHolder<Item, Item> ETERNAL_STONE =
             ITEMS.register(
                     IntensifyStoneType.ETERNAL_STONE.getIdentifier(),
-                    () -> new EternalStone(new Item.Properties()));
+                    key ->
+                            new EternalStone(
+                                    new Item.Properties()
+                                            .setId(ResourceKey.create(Registries.ITEM, key))));
 
     public static final DeferredHolder<Item, Item> PROTECTION_STONE =
             ITEMS.register(
                     IntensifyStoneType.PROTECTION_STONE.getIdentifier(),
-                    () -> new ProtectionStone(new Item.Properties()));
+                    key ->
+                            new ProtectionStone(
+                                    new Item.Properties()
+                                            .setId(ResourceKey.create(Registries.ITEM, key))));
 
     public static void initialize(IEventBus iEventBus) {
         ITEMS.register(iEventBus);

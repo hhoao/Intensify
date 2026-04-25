@@ -200,17 +200,17 @@ public class MineralDestructionLootCondition implements LootItemCondition {
     @Override
     public boolean test(LootContext lootContext) {
         StoneDropoutProbabilityConfig configValueMap = ConfigRegistry.stoneDropoutProbabilityConfig;
-        BlockState blockState = lootContext.getParamOrNull(LootContextParams.BLOCK_STATE);
+        BlockState blockState = lootContext.getOptionalParameter(LootContextParams.BLOCK_STATE);
         var silkTouch =
                 lootContext.getLevel()
                         .registryAccess()
                         .lookupOrThrow(Registries.ENCHANTMENT)
                         .getOrThrow(Enchantments.SILK_TOUCH);
         if (blockState == null
-                || !lootContext.hasParam(LootContextParams.TOOL)
+                || !lootContext.hasParameter(LootContextParams.TOOL)
                 || EnchantmentHelper.getItemEnchantmentLevel(
                                 silkTouch,
-                                lootContext.getParam(LootContextParams.TOOL))
+                                lootContext.getParameter(LootContextParams.TOOL))
                         > 0) {
             return false;
         }

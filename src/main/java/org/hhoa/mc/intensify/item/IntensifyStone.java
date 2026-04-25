@@ -166,6 +166,7 @@ import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.entity.FuelValues;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
@@ -179,7 +180,8 @@ public abstract class IntensifyStone extends Item {
         return true;
     }
 
-    public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
+    @Override
+    public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType, FuelValues fuelValues) {
         return IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME;
     }
 

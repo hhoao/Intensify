@@ -171,7 +171,7 @@ public class AttachmentRegistry {
                     "first_login",
                     () ->
                             AttachmentType.builder(() -> Boolean.FALSE)
-                                    .serialize(Codec.BOOL)
+                                    .serialize(Codec.BOOL.fieldOf("value"))
                                     .copyOnDeath()
                                     .build());
 

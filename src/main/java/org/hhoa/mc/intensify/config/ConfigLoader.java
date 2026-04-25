@@ -277,7 +277,7 @@ public class ConfigLoader {
         if (type == null) {
             throw new RuntimeException(String.format("Attribute type %s not set", type));
         }
-        ResourceLocation resourceLocation = ResourceLocation.parse(type);
+        ResourceLocation resourceLocation = resolveAttributeLocation(type);
         Attribute attribute =
                 BuiltInRegistries.ATTRIBUTE.get(resourceLocation).map(Holder.Reference::value).orElse(null);
         if (attribute == null) {
@@ -291,6 +291,13 @@ public class ConfigLoader {
             throw new RuntimeException(String.format("Attribute type %s not register", type));
         }
         attributeConfig.setType(attribute);
+    }
+
+    private static ResourceLocation resolveAttributeLocation(String type) {
+        if (type.startsWith("generic.")) {
+            return ResourceLocation.withDefaultNamespace(type.substring("generic.".length()));
+        }
+        return ResourceLocation.parse(type);
     }
 
     private static void configureGroups(

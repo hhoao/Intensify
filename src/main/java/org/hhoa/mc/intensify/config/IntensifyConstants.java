@@ -210,8 +210,7 @@ public class IntensifyConstants {
                                 && !TridentItem.class.isInstance(item)
                                 && !BowItem.class.isInstance(item)
                                 && !CrossbowItem.class.isInstance(item)
-                                && !ShieldItem.class.isInstance(item)
-                                && !item.components().has(DataComponents.TOOL));
+                                && !ShieldItem.class.isInstance(item));
         TOOL_NAME_CLASS_MAPPING.put("mace", MaceItem.class::isInstance);
         TOOL_NAME_CLASS_MAPPING.put("bow", BowItem.class::isInstance);
         TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class::isInstance);

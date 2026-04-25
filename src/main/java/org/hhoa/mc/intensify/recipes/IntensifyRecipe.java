@@ -154,7 +154,6 @@
 
 package org.hhoa.mc.intensify.recipes;
 
-import java.util.stream.Stream;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
@@ -168,7 +167,6 @@ import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
@@ -178,7 +176,7 @@ public abstract class IntensifyRecipe extends AbstractCookingRecipe {
         super(
                 "",
                 CookingBookCategory.MISC,
-                Ingredient.of(Stream.<ItemLike>empty()),
+                Ingredient.of(Items.FURNACE),
                 ItemStack.EMPTY,
                 experience,
                 cookingTime);
