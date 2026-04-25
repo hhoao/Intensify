@@ -156,6 +156,8 @@ package org.hhoa.mc.intensify;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.logging.LogUtils;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
@@ -167,7 +169,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
@@ -176,12 +180,16 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -192,6 +200,7 @@ import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
@@ -203,8 +212,27 @@ import org.hhoa.mc.intensify.registry.AttachmentRegistry;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
 import org.hhoa.mc.intensify.util.PlayerUtils;
+import org.slf4j.Logger;
 
 public class IntensifyForgeEventHandler {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final List<IntensifyStoneType> MINING_DROP_STONE_TYPES =
+            List.of(
+                    IntensifyStoneType.STRENGTHENING_STONE,
+                    IntensifyStoneType.ENENG_STONE,
+                    IntensifyStoneType.ETERNAL_STONE,
+                    IntensifyStoneType.PROTECTION_STONE);
+    private static final List<ResourceKey<Recipe<?>>> DISPLAY_RECIPE_KEYS =
+            List.of(
+                    recipeKey("recipe_book_display/eneng_stone"),
+                    recipeKey("recipe_book_display/strengthening_stone"),
+                    recipeKey("recipe_book_display/eternal_stone"));
+    private static final List<ResourceKey<Recipe<?>>> LEGACY_RECIPE_KEYS =
+            List.of(
+                    recipeKey("eneng_stone"),
+                    recipeKey("strengthening_stone"),
+                    recipeKey("intensify_stone"));
+
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getPos());
@@ -229,7 +257,73 @@ public class IntensifyForgeEventHandler {
                         IntensifyAdvancementProvider.INTENSIFY_ADVANCEMENT_ID);
                 player.setData(AttachmentRegistry.FIRST_LOGIN, true);
             }
+            syncRecipeBookDisplayRecipes(player);
         }
+    }
+
+    @SubscribeEvent
+    public void onBlockDrops(BlockDropsEvent event) {
+        boolean silkTouch = hasSilkTouch(event.getLevel(), event.getTool());
+        List<ItemStack> drops =
+                createMiningStoneDrops(
+                        event.getState(),
+                        event.getBreaker() instanceof Player,
+                        silkTouch);
+        if (!drops.isEmpty() || shouldLogMiningAttempt(event, silkTouch)) {
+            LOGGER.info(
+                    "Mining drop event: block={}, breaker={}, tool={}, silkTouch={}, totalRate={}, strengtheningProb={}, enengProb={}, eternalProb={}, protectionProb={}, drops={}",
+                    net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                            .getKey(event.getState().getBlock()),
+                    event.getBreaker() == null ? "null" : event.getBreaker().getType(),
+                    event.getTool(),
+                    silkTouch,
+                    ConfigRegistry.stoneDropoutProbabilityConfig.getTotalRate().get(),
+                    ConfigRegistry.stoneDropoutProbabilityConfig.getStoneDropOutProbability(
+                            IntensifyStoneType.STRENGTHENING_STONE,
+                            DropTypeEnum.MINERAL_BLOCK_DESTROYED,
+                            event.getState().getBlock()),
+                    ConfigRegistry.stoneDropoutProbabilityConfig.getStoneDropOutProbability(
+                            IntensifyStoneType.ENENG_STONE,
+                            DropTypeEnum.MINERAL_BLOCK_DESTROYED,
+                            event.getState().getBlock()),
+                    ConfigRegistry.stoneDropoutProbabilityConfig.getStoneDropOutProbability(
+                            IntensifyStoneType.ETERNAL_STONE,
+                            DropTypeEnum.MINERAL_BLOCK_DESTROYED,
+                            event.getState().getBlock()),
+                    ConfigRegistry.stoneDropoutProbabilityConfig.getStoneDropOutProbability(
+                            IntensifyStoneType.PROTECTION_STONE,
+                            DropTypeEnum.MINERAL_BLOCK_DESTROYED,
+                            event.getState().getBlock()),
+                    drops);
+        }
+        for (ItemStack drop : drops) {
+            event.getDrops()
+                    .add(
+                            new ItemEntity(
+                                    event.getLevel(),
+                                    event.getPos().getX() + 0.5D,
+                                    event.getPos().getY() + 0.5D,
+                                    event.getPos().getZ() + 0.5D,
+                                    drop));
+        }
+    }
+
+    public static List<ItemStack> createMiningStoneDrops(
+            BlockState state, boolean playerHarvested, boolean silkTouching) {
+        if (!playerHarvested || silkTouching) {
+            return List.of();
+        }
+
+        return MINING_DROP_STONE_TYPES.stream()
+                .map(
+                        stoneType ->
+                                ConfigRegistry.stoneDropoutProbabilityConfig.dropStone(
+                                        stoneType,
+                                        DropTypeEnum.MINERAL_BLOCK_DESTROYED,
+                                        state.getBlock()))
+                .flatMap(Optional::stream)
+                .map(ItemStack::new)
+                .toList();
     }
 
     @SubscribeEvent
@@ -273,6 +367,9 @@ public class IntensifyForgeEventHandler {
                                                                             .stoneDropoutProbabilityConfig
                                                                             .getTotalRate()
                                                                             .set(rate);
+                                                                    LOGGER.info(
+                                                                            "Updated stone drop total_rate to {}",
+                                                                            rate);
                                                                     context.getSource()
                                                                             .sendSuccess(
                                                                                     () ->
@@ -411,25 +508,56 @@ public class IntensifyForgeEventHandler {
         Level level = entity.level();
 
         if (!level.isClientSide) {
-            if (entity instanceof Mob && event.getSource().getEntity() instanceof Player) {
-                Optional<Item> item =
-                        ConfigRegistry.stoneDropoutProbabilityConfig.dropStone(
-                                DropTypeEnum.MOB_KILLED, entity.getType());
-                if (item.isPresent()) {
-                    Item stone = item.get();
-                    ItemStack stoneItemStack = new ItemStack(stone);
-                    ItemEntity itemEntity =
-                            new ItemEntity(
-                                    entity.level(),
-                                    entity.getX(),
-                                    entity.getY(),
-                                    entity.getZ(),
-                                    stoneItemStack);
-
-                    event.getDrops().add(itemEntity);
-                }
-            }
+            createMobKillStoneDrop(
+                            entity.getType(),
+                            true,
+                            event.getSource().getDirectEntity() instanceof Player)
+                    .ifPresent(
+                            stoneItemStack ->
+                                    event.getDrops()
+                                            .add(
+                                                    new ItemEntity(
+                                                            entity.level(),
+                                                            entity.getX(),
+                                                            entity.getY(),
+                                                            entity.getZ(),
+                                                            stoneItemStack)));
         }
+    }
+
+    public static Optional<ItemStack> createMobKillStoneDrop(
+            Object lookupKey, boolean livingMob, boolean directlyKilledByPlayer) {
+        if (!livingMob || !directlyKilledByPlayer) {
+            return Optional.empty();
+        }
+        return ConfigRegistry.stoneDropoutProbabilityConfig
+                .dropStone(DropTypeEnum.MOB_KILLED, lookupKey)
+                .map(ItemStack::new);
+    }
+
+    private static boolean hasSilkTouch(ServerLevel level, ItemStack tool) {
+        if (tool.isEmpty()) {
+            return false;
+        }
+        var silkTouch =
+                level.registryAccess()
+                        .lookupOrThrow(Registries.ENCHANTMENT)
+                        .getOrThrow(Enchantments.SILK_TOUCH);
+        return EnchantmentHelper.getItemEnchantmentLevel(silkTouch, tool) > 0;
+    }
+
+    private static boolean shouldLogMiningAttempt(BlockDropsEvent event, boolean silkTouch) {
+        if (ConfigRegistry.stoneDropoutProbabilityConfig.getTotalRate().get() > 1.0D) {
+            return true;
+        }
+        if (silkTouch) {
+            return true;
+        }
+        return ConfigRegistry.stoneDropoutProbabilityConfig.getStoneDropOutProbability(
+                        IntensifyStoneType.STRENGTHENING_STONE,
+                        DropTypeEnum.MINERAL_BLOCK_DESTROYED,
+                        event.getState().getBlock())
+                > 0.0D;
     }
 
     @SubscribeEvent
@@ -470,6 +598,27 @@ public class IntensifyForgeEventHandler {
                 }
             }
         }
+    }
+
+    private static void syncRecipeBookDisplayRecipes(ServerPlayer player) {
+        player.awardRecipesByKey(DISPLAY_RECIPE_KEYS);
+
+        List<RecipeHolder<?>> legacyRecipes = new ArrayList<>();
+        for (ResourceKey<Recipe<?>> recipeKey : LEGACY_RECIPE_KEYS) {
+            player.getServer()
+                    .getRecipeManager()
+                    .byKey(recipeKey)
+                    .ifPresent(legacyRecipes::add);
+        }
+
+        if (!legacyRecipes.isEmpty()) {
+            player.resetRecipes(legacyRecipes);
+        }
+    }
+
+    private static ResourceKey<Recipe<?>> recipeKey(String path) {
+        return ResourceKey.create(
+                Registries.RECIPE, ResourceLocation.fromNamespaceAndPath(Intensify.MODID, path));
     }
 
     private static void migrateLegacyArmorModifiers(ItemStack itemStack, EquipmentSlot slot) {

@@ -3,24 +3,43 @@ package org.hhoa.mc.intensify.gametest;
 import static org.hhoa.mc.intensify.Intensify.MODID;
 import static org.hhoa.mc.intensify.config.IntensifyConstants.ENENGED_TAG_ID;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.BuiltinTestFunctions;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.crafting.display.FurnaceRecipeDisplay;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlastFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
+import org.hhoa.mc.intensify.IntensifyForgeEventHandler;
+import org.hhoa.mc.intensify.item.IntensifyStoneType;
+import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
+import org.hhoa.mc.intensify.recipes.display.FurnaceRecipeBookDisplayRecipe;
 import org.hhoa.mc.intensify.util.FurnaceHelper;
 import org.hhoa.mc.intensify.util.ItemModifierHelper;
 
@@ -208,6 +227,135 @@ public final class FurnaceGameTests {
         helper.runAtTickTime(11, helper::succeed);
     }
 
+    public static void recipeBookDisplayRecipesLoadAndRemainNonExecutable(GameTestHelper helper) {
+        assertDisplayRecipe(helper, "recipe_book_display/eneng_stone", ItemRegistry.ENENG_STONE.get().getDefaultInstance());
+        assertDisplayRecipe(
+                helper,
+                "recipe_book_display/strengthening_stone",
+                ItemRegistry.STRENGTHENING_STONE.get().getDefaultInstance());
+        assertDisplayRecipe(helper, "recipe_book_display/eternal_stone", ItemRegistry.ETERNAL_STONE.get().getDefaultInstance());
+        helper.succeed();
+    }
+
+    public static void playerLoginAwardsDisplayRecipesAndRemovesLegacyEntries(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        resetRecipes(helper, player, "recipe_book_display/eneng_stone");
+        resetRecipes(helper, player, "recipe_book_display/strengthening_stone");
+        resetRecipes(helper, player, "recipe_book_display/eternal_stone");
+        IntentsifyRecipeBookAsserts.assertMissing(helper, player, "recipe_book_display/eneng_stone");
+        IntentsifyRecipeBookAsserts.assertMissing(helper, player, "recipe_book_display/strengthening_stone");
+        IntentsifyRecipeBookAsserts.assertMissing(helper, player, "recipe_book_display/eternal_stone");
+
+        awardLegacyRecipe(helper, player, "eneng_stone");
+        awardLegacyRecipe(helper, player, "strengthening_stone");
+        awardLegacyRecipe(helper, player, "intensify_stone");
+
+        new IntensifyForgeEventHandler().onPlayerLogin(new PlayerEvent.PlayerLoggedInEvent(player));
+
+        IntentsifyRecipeBookAsserts.assertPresent(helper, player, "recipe_book_display/eneng_stone");
+        IntentsifyRecipeBookAsserts.assertPresent(helper, player, "recipe_book_display/strengthening_stone");
+        IntentsifyRecipeBookAsserts.assertPresent(helper, player, "recipe_book_display/eternal_stone");
+        IntentsifyRecipeBookAsserts.assertMissing(helper, player, "eneng_stone");
+        IntentsifyRecipeBookAsserts.assertMissing(helper, player, "strengthening_stone");
+        IntentsifyRecipeBookAsserts.assertMissing(helper, player, "intensify_stone");
+        helper.succeed();
+    }
+
+    public static void mineralBlockDropsAddConfiguredStones(GameTestHelper helper) {
+        double originalTotalRate = ConfigRegistry.stoneDropoutProbabilityConfig.getTotalRate().get();
+        double originalStrengtheningRate =
+                ConfigRegistry.stoneDropoutProbabilityConfig
+                        .getStoneRate(IntensifyStoneType.STRENGTHENING_STONE)
+                        .get();
+        double originalEnengRate =
+                ConfigRegistry.stoneDropoutProbabilityConfig
+                        .getStoneRate(IntensifyStoneType.ENENG_STONE)
+                        .get();
+        double originalProtectionRate =
+                ConfigRegistry.stoneDropoutProbabilityConfig
+                        .getStoneRate(IntensifyStoneType.PROTECTION_STONE)
+                        .get();
+        double originalEternalRate =
+                ConfigRegistry.stoneDropoutProbabilityConfig
+                        .getStoneRate(IntensifyStoneType.ETERNAL_STONE)
+                        .get();
+        try {
+            ConfigRegistry.stoneDropoutProbabilityConfig.getTotalRate().set(100.0D);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.STRENGTHENING_STONE)
+                    .set(1.0D);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.ENENG_STONE)
+                    .set(0.0D);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.PROTECTION_STONE)
+                    .set(0.0D);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.ETERNAL_STONE)
+                    .set(0.0D);
+
+            List<ItemStack> helperDrops =
+                    IntensifyForgeEventHandler.createMiningStoneDrops(
+                            Blocks.DIAMOND_ORE.defaultBlockState(), true, false);
+            if (helperDrops.isEmpty()) {
+                helper.fail(
+                        Component.literal(
+                                "expected direct mining helper to create strengthening stone, probability="
+                                        + ConfigRegistry.stoneDropoutProbabilityConfig
+                                                .getStoneDropOutProbability(
+                                                        IntensifyStoneType.STRENGTHENING_STONE,
+                                                        org.hhoa.mc.intensify.enums.DropTypeEnum
+                                                                .MINERAL_BLOCK_DESTROYED,
+                                                        Blocks.DIAMOND_ORE)));
+                return;
+            }
+
+            BlockPos orePos = new BlockPos(2, 1, 1);
+            helper.setBlock(orePos, Blocks.DIAMOND_ORE);
+            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            List<ItemEntity> drops = new ArrayList<>();
+            BlockDropsEvent event =
+                    new BlockDropsEvent(
+                            helper.getLevel(),
+                            orePos,
+                            Blocks.DIAMOND_ORE.defaultBlockState(),
+                            null,
+                            drops,
+                            player,
+                            new ItemStack(Items.IRON_PICKAXE));
+
+            new IntensifyForgeEventHandler().onBlockDrops(event);
+
+            boolean foundStone =
+                    drops.stream()
+                            .map(ItemEntity::getItem)
+                            .anyMatch(stack -> stack.is(ItemRegistry.STRENGTHENING_STONE.get()));
+            if (!foundStone) {
+                helper.fail(
+                        Component.literal(
+                                "expected block drops event to contain strengthening stone, got "
+                                        + drops));
+                return;
+            }
+        } finally {
+            ConfigRegistry.stoneDropoutProbabilityConfig.getTotalRate().set(originalTotalRate);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.STRENGTHENING_STONE)
+                    .set(originalStrengtheningRate);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.ENENG_STONE)
+                    .set(originalEnengRate);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.PROTECTION_STONE)
+                    .set(originalProtectionRate);
+            ConfigRegistry.stoneDropoutProbabilityConfig
+                    .getStoneRate(IntensifyStoneType.ETERNAL_STONE)
+                    .set(originalEternalRate);
+        }
+
+        helper.succeed();
+    }
+
     public static void register(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition> environment =
                 event.registerEnvironment(
@@ -222,6 +370,9 @@ public final class FurnaceGameTests {
         register(event, "strengthening_stone_does_not_continue_an_eneng_cycle", 260, environment, FurnaceGameTests::strengtheningStoneDoesNotContinueAnEnengCycle);
         register(event, "stale_last_recipe_does_not_let_strengthening_stone_start", 80, environment, FurnaceGameTests::staleLastRecipeDoesNotLetStrengtheningStoneStart);
         register(event, "blast_furnace_does_not_run_intensify_flow", 80, environment, FurnaceGameTests::blastFurnaceDoesNotRunIntensifyFlow);
+        register(event, "recipe_book_display_recipes_load_and_remain_non_executable", 40, environment, FurnaceGameTests::recipeBookDisplayRecipesLoadAndRemainNonExecutable);
+        register(event, "player_login_awards_display_recipes_and_removes_legacy_entries", 40, environment, FurnaceGameTests::playerLoginAwardsDisplayRecipesAndRemovesLegacyEntries);
+        register(event, "mineral_block_drops_add_configured_stones", 40, environment, FurnaceGameTests::mineralBlockDropsAddConfiguredStones);
     }
 
     private static FurnaceBlockEntity setUpFurnace(
@@ -244,6 +395,94 @@ public final class FurnaceGameTests {
         }
         if (FurnaceHelper.getCookingProgress(furnace) <= 0) {
             helper.fail(Component.literal(message + ": cooking progress never started"));
+        }
+    }
+
+    private static void assertDisplayRecipe(GameTestHelper helper, String path, ItemStack expectedFuel) {
+        ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath(MODID, path);
+        ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, recipeId);
+        Optional<?> optionalHolder = helper.getLevel().getServer().getRecipeManager().byKey(recipeKey);
+        if (optionalHolder.isEmpty()) {
+            helper.fail(Component.literal("missing display recipe: " + recipeId));
+            return;
+        }
+
+        RecipeHolder<?> holder = (RecipeHolder<?>) optionalHolder.get();
+        if (!(holder.value() instanceof FurnaceRecipeBookDisplayRecipe displayRecipe)) {
+            helper.fail(Component.literal("expected display recipe type for: " + recipeId));
+            return;
+        }
+
+        if (displayRecipe.matches(new SingleRecipeInput(new ItemStack(Items.DIAMOND_SWORD)), helper.getLevel())) {
+            helper.fail(Component.literal("display recipe should never match live furnace input: " + recipeId));
+            return;
+        }
+
+        List<RecipeDisplay> displays = displayRecipe.display();
+        if (displays.size() != 1) {
+            helper.fail(Component.literal("display recipe should expose exactly one recipe book display: " + recipeId));
+            return;
+        }
+
+        if (!(displays.get(0) instanceof FurnaceRecipeDisplay furnaceDisplay)) {
+            helper.fail(Component.literal("display recipe should expose FurnaceRecipeDisplay: " + recipeId));
+            return;
+        }
+
+        if (!(furnaceDisplay.fuel() instanceof SlotDisplay.ItemStackSlotDisplay fuelDisplay)) {
+            helper.fail(Component.literal("display recipe should keep explicit fuel display instead of AnyFuel: " + recipeId));
+            return;
+        }
+
+        if (!ItemStack.isSameItemSameComponents(fuelDisplay.stack(), expectedFuel)) {
+            helper.fail(
+                    Component.literal(
+                            "display recipe fuel did not match expected intensify stone: "
+                                    + recipeId
+                                    + " -> "
+                                    + fuelDisplay.stack()));
+        }
+    }
+
+    private static void awardLegacyRecipe(GameTestHelper helper, ServerPlayer player, String path) {
+        Optional<RecipeHolder<?>> recipeHolder = recipeHolder(helper, path);
+        if (recipeHolder.isEmpty()) {
+            helper.fail(
+                    Component.literal(
+                            "missing legacy recipe for test: "
+                                    + recipeKey(path).location()));
+            return;
+        }
+        player.awardRecipes(List.of(recipeHolder.get()));
+    }
+
+    private static void resetRecipes(GameTestHelper helper, ServerPlayer player, String path) {
+        recipeHolder(helper, path).ifPresent(holder -> player.resetRecipes(List.of(holder)));
+    }
+
+    private static Optional<RecipeHolder<?>> recipeHolder(GameTestHelper helper, String path) {
+        return helper.getLevel().getServer().getRecipeManager().byKey(recipeKey(path));
+    }
+
+    private static ResourceKey<Recipe<?>> recipeKey(String path) {
+        return ResourceKey.create(
+                Registries.RECIPE,
+                ResourceLocation.fromNamespaceAndPath(MODID, path));
+    }
+
+    private static final class IntentsifyRecipeBookAsserts {
+        private static void assertPresent(GameTestHelper helper, ServerPlayer player, String path) {
+            ResourceKey<Recipe<?>> recipeKey = recipeKey(path);
+            if (!player.getRecipeBook().contains(recipeKey)) {
+                helper.fail(Component.literal("expected player recipe book to contain " + recipeKey.location()));
+            }
+        }
+
+        private static void assertMissing(GameTestHelper helper, ServerPlayer player, String path) {
+            ResourceKey<Recipe<?>> recipeKey = recipeKey(path);
+            if (player.getRecipeBook().contains(recipeKey)) {
+                helper.fail(Component.literal("expected player recipe book to exclude " + recipeKey.location()));
+            }
         }
     }
 

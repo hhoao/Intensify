@@ -191,6 +191,11 @@ public abstract class IntensifyRecipe extends AbstractCookingRecipe {
         return false;
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     public abstract void intensify(
             ItemStack tool,
             HolderLookup.Provider registries,

@@ -1,0 +1,12 @@
+{
+  "type": "intensify:furnace_recipe_book_display",
+  "input": {
+    "id": "minecraft:diamond_sword"
+  },
+  "fuel": {
+    "id": "intensify:eneng_stone"
+  },
+  "result": {
+    "id": "minecraft:diamond_sword"
+  }
+}
