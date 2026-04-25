@@ -163,6 +163,7 @@ import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.MaceItem;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
@@ -193,6 +194,7 @@ public class IntensifyConstants {
 
         // weapon
         TOOL_NAME_CLASS_MAPPING.put("sword", SwordItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("mace", MaceItem.class);
         TOOL_NAME_CLASS_MAPPING.put("bow", BowItem.class);
         TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class);
         TOOL_NAME_CLASS_MAPPING.put("shield", ShieldItem.class);
