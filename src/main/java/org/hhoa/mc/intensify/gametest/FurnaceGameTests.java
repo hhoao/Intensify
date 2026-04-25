@@ -230,6 +230,27 @@ public final class FurnaceGameTests {
         helper.runAtTickTime(11, helper::succeed);
     }
 
+    public static void vanillaFurnaceRecipeStillCooksNormally(GameTestHelper helper) {
+        FurnaceBlockEntity furnace =
+                setUpFurnace(helper, new ItemStack(Items.RAW_IRON), new ItemStack(Items.COAL));
+
+        helper.runAtTickTime(
+                10,
+                () -> assertFurnaceCooking(helper, furnace, "expected vanilla furnace recipe to progress"));
+        helper.runAtTickTime(
+                220,
+                () -> {
+                    ItemStack result = furnace.getItem(2);
+                    if (!result.is(Items.IRON_INGOT)) {
+                        helper.fail(
+                                Component.literal(
+                                        "expected vanilla furnace recipe to finish as iron ingot, got "
+                                                + result));
+                    }
+                });
+        helper.runAtTickTime(221, helper::succeed);
+    }
+
     public static void recipeBookDisplayRecipesLoadAndRemainNonExecutable(GameTestHelper helper) {
         assertDisplayRecipe(helper, "recipe_book_display/eneng_stone", ItemRegistry.ENENG_STONE.get().getDefaultInstance());
         assertDisplayRecipe(
@@ -467,6 +488,7 @@ public final class FurnaceGameTests {
         register(event, "strengthening_stone_does_not_continue_an_eneng_cycle", 260, environment, FurnaceGameTests::strengtheningStoneDoesNotContinueAnEnengCycle);
         register(event, "stale_last_recipe_does_not_let_strengthening_stone_start", 80, environment, FurnaceGameTests::staleLastRecipeDoesNotLetStrengtheningStoneStart);
         register(event, "blast_furnace_does_not_run_intensify_flow", 80, environment, FurnaceGameTests::blastFurnaceDoesNotRunIntensifyFlow);
+        register(event, "vanilla_furnace_recipe_still_cooks_normally", 260, environment, FurnaceGameTests::vanillaFurnaceRecipeStillCooksNormally);
         register(event, "recipe_book_display_recipes_load_and_remain_non_executable", 40, environment, FurnaceGameTests::recipeBookDisplayRecipesLoadAndRemainNonExecutable);
         register(event, "player_login_awards_display_recipes_and_removes_legacy_entries", 40, environment, FurnaceGameTests::playerLoginAwardsDisplayRecipesAndRemovesLegacyEntries);
         register(event, "recipe_book_display_placement_only_fills_fuel_slot", 40, environment, FurnaceGameTests::recipeBookDisplayPlacementOnlyFillsFuelSlot);
