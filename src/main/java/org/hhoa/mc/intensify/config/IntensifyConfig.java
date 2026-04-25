@@ -161,7 +161,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
@@ -228,7 +227,7 @@ public class IntensifyConfig {
 
     public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
         HashMap<ArmorType, ToolIntensifyConfig> armorClassConfigMap = getArmorClassConfigMap();
-        ArmorType armorType = getArmorType(item);
+        ArmorType armorType = IntensifyConstants.getArmorType(item);
         if (armorType != null) {
             return armorClassConfigMap.get(armorType);
         }
@@ -240,22 +239,6 @@ public class IntensifyConfig {
             if (itemMatcher != null && itemMatcher.test(item)) {
                 return configEntry.getValue();
             }
-        }
-        return null;
-    }
-
-    private static ArmorType getArmorType(Item item) {
-        if (item.builtInRegistryHolder().is(ItemTags.HEAD_ARMOR)) {
-            return ArmorType.HELMET;
-        }
-        if (item.builtInRegistryHolder().is(ItemTags.CHEST_ARMOR)) {
-            return ArmorType.CHESTPLATE;
-        }
-        if (item.builtInRegistryHolder().is(ItemTags.LEG_ARMOR)) {
-            return ArmorType.LEGGINGS;
-        }
-        if (item.builtInRegistryHolder().is(ItemTags.FOOT_ARMOR)) {
-            return ArmorType.BOOTS;
         }
         return null;
     }

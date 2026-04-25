@@ -158,7 +158,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
@@ -170,6 +169,7 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.Equippable;
 
 public class IntensifyConstants {
     public static final String FURNACE_OWNER_TAG_ID = "Owner";
@@ -182,21 +182,36 @@ public class IntensifyConstants {
 
     static {
         // tool
-        TOOL_NAME_CLASS_MAPPING.put("hoe", item -> item.builtInRegistryHolder().is(ItemTags.HOES));
+        TOOL_NAME_CLASS_MAPPING.put("hoe", HoeItem.class::isInstance);
         TOOL_NAME_CLASS_MAPPING.put(
-                "pickaxe", item -> item.builtInRegistryHolder().is(ItemTags.PICKAXES));
-        TOOL_NAME_CLASS_MAPPING.put(
-                "shovel", item -> item.builtInRegistryHolder().is(ItemTags.SHOVELS));
+                "pickaxe",
+                item ->
+                        item.components().has(DataComponents.TOOL)
+                                && !HoeItem.class.isInstance(item)
+                                && !ShovelItem.class.isInstance(item)
+                                && !AxeItem.class.isInstance(item)
+                                && !item.components().has(DataComponents.WEAPON));
+        TOOL_NAME_CLASS_MAPPING.put("shovel", ShovelItem.class::isInstance);
 
         // tool and weapon
-        TOOL_NAME_CLASS_MAPPING.put("axe", item -> item.builtInRegistryHolder().is(ItemTags.AXES));
+        TOOL_NAME_CLASS_MAPPING.put("axe", AxeItem.class::isInstance);
 
         // other
         TOOL_NAME_CLASS_MAPPING.put("elytra", item -> item.components().has(DataComponents.GLIDER));
         TOOL_NAME_CLASS_MAPPING.put("fishing_rod", FishingRodItem.class::isInstance);
 
         // weapon
-        TOOL_NAME_CLASS_MAPPING.put("sword", item -> item.builtInRegistryHolder().is(ItemTags.SWORDS));
+        TOOL_NAME_CLASS_MAPPING.put(
+                "sword",
+                item ->
+                        item.components().has(DataComponents.WEAPON)
+                                && !AxeItem.class.isInstance(item)
+                                && !MaceItem.class.isInstance(item)
+                                && !TridentItem.class.isInstance(item)
+                                && !BowItem.class.isInstance(item)
+                                && !CrossbowItem.class.isInstance(item)
+                                && !ShieldItem.class.isInstance(item)
+                                && !item.components().has(DataComponents.TOOL));
         TOOL_NAME_CLASS_MAPPING.put("mace", MaceItem.class::isInstance);
         TOOL_NAME_CLASS_MAPPING.put("bow", BowItem.class::isInstance);
         TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class::isInstance);
@@ -208,5 +223,20 @@ public class IntensifyConstants {
         ARMOR_NAME_CLASS_MAPPING.put("boots", ArmorType.BOOTS);
         ARMOR_NAME_CLASS_MAPPING.put("helmet", ArmorType.HELMET);
         ARMOR_NAME_CLASS_MAPPING.put("chestplate", ArmorType.CHESTPLATE);
+    }
+
+    public static ArmorType getArmorType(Item item) {
+        Equippable equippable = item.components().get(DataComponents.EQUIPPABLE);
+        if (equippable == null) {
+            return null;
+        }
+
+        return switch (equippable.slot()) {
+            case HEAD -> ArmorType.HELMET;
+            case CHEST -> item.components().has(DataComponents.GLIDER) ? ArmorType.BODY : ArmorType.CHESTPLATE;
+            case LEGS -> ArmorType.LEGGINGS;
+            case FEET -> ArmorType.BOOTS;
+            default -> null;
+        };
     }
 }
