@@ -230,7 +230,7 @@ public class PlayerUtils {
     public static boolean hasItemCount(Player player, Item targetItem, int requiredCount) {
         int totalCount = 0;
 
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
             if (stack.getItem() == targetItem) {
                 totalCount += stack.getCount();
 

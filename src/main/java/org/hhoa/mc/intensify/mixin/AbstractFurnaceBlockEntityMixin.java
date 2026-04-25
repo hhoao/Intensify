@@ -4,6 +4,7 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -64,11 +65,11 @@ public abstract class AbstractFurnaceBlockEntityMixin {
     @Unique
     private static void intensify$runCustomFlow(
             Level level, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity furnace) {
-        boolean wasLit = furnace.litTime > 0;
+        boolean wasLit = furnace.litTimeRemaining > 0;
         boolean changed = false;
 
         if (wasLit) {
-            furnace.litTime--;
+            furnace.litTimeRemaining--;
         }
 
         ItemStack input = furnace.getItem(0);
@@ -79,12 +80,12 @@ public abstract class AbstractFurnaceBlockEntityMixin {
         RecipeHolder<IntensifyRecipe> activeRecipe =
                 intensify$resolveContinuationRecipe(level, furnace, input);
 
-        if (furnace.litTime <= 0) {
+        if (furnace.litTimeRemaining <= 0) {
             RecipeHolder<IntensifyRecipe> startRecipe =
                     intensify$resolveStartRecipe(level, furnace, input, fuel);
             activeRecipe = startRecipe;
             if (startRecipe != null) {
-                furnace.cookingTotalTime = startRecipe.value().getCookingTime();
+                furnace.cookingTotalTime = startRecipe.value().cookingTime();
             }
 
             if (startRecipe != null
@@ -92,14 +93,14 @@ public abstract class AbstractFurnaceBlockEntityMixin {
                     && hasFuel
                     && intensify$canBurn(startRecipe, furnace, input)) {
                 int burnDuration = fuel.getBurnTime(RecipeType.SMELTING);
-                furnace.litTime = burnDuration;
-                furnace.litDuration = burnDuration;
-                if (furnace.litTime > 0) {
+                furnace.litTimeRemaining = burnDuration;
+                furnace.litTotalTime = burnDuration;
+                if (furnace.litTimeRemaining > 0) {
                     changed = true;
                     Item remainingItem = fuel.getItem();
                     fuel.shrink(1);
                     if (fuel.isEmpty()) {
-                        furnace.setItem(1, fuel.getCraftingRemainingItem());
+                        furnace.setItem(1, remainingItem.getCraftingRemainder());
                     } else if (!hasFuel) {
                         furnace.setItem(1, new ItemStack(remainingItem));
                     }
@@ -107,28 +108,28 @@ public abstract class AbstractFurnaceBlockEntityMixin {
             }
         }
 
-        if (furnace.litTime > 0
+        if (furnace.litTimeRemaining > 0
                 && activeRecipe != null
                 && intensify$canBurn(activeRecipe, furnace, input)) {
             if (furnace.cookingTotalTime <= 0) {
-                furnace.cookingTotalTime = activeRecipe.value().getCookingTime();
+                furnace.cookingTotalTime = activeRecipe.value().cookingTime();
             }
-            furnace.cookingProgress++;
-            if (furnace.cookingProgress >= furnace.cookingTotalTime) {
-                furnace.cookingProgress = 0;
-                furnace.cookingTotalTime = activeRecipe.value().getCookingTime();
+            furnace.cookingTimer++;
+            if (furnace.cookingTimer >= furnace.cookingTotalTime) {
+                furnace.cookingTimer = 0;
+                furnace.cookingTotalTime = activeRecipe.value().cookingTime();
                 if (intensify$burn(level, furnace, activeRecipe)) {
                     furnace.setRecipeUsed(activeRecipe);
                     changed = true;
                 }
             }
-        } else if (furnace.litTime > 0) {
-            furnace.cookingProgress = 0;
-        } else if (furnace.cookingProgress > 0) {
-            furnace.cookingProgress = Math.clamp(furnace.cookingProgress - 2, 0, furnace.cookingTotalTime);
+        } else if (furnace.litTimeRemaining > 0) {
+            furnace.cookingTimer = 0;
+        } else if (furnace.cookingTimer > 0) {
+            furnace.cookingTimer = Mth.clamp(furnace.cookingTimer - 2, 0, furnace.cookingTotalTime);
         }
 
-        boolean litNow = furnace.litTime > 0;
+        boolean litNow = furnace.litTimeRemaining > 0;
         if (wasLit != litNow) {
             changed = true;
             BooleanProperty litProperty = AbstractFurnaceBlock.LIT;
@@ -150,7 +151,7 @@ public abstract class AbstractFurnaceBlockEntityMixin {
 
         RecipeHolder<IntensifyRecipe> recipe = intensify$resolveRecipeForFuel(level, fuel);
         if (recipe != null && recipe.value().matchesStart(input, fuel)) {
-            intensify$setLastRecipe(furnace, recipe.id());
+            intensify$setLastRecipe(furnace, recipe.id().location());
             return recipe;
         }
 
@@ -166,14 +167,21 @@ public abstract class AbstractFurnaceBlockEntityMixin {
             return null;
         }
 
-        String lastRecipeId =
-                furnace.getPersistentData().getString(IntensifyConstants.LAST_RECIPE_TAG_ID);
+        String lastRecipeId = furnace.getPersistentData()
+                .getString(IntensifyConstants.LAST_RECIPE_TAG_ID)
+                .orElse("");
         if (lastRecipeId.isEmpty()) {
             return null;
         }
 
         ResourceLocation recipeId = ResourceLocation.parse(lastRecipeId);
-        Optional<RecipeHolder<?>> holder = level.getRecipeManager().byKey(recipeId);
+        if (level.getServer() == null) {
+            return null;
+        }
+
+        Optional<RecipeHolder<?>> holder = level.getServer()
+                .getRecipeManager()
+                .byKey(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, recipeId));
         if (holder.isEmpty() || !(holder.get().value() instanceof IntensifyRecipe recipe)) {
             intensify$clearLastRecipe(furnace);
             return null;
@@ -207,7 +215,13 @@ public abstract class AbstractFurnaceBlockEntityMixin {
             return null;
         }
 
-        Optional<RecipeHolder<?>> holder = level.getRecipeManager().byKey(recipeId);
+        if (level.getServer() == null) {
+            return null;
+        }
+
+        Optional<RecipeHolder<?>> holder = level.getServer()
+                .getRecipeManager()
+                .byKey(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, recipeId));
         if (holder.isEmpty() || !(holder.get().value() instanceof IntensifyRecipe)) {
             return null;
         }
@@ -270,8 +284,9 @@ public abstract class AbstractFurnaceBlockEntityMixin {
     @Unique
     private static ServerPlayer intensify$resolveFurnaceOwner(
             Level level, AbstractFurnaceBlockEntity furnace) {
-        String ownerName =
-                furnace.getPersistentData().getString(IntensifyConstants.FURNACE_OWNER_TAG_ID);
+        String ownerName = furnace.getPersistentData()
+                .getString(IntensifyConstants.FURNACE_OWNER_TAG_ID)
+                .orElse("");
         if (ownerName.isEmpty() || level.getServer() == null) {
             return null;
         }

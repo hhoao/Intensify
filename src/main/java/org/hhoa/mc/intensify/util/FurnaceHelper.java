@@ -158,27 +158,27 @@ import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 
 public class FurnaceHelper {
     public static int getCookingProgress(AbstractFurnaceBlockEntity furnace) {
-        return furnace.cookingProgress;
+        return furnace.cookingTimer;
     }
 
     public static void setCookingProgress(AbstractFurnaceBlockEntity furnace, int cookingProgress) {
-        furnace.cookingProgress = cookingProgress;
+        furnace.cookingTimer = cookingProgress;
     }
 
     public static int getLitTime(AbstractFurnaceBlockEntity furnace) {
-        return furnace.litTime;
+        return furnace.litTimeRemaining;
     }
 
     public static void setLitTime(AbstractFurnaceBlockEntity furnace, int litTime) {
-        furnace.litTime = litTime;
+        furnace.litTimeRemaining = litTime;
     }
 
     public static int getLitDuration(AbstractFurnaceBlockEntity furnace) {
-        return furnace.litDuration;
+        return furnace.litTotalTime;
     }
 
     public static void setLitDuration(AbstractFurnaceBlockEntity furnace, int litDuration) {
-        furnace.litDuration = litDuration;
+        furnace.litTotalTime = litDuration;
     }
 
     public static int getCookingTotalTime(AbstractFurnaceBlockEntity furnace) {
