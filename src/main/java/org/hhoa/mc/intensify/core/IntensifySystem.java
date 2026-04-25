@@ -154,14 +154,15 @@
 
 package org.hhoa.mc.intensify.core;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.Equippable;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 
@@ -197,8 +198,9 @@ public interface IntensifySystem {
 
     default EquipmentSlot getEquipmentSlotForItem(ItemStack itemStack) {
         Item item = itemStack.getItem();
-        if (item instanceof Equipable equipable) {
-            return equipable.getEquipmentSlot();
+        Equippable equippable = item.components().get(DataComponents.EQUIPPABLE);
+        if (equippable != null) {
+            return equippable.slot();
         }
         return EquipmentSlot.MAINHAND;
     }

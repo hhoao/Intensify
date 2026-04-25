@@ -154,26 +154,36 @@
 
 package org.hhoa.mc.intensify.recipes;
 
+import java.util.stream.Stream;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 
-public abstract class IntensifyRecipe extends SmeltingRecipe {
+public abstract class IntensifyRecipe extends AbstractCookingRecipe {
     protected IntensifyRecipe(float experience, int cookingTime) {
-        super("", CookingBookCategory.MISC, Ingredient.EMPTY, ItemStack.EMPTY, experience, cookingTime);
+        super(
+                "",
+                CookingBookCategory.MISC,
+                Ingredient.of(Stream.<ItemLike>empty()),
+                ItemStack.EMPTY,
+                experience,
+                cookingTime);
     }
 
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
         return new ItemStack(Items.FURNACE);
     }
@@ -215,7 +225,23 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     protected abstract String getOperationMarker();
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends AbstractCookingRecipe> getSerializer() {
         return getSerializerInternal();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public RecipeType<? extends AbstractCookingRecipe> getType() {
+        return (RecipeType<? extends AbstractCookingRecipe>) RecipeType.SMELTING;
+    }
+
+    @Override
+    protected Item furnaceIcon() {
+        return Items.FURNACE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.FURNACE_MISC;
     }
 }

@@ -177,7 +177,8 @@ public class ItemModifierHelper {
                 itemStack.getOrDefault(
                         DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
         if (modifiers.modifiers().isEmpty()) {
-            ItemAttributeModifiers defaultModifiers = itemStack.getItem().getDefaultAttributeModifiers();
+            ItemAttributeModifiers defaultModifiers =
+                    itemStack.getItem().getDefaultAttributeModifiers(itemStack);
             if (!defaultModifiers.modifiers().isEmpty()) {
                 itemStack.set(DataComponents.ATTRIBUTE_MODIFIERS, defaultModifiers);
             }
@@ -250,17 +251,22 @@ public class ItemModifierHelper {
     public static boolean getBooleanTag(ItemStack stack, String key) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
                 .copyTag()
-                .getBoolean(key);
+                .getBoolean(key)
+                .orElse(false);
     }
 
     public static int getIntTag(ItemStack stack, String key) {
-        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getInt(key);
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                .copyTag()
+                .getInt(key)
+                .orElse(0);
     }
 
     public static String getStringTag(ItemStack stack, String key) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
                 .copyTag()
-                .getString(key);
+                .getString(key)
+                .orElse("");
     }
 
     public static void putBooleanTag(ItemStack stack, String key, boolean value) {
@@ -283,7 +289,7 @@ public class ItemModifierHelper {
         ItemAttributeModifiers modifiers =
                 stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
         if (modifiers.modifiers().isEmpty()) {
-            return stack.getItem().getDefaultAttributeModifiers();
+            return stack.getItem().getDefaultAttributeModifiers(stack);
         }
         return modifiers;
     }

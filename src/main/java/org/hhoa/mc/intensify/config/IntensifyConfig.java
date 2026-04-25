@@ -157,10 +157,13 @@ package org.hhoa.mc.intensify.config;
 import static org.hhoa.mc.intensify.config.IntensifyConstants.ARMOR_NAME_CLASS_MAPPING;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.world.item.ArmorItem;
+import java.util.function.Predicate;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import org.hhoa.mc.intensify.core.DefaultEnengIntensifySystem;
 import org.hhoa.mc.intensify.core.DefaultEnhancementIntensifySystem;
@@ -176,9 +179,8 @@ public class IntensifyConfig {
 
     public static final Integer DEFAULT_INTENSIFY_STONE_EXPERIENCE = 5;
 
-    private static HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap;
-    private static HashMap<Class<? extends Item>, ToolIntensifyConfig>
-            classToolIntensifyConfigHashMap;
+    private static HashMap<ArmorType, ToolIntensifyConfig> armorClassConfigMap;
+    private static LinkedHashMap<String, ToolIntensifyConfig> toolConfigMap;
 
     public static void initialize() {
         defaultEnengIntensifySystem = new DefaultEnengIntensifySystem();
@@ -187,22 +189,22 @@ public class IntensifyConfig {
 
         List<ToolIntensifyConfig> toolIntensifyConfigs =
                 ConfigLoader.loadToolIntensifyConfigFromDir("config/intensify");
-        classToolIntensifyConfigHashMap = new HashMap<>();
+        toolConfigMap = new LinkedHashMap<>();
         armorClassConfigMap = new HashMap<>();
         for (ToolIntensifyConfig toolIntensifyConfig : toolIntensifyConfigs) {
             if (toolIntensifyConfig.isEnable()) {
-                Class<? extends Item> aClass =
+                Predicate<Item> itemMatcher =
                         IntensifyConstants.TOOL_NAME_CLASS_MAPPING.get(
                                 toolIntensifyConfig.getName());
-                if (aClass == null) {
-                    ArmorItem.Type type =
+                if (itemMatcher == null) {
+                    ArmorType type =
                             ARMOR_NAME_CLASS_MAPPING.get(toolIntensifyConfig.getName());
                     if (type == null) {
                         throw new RuntimeException(toolIntensifyConfig.getName());
                     }
                     armorClassConfigMap.put(type, toolIntensifyConfig);
                 } else {
-                    classToolIntensifyConfigHashMap.put(aClass, toolIntensifyConfig);
+                    toolConfigMap.put(toolIntensifyConfig.getName(), toolIntensifyConfig);
                 }
             }
         }
@@ -216,29 +218,44 @@ public class IntensifyConfig {
         return defaultEnhancementIntensifySystem;
     }
 
-    public static HashMap<Class<? extends Item>, ToolIntensifyConfig>
-            getToolWeaponClassConfigMap() {
-        return classToolIntensifyConfigHashMap;
+    public static LinkedHashMap<String, ToolIntensifyConfig> getToolWeaponClassConfigMap() {
+        return toolConfigMap;
     }
 
-    public static HashMap<ArmorItem.Type, ToolIntensifyConfig> getArmorClassConfigMap() {
+    public static HashMap<ArmorType, ToolIntensifyConfig> getArmorClassConfigMap() {
         return armorClassConfigMap;
     }
 
     public static ToolIntensifyConfig getToolIntensifyConfig(Item item) {
-        HashMap<ArmorItem.Type, ToolIntensifyConfig> armorClassConfigMap = getArmorClassConfigMap();
-        if (item instanceof ArmorItem) {
-            ArmorItem armorItem = (ArmorItem) item;
-            return armorClassConfigMap.get(armorItem.getType());
-        } else {
-            HashMap<Class<? extends Item>, ToolIntensifyConfig> configsMap =
-                    getToolWeaponClassConfigMap();
-            for (Map.Entry<Class<? extends Item>, ToolIntensifyConfig>
-                    classToolIntensifyConfigEntry : configsMap.entrySet()) {
-                if (classToolIntensifyConfigEntry.getKey().isInstance(item)) {
-                    return classToolIntensifyConfigEntry.getValue();
-                }
+        HashMap<ArmorType, ToolIntensifyConfig> armorClassConfigMap = getArmorClassConfigMap();
+        ArmorType armorType = getArmorType(item);
+        if (armorType != null) {
+            return armorClassConfigMap.get(armorType);
+        }
+
+        LinkedHashMap<String, ToolIntensifyConfig> configsMap = getToolWeaponClassConfigMap();
+        for (Map.Entry<String, ToolIntensifyConfig> configEntry : configsMap.entrySet()) {
+            Predicate<Item> itemMatcher =
+                    IntensifyConstants.TOOL_NAME_CLASS_MAPPING.get(configEntry.getKey());
+            if (itemMatcher != null && itemMatcher.test(item)) {
+                return configEntry.getValue();
             }
+        }
+        return null;
+    }
+
+    private static ArmorType getArmorType(Item item) {
+        if (item.builtInRegistryHolder().is(ItemTags.HEAD_ARMOR)) {
+            return ArmorType.HELMET;
+        }
+        if (item.builtInRegistryHolder().is(ItemTags.CHEST_ARMOR)) {
+            return ArmorType.CHESTPLATE;
+        }
+        if (item.builtInRegistryHolder().is(ItemTags.LEG_ARMOR)) {
+            return ArmorType.LEGGINGS;
+        }
+        if (item.builtInRegistryHolder().is(ItemTags.FOOT_ARMOR)) {
+            return ArmorType.BOOTS;
         }
         return null;
     }

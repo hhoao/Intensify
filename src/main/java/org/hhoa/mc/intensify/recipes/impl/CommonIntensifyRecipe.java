@@ -157,8 +157,8 @@ package org.hhoa.mc.intensify.recipes.impl;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.Unbreakable;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
@@ -181,7 +181,7 @@ public class CommonIntensifyRecipe extends IntensifyRecipe {
             HolderLookup.Provider registries,
             ToolIntensifyConfig toolItemIntensifyConfig,
             ServerPlayer player) {
-        tool.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+        tool.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
         if (player != null) {
             player.sendSystemMessage(TranslatableTexts.ETERNAL_SUCCESS.component());
         }

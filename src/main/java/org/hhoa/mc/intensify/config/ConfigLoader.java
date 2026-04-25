@@ -165,6 +165,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -277,10 +278,14 @@ public class ConfigLoader {
             throw new RuntimeException(String.format("Attribute type %s not set", type));
         }
         ResourceLocation resourceLocation = ResourceLocation.parse(type);
-        Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(resourceLocation);
+        Attribute attribute =
+                BuiltInRegistries.ATTRIBUTE.get(resourceLocation).map(Holder.Reference::value).orElse(null);
         if (attribute == null) {
             resourceLocation = ResourceLocation.fromNamespaceAndPath("attributeslib", type);
-            attribute = BuiltInRegistries.ATTRIBUTE.get(resourceLocation);
+            attribute =
+                    BuiltInRegistries.ATTRIBUTE.get(resourceLocation)
+                            .map(Holder.Reference::value)
+                            .orElse(null);
         }
         if (attribute == null) {
             throw new RuntimeException(String.format("Attribute type %s not register", type));

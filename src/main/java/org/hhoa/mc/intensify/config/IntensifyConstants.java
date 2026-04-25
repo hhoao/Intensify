@@ -154,56 +154,59 @@
 
 package org.hhoa.mc.intensify.config;
 
-import java.util.HashMap;
-import net.minecraft.world.item.ArmorItem;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
-import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.MaceItem;
-import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.item.equipment.ArmorType;
 
 public class IntensifyConstants {
     public static final String FURNACE_OWNER_TAG_ID = "Owner";
     public static final String ENENGED_TAG_ID = "enenged";
     public static final String LAST_RECIPE_TAG_ID = "LastRecipe";
 
-    public static final HashMap<String, Class<? extends Item>> TOOL_NAME_CLASS_MAPPING =
-            new HashMap<>();
-    public static final HashMap<String, ArmorItem.Type> ARMOR_NAME_CLASS_MAPPING = new HashMap<>();
+    public static final Map<String, Predicate<Item>> TOOL_NAME_CLASS_MAPPING =
+            new LinkedHashMap<>();
+    public static final Map<String, ArmorType> ARMOR_NAME_CLASS_MAPPING = new LinkedHashMap<>();
 
     static {
         // tool
-        TOOL_NAME_CLASS_MAPPING.put("hoe", HoeItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("pickaxe", PickaxeItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("shovel", ShovelItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("hoe", item -> item.builtInRegistryHolder().is(ItemTags.HOES));
+        TOOL_NAME_CLASS_MAPPING.put(
+                "pickaxe", item -> item.builtInRegistryHolder().is(ItemTags.PICKAXES));
+        TOOL_NAME_CLASS_MAPPING.put(
+                "shovel", item -> item.builtInRegistryHolder().is(ItemTags.SHOVELS));
 
         // tool and weapon
-        TOOL_NAME_CLASS_MAPPING.put("axe", AxeItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("axe", item -> item.builtInRegistryHolder().is(ItemTags.AXES));
 
         // other
-        TOOL_NAME_CLASS_MAPPING.put("elytra", ElytraItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("fishing_rod", FishingRodItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("elytra", item -> item.components().has(DataComponents.GLIDER));
+        TOOL_NAME_CLASS_MAPPING.put("fishing_rod", FishingRodItem.class::isInstance);
 
         // weapon
-        TOOL_NAME_CLASS_MAPPING.put("sword", SwordItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("mace", MaceItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("bow", BowItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("shield", ShieldItem.class);
-        TOOL_NAME_CLASS_MAPPING.put("trident", TridentItem.class);
+        TOOL_NAME_CLASS_MAPPING.put("sword", item -> item.builtInRegistryHolder().is(ItemTags.SWORDS));
+        TOOL_NAME_CLASS_MAPPING.put("mace", MaceItem.class::isInstance);
+        TOOL_NAME_CLASS_MAPPING.put("bow", BowItem.class::isInstance);
+        TOOL_NAME_CLASS_MAPPING.put("crossbow", CrossbowItem.class::isInstance);
+        TOOL_NAME_CLASS_MAPPING.put("shield", ShieldItem.class::isInstance);
+        TOOL_NAME_CLASS_MAPPING.put("trident", TridentItem.class::isInstance);
 
         // armor
-        ARMOR_NAME_CLASS_MAPPING.put("leggings", ArmorItem.Type.LEGGINGS);
-        ARMOR_NAME_CLASS_MAPPING.put("boots", ArmorItem.Type.BOOTS);
-        ARMOR_NAME_CLASS_MAPPING.put("helmet", ArmorItem.Type.HELMET);
-        ARMOR_NAME_CLASS_MAPPING.put("chestplate", ArmorItem.Type.CHESTPLATE);
+        ARMOR_NAME_CLASS_MAPPING.put("leggings", ArmorType.LEGGINGS);
+        ARMOR_NAME_CLASS_MAPPING.put("boots", ArmorType.BOOTS);
+        ARMOR_NAME_CLASS_MAPPING.put("helmet", ArmorType.HELMET);
+        ARMOR_NAME_CLASS_MAPPING.put("chestplate", ArmorType.CHESTPLATE);
     }
 }

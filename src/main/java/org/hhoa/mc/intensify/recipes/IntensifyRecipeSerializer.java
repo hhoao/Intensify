@@ -178,19 +178,19 @@ public class IntensifyRecipeSerializer<T extends IntensifyRecipe> implements Rec
                                 instance.group(
                                                 Codec.FLOAT
                                                         .optionalFieldOf("experience", 0.0F)
-                                                        .forGetter(IntensifyRecipe::getExperience),
+                                                        .forGetter(IntensifyRecipe::experience),
                                                 Codec.INT
                                                         .optionalFieldOf(
                                                                 "cookingtime",
                                                                 this.defaultCookingTime)
-                                                        .forGetter(IntensifyRecipe::getCookingTime))
+                                                        .forGetter(IntensifyRecipe::cookingTime))
                                         .apply(instance, this.factory::create));
         this.streamCodec =
                 StreamCodec.composite(
                         ByteBufCodecs.FLOAT,
-                        IntensifyRecipe::getExperience,
+                        IntensifyRecipe::experience,
                         ByteBufCodecs.VAR_INT,
-                        IntensifyRecipe::getCookingTime,
+                        IntensifyRecipe::cookingTime,
                         this.factory::create);
     }
 
