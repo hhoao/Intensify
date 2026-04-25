@@ -29,13 +29,13 @@ def resolveSharedCheckoutRoot(File projectRoot) {
     }
 
     if (!gitMetadata.isFile()) {
-        throw new GradleException("Cannot locate Git metadata for ${projectRoot}")
+        return projectRoot
     }
 
     // Linked worktrees store a .git file pointing at the shared repository metadata.
     def gitDirLine = gitMetadata.text.readLines().find { it.startsWith('gitdir:') }
     if (gitDirLine == null) {
-        throw new GradleException("Unsupported .git file format in ${projectRoot}")
+        return projectRoot
     }
 
     def gitDirPath = gitDirLine.substring('gitdir:'.length()).trim()
@@ -44,12 +44,16 @@ def resolveSharedCheckoutRoot(File projectRoot) {
         gitDir = new File(projectRoot, gitDirPath)
     }
 
+    if (!gitDir.exists()) {
+        return projectRoot
+    }
+
     def normalizedGitDir = gitDir.canonicalFile
     def commonGitDir = normalizedGitDir.parentFile?.name == 'worktrees'
             ? normalizedGitDir.parentFile.parentFile
             : normalizedGitDir
 
-    return commonGitDir.parentFile.canonicalFile
+    return commonGitDir.parentFile?.canonicalFile ?: projectRoot
 }
 
 repositories {
