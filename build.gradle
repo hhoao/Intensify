@@ -22,8 +22,38 @@ sourceSets.main.resources {
     srcDir('src/generated/resources')
 }
 
+def resolveSharedCheckoutRoot(File projectRoot) {
+    def gitMetadata = new File(projectRoot, '.git')
+    if (gitMetadata.isDirectory()) {
+        return projectRoot
+    }
+
+    if (!gitMetadata.isFile()) {
+        throw new GradleException("Cannot locate Git metadata for ${projectRoot}")
+    }
+
+    // Linked worktrees store a .git file pointing at the shared repository metadata.
+    def gitDirLine = gitMetadata.text.readLines().find { it.startsWith('gitdir:') }
+    if (gitDirLine == null) {
+        throw new GradleException("Unsupported .git file format in ${projectRoot}")
+    }
+
+    def gitDirPath = gitDirLine.substring('gitdir:'.length()).trim()
+    def gitDir = new File(gitDirPath)
+    if (!gitDir.isAbsolute()) {
+        gitDir = new File(projectRoot, gitDirPath)
+    }
+
+    def normalizedGitDir = gitDir.canonicalFile
+    def commonGitDir = normalizedGitDir.parentFile?.name == 'worktrees'
+            ? normalizedGitDir.parentFile.parentFile
+            : normalizedGitDir
+
+    return commonGitDir.parentFile.canonicalFile
+}
+
 repositories {
-    def repoBaseDir = rootDir.parentFile.name == '.worktrees' ? rootDir.parentFile.parentFile : rootDir
+    def repoBaseDir = resolveSharedCheckoutRoot(rootDir)
     mavenCentral()
     maven { url = repoBaseDir.toPath().resolveSibling('AttributesLib').resolve('repo').toUri() }
     mavenLocal()
