@@ -154,47 +154,50 @@
 
 package org.hhoa.mc.intensify.provider;
 
+import com.google.gson.JsonObject;
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 
-public class IntensifyItemModelProvider extends ItemModelProvider {
-    public IntensifyItemModelProvider(
-            PackOutput output, String modid, ExistingFileHelper existingFileHelper) {
-        super(output, modid, existingFileHelper);
+public class IntensifyItemModelProvider implements DataProvider {
+    private final PackOutput.PathProvider itemModelOutput;
+
+    public IntensifyItemModelProvider(PackOutput output) {
+        this.itemModelOutput = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "models/item");
     }
 
     @Override
-    protected void registerModels() {
-        String generatedItemId = "item/generated";
-        String layer0 = "layer0";
-        String itemPrefix = "item/";
-        singleTexture(
-                ItemRegistry.STRENGTHENING_STONE.getId().toString(),
-                ResourceLocation.parse(generatedItemId),
-                layer0,
-                BuiltInRegistries.ITEM.getKey(Items.COAL).withPrefix(itemPrefix));
+    public CompletableFuture<?> run(CachedOutput output) {
+        return CompletableFuture.allOf(
+                saveItemModel(output, ItemRegistry.STRENGTHENING_STONE.getId(), Items.COAL),
+                saveItemModel(output, ItemRegistry.ENENG_STONE.getId(), Items.LAPIS_LAZULI),
+                saveItemModel(output, ItemRegistry.PROTECTION_STONE.getId(), Items.EMERALD),
+                saveItemModel(output, ItemRegistry.ETERNAL_STONE.getId(), Items.DIAMOND));
+    }
 
-        singleTexture(
-                ItemRegistry.ENENG_STONE.getId().toString(),
-                ResourceLocation.parse(generatedItemId),
-                layer0,
-                BuiltInRegistries.ITEM.getKey(Items.LAPIS_LAZULI).withPrefix(itemPrefix));
+    @Override
+    public String getName() {
+        return "Intensify Item Models";
+    }
 
-        singleTexture(
-                ItemRegistry.PROTECTION_STONE.getId().toString(),
-                ResourceLocation.parse(generatedItemId),
-                layer0,
-                BuiltInRegistries.ITEM.getKey(Items.EMERALD).withPrefix(itemPrefix));
+    private CompletableFuture<?> saveItemModel(
+            CachedOutput output, ResourceLocation modelId, net.minecraft.world.level.ItemLike textureItem) {
+        JsonObject root = new JsonObject();
+        root.addProperty("parent", "minecraft:item/generated");
 
-        singleTexture(
-                ItemRegistry.ETERNAL_STONE.getId().toString(),
-                ResourceLocation.parse(generatedItemId),
-                layer0,
-                BuiltInRegistries.ITEM.getKey(Items.DIAMOND).withPrefix(itemPrefix));
+        JsonObject textures = new JsonObject();
+        textures.addProperty(
+                "layer0", BuiltInRegistries.ITEM.getKey(textureItem.asItem()).withPrefix("item/").toString());
+        root.add("textures", textures);
+
+        Path outputPath = itemModelOutput.json(modelId);
+        return DataProvider.saveStable(output, root, outputPath);
     }
 }

@@ -165,10 +165,10 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.common.data.AdvancementProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 
@@ -191,18 +191,14 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
     public IntensifyAdvancementProvider(
             PackOutput output,
             CompletableFuture<HolderLookup.Provider> registries,
-            ExistingFileHelper existingFileHelper,
-            List<AdvancementGenerator> subProviders) {
-        super(output, registries, existingFileHelper, subProviders);
+            List<AdvancementSubProvider> subProviders) {
+        super(output, registries, subProviders);
     }
 
-    public static class ModAdvancementGenerator implements AdvancementGenerator {
+    public static class ModAdvancementGenerator implements AdvancementSubProvider {
 
         @Override
-        public void generate(
-                HolderLookup.Provider registries,
-                Consumer<AdvancementHolder> consumer,
-                ExistingFileHelper existingFileHelper) {
+        public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> consumer) {
             AdvancementHolder stoneMiningAdvancement =
                     Advancement.Builder.advancement()
                             .display(
@@ -223,7 +219,7 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
                             .rewards(
                                     AdvancementRewards.Builder.loot(
                                             IntensifyLootTableProvider.ENENG_STONE_LOOT_TABLE_ID))
-                            .save(consumer, INTENSIFY_ADVANCEMENT_ID, existingFileHelper);
+                            .save(consumer, INTENSIFY_ADVANCEMENT_ID.toString());
 
             AdvancementHolder enengAdvancement =
                     Advancement.Builder.advancement()
@@ -247,7 +243,7 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
                                     AdvancementRewards.Builder.loot(
                                             IntensifyLootTableProvider
                                                     .STRENGTHENING_STONE_LOOT_TABLE_ID))
-                            .save(consumer, FIRST_ENENG_ADVANCEMENT_ID, existingFileHelper);
+                            .save(consumer, FIRST_ENENG_ADVANCEMENT_ID.toString());
 
             AdvancementHolder firstStrnengtheningAdvancement =
                     Advancement.Builder.advancement()
@@ -274,8 +270,7 @@ public class IntensifyAdvancementProvider extends AdvancementProvider {
                                                     .PROTECTION_STONE_LOOT_TABLE_ID))
                             .save(
                                     consumer,
-                                    FIRST_STRENGTHENING_ADVANCEMENT_ID,
-                                    existingFileHelper);
+                                    FIRST_STRENGTHENING_ADVANCEMENT_ID.toString());
         }
     }
 }

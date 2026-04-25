@@ -188,37 +188,23 @@ public class IntensifyModEventHandler {
     }
 
     @SubscribeEvent
-    public void runData(GatherDataEvent event) {
-        event.getGenerator()
-                .addProvider(
-                        event.includeServer(),
-                        new IntensifyLootModifierProvider(
-                                event.getGenerator().getPackOutput(),
-                                event.getLookupProvider(),
-                                MODID));
-        event.getGenerator()
-                .addProvider(
-                        event.includeServer(),
-                        new IntensifyItemModelProvider(
-                                event.getGenerator().getPackOutput(),
-                                MODID,
-                                event.getExistingFileHelper()));
-        event.getGenerator()
-                .addProvider(
-                        true,
-                        new IntensifyAdvancementProvider(
-                                event.getGenerator().getPackOutput(),
-                                event.getLookupProvider(),
-                                event.getExistingFileHelper(),
-                                List.of(
-                                        new IntensifyAdvancementProvider
-                                                .ModAdvancementGenerator())));
-        event.getGenerator()
-                .addProvider(
-                        true,
-                        new IntensifyLootTableProvider(
-                                event.getGenerator().getPackOutput(),
-                                event.getLookupProvider()));
+    public void runServerData(GatherDataEvent.Server event) {
+        event.addProvider(
+                new IntensifyLootModifierProvider(
+                        event.getGenerator().getPackOutput(), event.getLookupProvider(), MODID));
+        event.addProvider(
+                new IntensifyAdvancementProvider(
+                        event.getGenerator().getPackOutput(),
+                        event.getLookupProvider(),
+                        List.of(new IntensifyAdvancementProvider.ModAdvancementGenerator())));
+        event.addProvider(
+                new IntensifyLootTableProvider(
+                        event.getGenerator().getPackOutput(), event.getLookupProvider()));
+    }
+
+    @SubscribeEvent
+    public void runClientData(GatherDataEvent.Client event) {
+        event.addProvider(new IntensifyItemModelProvider(event.getGenerator().getPackOutput()));
     }
 
     @SubscribeEvent
@@ -233,6 +219,6 @@ public class IntensifyModEventHandler {
 
     @SubscribeEvent
     public void registerGameTests(RegisterGameTestsEvent event) {
-        event.register(FurnaceGameTests.class);
+        FurnaceGameTests.register(event);
     }
 }
