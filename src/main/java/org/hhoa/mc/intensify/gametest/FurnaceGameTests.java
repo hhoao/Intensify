@@ -316,6 +316,48 @@ public final class FurnaceGameTests {
         helper.succeed();
     }
 
+    public static void recipeBookDisplayPlacementWithoutStoneRequestsGhostRecipe(
+            GameTestHelper helper) {
+        helper.setBlock(FURNACE_POS, Blocks.FURNACE);
+        FurnaceBlockEntity furnace = helper.getBlockEntity(FURNACE_POS, FurnaceBlockEntity.class);
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+
+        FurnaceMenu menu =
+                new FurnaceMenu(0, player.getInventory(), furnace, new SimpleContainerData(4));
+        RecipeHolder<?> recipeHolder =
+                recipeHolder(helper, "recipe_book_display/eneng_stone")
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                "missing display recipe for ghost test"));
+
+        RecipeBookMenu.PostPlaceAction action =
+                menu.handlePlacement(false, false, recipeHolder, helper.getLevel(), player.getInventory());
+
+        if (action != RecipeBookMenu.PostPlaceAction.PLACE_GHOST_RECIPE) {
+            helper.fail(
+                    Component.literal(
+                            "missing fuel should keep recipe-book ghost feedback for display recipes"));
+            return;
+        }
+
+        if (!menu.getSlot(0).getItem().isEmpty()) {
+            helper.fail(
+                    Component.literal(
+                            "ghost placement should not write to furnace input slot"));
+            return;
+        }
+
+        if (!menu.getSlot(1).getItem().isEmpty()) {
+            helper.fail(
+                    Component.literal(
+                            "ghost placement should not write to furnace fuel slot"));
+            return;
+        }
+
+        helper.succeed();
+    }
+
     public static void mineralBlockDropsAddConfiguredStones(GameTestHelper helper) {
         double originalTotalRate = ConfigRegistry.stoneDropoutProbabilityConfig.getTotalRate().get();
         double originalStrengtheningRate =
@@ -428,6 +470,12 @@ public final class FurnaceGameTests {
         register(event, "recipe_book_display_recipes_load_and_remain_non_executable", 40, environment, FurnaceGameTests::recipeBookDisplayRecipesLoadAndRemainNonExecutable);
         register(event, "player_login_awards_display_recipes_and_removes_legacy_entries", 40, environment, FurnaceGameTests::playerLoginAwardsDisplayRecipesAndRemovesLegacyEntries);
         register(event, "recipe_book_display_placement_only_fills_fuel_slot", 40, environment, FurnaceGameTests::recipeBookDisplayPlacementOnlyFillsFuelSlot);
+        register(
+                event,
+                "recipe_book_display_placement_without_stone_requests_ghost_recipe",
+                40,
+                environment,
+                FurnaceGameTests::recipeBookDisplayPlacementWithoutStoneRequestsGhostRecipe);
         register(event, "mineral_block_drops_add_configured_stones", 40, environment, FurnaceGameTests::mineralBlockDropsAddConfiguredStones);
     }
 

@@ -34,7 +34,7 @@ public abstract class AbstractFurnaceMenuMixin {
         Slot fuelSlot = menu.getSlot(AbstractFurnaceMenu.FUEL_SLOT);
         ItemStack placeableFuel = displayRecipe.getPlaceableFuel().copyWithCount(1);
         if (placeableFuel.isEmpty() || !fuelSlot.mayPlace(placeableFuel)) {
-            cir.setReturnValue(RecipeBookMenu.PostPlaceAction.NOTHING);
+            cir.setReturnValue(RecipeBookMenu.PostPlaceAction.PLACE_GHOST_RECIPE);
             return;
         }
 
@@ -42,7 +42,7 @@ public abstract class AbstractFurnaceMenuMixin {
         if (!existingFuel.isEmpty()
                 && (!ItemStack.isSameItemSameComponents(existingFuel, placeableFuel)
                         || existingFuel.getCount() >= fuelSlot.getMaxStackSize(placeableFuel))) {
-            cir.setReturnValue(RecipeBookMenu.PostPlaceAction.NOTHING);
+            cir.setReturnValue(RecipeBookMenu.PostPlaceAction.PLACE_GHOST_RECIPE);
             return;
         }
 
@@ -50,13 +50,13 @@ public abstract class AbstractFurnaceMenuMixin {
         if (!isCreative) {
             int inventorySlot = playerInventory.findSlotMatchingItem(placeableFuel);
             if (inventorySlot < 0) {
-                cir.setReturnValue(RecipeBookMenu.PostPlaceAction.NOTHING);
+                cir.setReturnValue(RecipeBookMenu.PostPlaceAction.PLACE_GHOST_RECIPE);
                 return;
             }
 
             insertedFuel = playerInventory.removeItem(inventorySlot, 1);
             if (insertedFuel.isEmpty()) {
-                cir.setReturnValue(RecipeBookMenu.PostPlaceAction.NOTHING);
+                cir.setReturnValue(RecipeBookMenu.PostPlaceAction.PLACE_GHOST_RECIPE);
                 return;
             }
             playerInventory.setChanged();
