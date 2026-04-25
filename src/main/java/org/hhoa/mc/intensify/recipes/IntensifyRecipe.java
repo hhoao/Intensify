@@ -177,7 +177,7 @@ public abstract class IntensifyRecipe extends AbstractCookingRecipe {
                 "",
                 CookingBookCategory.MISC,
                 Ingredient.of(Items.FURNACE),
-                ItemStack.EMPTY,
+                new ItemStack(Items.FURNACE),
                 experience,
                 cookingTime);
     }

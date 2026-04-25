@@ -168,23 +168,32 @@ import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class IntensifyItemModelProvider implements DataProvider {
     private final PackOutput.PathProvider itemModelOutput;
+    private final PackOutput.PathProvider itemDefinitionOutput;
 
     public IntensifyItemModelProvider(PackOutput output) {
         this.itemModelOutput = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "models/item");
+        this.itemDefinitionOutput = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "items");
     }
 
     @Override
     public CompletableFuture<?> run(CachedOutput output) {
         return CompletableFuture.allOf(
-                saveItemModel(output, ItemRegistry.STRENGTHENING_STONE.getId(), Items.COAL),
-                saveItemModel(output, ItemRegistry.ENENG_STONE.getId(), Items.LAPIS_LAZULI),
-                saveItemModel(output, ItemRegistry.PROTECTION_STONE.getId(), Items.EMERALD),
-                saveItemModel(output, ItemRegistry.ETERNAL_STONE.getId(), Items.DIAMOND));
+                saveItemResources(output, ItemRegistry.STRENGTHENING_STONE.getId(), Items.COAL),
+                saveItemResources(output, ItemRegistry.ENENG_STONE.getId(), Items.LAPIS_LAZULI),
+                saveItemResources(output, ItemRegistry.PROTECTION_STONE.getId(), Items.EMERALD),
+                saveItemResources(output, ItemRegistry.ETERNAL_STONE.getId(), Items.DIAMOND));
     }
 
     @Override
     public String getName() {
         return "Intensify Item Models";
+    }
+
+    private CompletableFuture<?> saveItemResources(
+            CachedOutput output, ResourceLocation modelId, net.minecraft.world.level.ItemLike textureItem) {
+        CompletableFuture<?> modelFuture = saveItemModel(output, modelId, textureItem);
+        CompletableFuture<?> itemFuture = saveItemDefinition(output, modelId);
+        return CompletableFuture.allOf(modelFuture, itemFuture);
     }
 
     private CompletableFuture<?> saveItemModel(
@@ -198,6 +207,17 @@ public class IntensifyItemModelProvider implements DataProvider {
         root.add("textures", textures);
 
         Path outputPath = itemModelOutput.json(modelId);
+        return DataProvider.saveStable(output, root, outputPath);
+    }
+
+    private CompletableFuture<?> saveItemDefinition(CachedOutput output, ResourceLocation itemId) {
+        JsonObject root = new JsonObject();
+        JsonObject model = new JsonObject();
+        model.addProperty("type", "minecraft:model");
+        model.addProperty("model", itemId.withPrefix("item/").toString());
+        root.add("model", model);
+
+        Path outputPath = itemDefinitionOutput.json(itemId);
         return DataProvider.saveStable(output, root, outputPath);
     }
 }
