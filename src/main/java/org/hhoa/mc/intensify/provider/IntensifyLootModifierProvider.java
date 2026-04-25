@@ -154,17 +154,20 @@
 
 package org.hhoa.mc.intensify.provider;
 
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.common.data.GlobalLootModifierProvider;
+import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.loot.IntensifyStoneLootModifier;
 import org.hhoa.mc.intensify.loot.MineralDestructionLootCondition;
 import org.jetbrains.annotations.NotNull;
 
 public class IntensifyLootModifierProvider extends GlobalLootModifierProvider {
-    public IntensifyLootModifierProvider(PackOutput output, String modid) {
-        super(output, modid);
+    public IntensifyLootModifierProvider(
+            PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modid) {
+        super(output, registries, modid);
     }
 
     @Override

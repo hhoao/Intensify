@@ -156,9 +156,9 @@ package org.hhoa.mc.intensify.registry;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.hhoa.mc.intensify.Intensify;
 import org.hhoa.mc.intensify.loot.MineralDestructionLootCondition;
 
@@ -166,7 +166,7 @@ public class LootConditionsRegistry {
     private static final DeferredRegister<LootItemConditionType> LOOT_CONDITIONS =
             DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, Intensify.MODID);
 
-    public static final RegistryObject<LootItemConditionType> BLOCK_MINING_CONDITION =
+    public static final DeferredHolder<LootItemConditionType, LootItemConditionType> BLOCK_MINING_CONDITION =
             LOOT_CONDITIONS.register(
                     MineralDestructionLootCondition.IDENTIFIER,
                     () -> MineralDestructionLootCondition.LOOT_ITEM_CONDITION_TYPE);

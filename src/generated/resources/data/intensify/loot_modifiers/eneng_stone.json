@@ -3,7 +3,7 @@
   "conditions": [
     {
       "condition": "intensify:mineral_destruction",
-      "intensifyStoneType": "ENENG_STONE"
+      "intensifyStoneType": "eneng_stone"
     }
   ],
   "intensifyItemStoneType": "eneng_stone"

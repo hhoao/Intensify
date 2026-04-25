@@ -158,10 +158,8 @@ import static org.hhoa.mc.intensify.config.IntensifyConstants.ENENGED_TAG_ID;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
@@ -173,14 +171,13 @@ import org.hhoa.mc.intensify.util.ItemModifierHelper;
 public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
     @Override
     public boolean isEneng(ItemStack itemStack) {
-        CompoundTag orCreateTag = itemStack.getOrCreateTag();
-        return orCreateTag.getBoolean(ENENGED_TAG_ID);
+        return ItemModifierHelper.getBooleanTag(itemStack, ENENGED_TAG_ID);
     }
 
     @Override
     public void intensify(
             ServerPlayer player, ItemStack itemStack, ToolIntensifyConfig intensifyConfig) {
-        EquipmentSlot equipmentSlotForItem = LivingEntity.getEquipmentSlotForItem(itemStack);
+        EquipmentSlot equipmentSlotForItem = getEquipmentSlotForItem(itemStack);
         List<ToolIntensifyConfig.AttributeConfig> attributes = intensifyConfig.getAttributes();
         for (ToolIntensifyConfig.AttributeConfig attribute : attributes) {
             Attribute attributeType = attribute.getType();
@@ -189,8 +186,7 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
                 attributeEneng(itemStack, eneng, attributeType, equipmentSlotForItem);
             }
         }
-        CompoundTag orCreateTag = itemStack.getOrCreateTag();
-        orCreateTag.putBoolean(ENENGED_TAG_ID, true);
+        ItemModifierHelper.putBooleanTag(itemStack, ENENGED_TAG_ID, true);
         if (player != null) {
             player.sendSystemMessage(TranslatableTexts.ENENG_SUCCESS.component());
         }
@@ -205,13 +201,13 @@ public class DefaultEnengIntensifySystem extends EnengIntensifySystem {
         List<Double> value = eneng.getValue();
         double v = randomizeAndMultiply(value, current);
 
-        ItemModifierHelper.initAttributeModifiers(itemStack, equipmentSlotForItem);
-        itemStack.addAttributeModifier(
+        ItemModifierHelper.setAttributeModifier(
+                itemStack,
                 attributeType,
                 new AttributeModifier(
-                        getAttributeModifierName(attributeType),
+                        getAttributeModifierId(attributeType),
                         v,
-                        AttributeModifier.Operation.ADDITION),
+                        AttributeModifier.Operation.ADD_VALUE),
                 equipmentSlotForItem);
     }
 

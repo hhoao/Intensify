@@ -171,4 +171,13 @@ public enum IntensifyStoneType {
     public String getIdentifier() {
         return identifier;
     }
+
+    public static IntensifyStoneType fromIdentifier(String identifier) {
+        for (IntensifyStoneType value : values()) {
+            if (value.identifier.equals(identifier)) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException("Unknown intensify stone type: " + identifier);
+    }
 }

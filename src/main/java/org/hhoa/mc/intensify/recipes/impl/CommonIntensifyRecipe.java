@@ -154,13 +154,11 @@
 
 package org.hhoa.mc.intensify.recipes.impl;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.component.Unbreakable;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
@@ -173,31 +171,39 @@ public class CommonIntensifyRecipe extends IntensifyRecipe {
             new IntensifyRecipeSerializer<>(
                     CommonIntensifyRecipe::new, IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME);
 
-    public CommonIntensifyRecipe(
-            ResourceLocation resourceLocation, float experience, int cookingTime) {
-        super(resourceLocation, experience, cookingTime);
-    }
-
-    @Override
-    public boolean matchesInternal(Container container, Level level) {
-        ItemStack fuel = container.getItem(1);
-
-        return fuel.getItem() == ItemRegistry.ETERNAL_STONE.get();
+    public CommonIntensifyRecipe(float experience, int cookingTime) {
+        super(experience, cookingTime);
     }
 
     @Override
     public void intensify(
             ItemStack tool,
-            RegistryAccess registryAccess,
+            HolderLookup.Provider registries,
             ToolIntensifyConfig toolItemIntensifyConfig,
             ServerPlayer player) {
-        CompoundTag tag = tool.getOrCreateTag();
-        tag.putBoolean("Unbreakable", true);
-        player.sendSystemMessage(TranslatableTexts.ETERNAL_SUCCESS.component());
+        tool.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+        if (player != null) {
+            player.sendSystemMessage(TranslatableTexts.ETERNAL_SUCCESS.component());
+        }
     }
 
     @Override
     public IntensifyRecipeSerializer<?> getSerializerInternal() {
         return SERIALIZER;
+    }
+
+    @Override
+    protected boolean matchesStartInternal(ItemStack tool, ItemStack fuel) {
+        return fuel.getItem() == ItemRegistry.ETERNAL_STONE.get();
+    }
+
+    @Override
+    protected boolean matchesContinuationInternal(ItemStack tool) {
+        return true;
+    }
+
+    @Override
+    protected String getOperationMarker() {
+        return "ETERNAL";
     }
 }

@@ -154,12 +154,9 @@
 
 package org.hhoa.mc.intensify.recipes.impl;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.core.EnhancementIntensifySystem;
@@ -172,23 +169,14 @@ public class StrengtheningRecipe extends IntensifyRecipe {
             new IntensifyRecipeSerializer<>(
                     StrengtheningRecipe::new, IntensifyConfig.DEFAULT_INTENSIFY_STONE_BURN_TIME);
 
-    public StrengtheningRecipe(
-            ResourceLocation resourceLocation, float experience, int cookingTime) {
-        super(resourceLocation, experience, cookingTime);
-    }
-
-    @Override
-    public boolean matchesInternal(Container container, Level level) {
-        ItemStack toolItemStack = container.getItem(0);
-
-        return IntensifyConfig.getEnengIntensifySystem().isEneng(toolItemStack)
-                && container.getItem(1).getItem() == ItemRegistry.STRENGTHENING_STONE.get();
+    public StrengtheningRecipe(float experience, int cookingTime) {
+        super(experience, cookingTime);
     }
 
     @Override
     public void intensify(
             ItemStack tool,
-            RegistryAccess registryAccess,
+            HolderLookup.Provider registries,
             ToolIntensifyConfig toolItemIntensifyConfig,
             ServerPlayer player) {
         EnhancementIntensifySystem enhancementIntensifySystem =
@@ -199,5 +187,21 @@ public class StrengtheningRecipe extends IntensifyRecipe {
     @Override
     public IntensifyRecipeSerializer<?> getSerializerInternal() {
         return SERIALIZER;
+    }
+
+    @Override
+    protected boolean matchesStartInternal(ItemStack tool, ItemStack fuel) {
+        return fuel.getItem() == ItemRegistry.STRENGTHENING_STONE.get()
+                && IntensifyConfig.getEnengIntensifySystem().isEneng(tool);
+    }
+
+    @Override
+    protected boolean matchesContinuationInternal(ItemStack tool) {
+        return IntensifyConfig.getEnengIntensifySystem().isEneng(tool);
+    }
+
+    @Override
+    protected String getOperationMarker() {
+        return "STRENGTHENING";
     }
 }

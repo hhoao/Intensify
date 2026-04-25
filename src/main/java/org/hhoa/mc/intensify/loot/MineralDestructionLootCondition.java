@@ -154,10 +154,11 @@
 
 package org.hhoa.mc.intensify.loot;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
@@ -172,8 +173,24 @@ import org.hhoa.mc.intensify.registry.ConfigRegistry;
 
 public class MineralDestructionLootCondition implements LootItemCondition {
     public static final String IDENTIFIER = "mineral_destruction";
+    public static final MapCodec<MineralDestructionLootCondition> CODEC =
+            RecordCodecBuilder.mapCodec(
+                    instance ->
+                            instance.group(
+                                            Codec.STRING
+                                                    .fieldOf("intensifyStoneType")
+                                                    .forGetter(
+                                                            condition ->
+                                                                    condition.intensifyStoneType
+                                                                            .getIdentifier()))
+                                    .apply(
+                                            instance,
+                                            identifier ->
+                                                    new MineralDestructionLootCondition(
+                                                            IntensifyStoneType.fromIdentifier(
+                                                                    identifier))));
     public static final LootItemConditionType LOOT_ITEM_CONDITION_TYPE =
-            new LootItemConditionType(new Serializer());
+            new LootItemConditionType(CODEC);
     private final IntensifyStoneType intensifyStoneType;
 
     public MineralDestructionLootCondition(IntensifyStoneType intensifyStoneType) {
@@ -184,10 +201,15 @@ public class MineralDestructionLootCondition implements LootItemCondition {
     public boolean test(LootContext lootContext) {
         StoneDropoutProbabilityConfig configValueMap = ConfigRegistry.stoneDropoutProbabilityConfig;
         BlockState blockState = lootContext.getParamOrNull(LootContextParams.BLOCK_STATE);
+        var silkTouch =
+                lootContext.getLevel()
+                        .registryAccess()
+                        .lookupOrThrow(Registries.ENCHANTMENT)
+                        .getOrThrow(Enchantments.SILK_TOUCH);
         if (blockState == null
                 || !lootContext.hasParam(LootContextParams.TOOL)
-                || EnchantmentHelper.getTagEnchantmentLevel(
-                                Enchantments.SILK_TOUCH,
+                || EnchantmentHelper.getItemEnchantmentLevel(
+                                silkTouch,
                                 lootContext.getParam(LootContextParams.TOOL))
                         > 0) {
             return false;
@@ -205,28 +227,5 @@ public class MineralDestructionLootCondition implements LootItemCondition {
     @Override
     public LootItemConditionType getType() {
         return LOOT_ITEM_CONDITION_TYPE;
-    }
-
-    public static class Serializer
-            implements net.minecraft.world.level.storage.loot.Serializer<
-                    MineralDestructionLootCondition> {
-        @Override
-        public void serialize(
-                JsonObject jsonObject,
-                MineralDestructionLootCondition lootCondition,
-                JsonSerializationContext jsonSerializationContext) {
-            jsonObject.add(
-                    "intensifyStoneType",
-                    jsonSerializationContext.serialize(lootCondition.intensifyStoneType));
-        }
-
-        @Override
-        public MineralDestructionLootCondition deserialize(
-                JsonObject jsonObject, JsonDeserializationContext context) {
-            IntensifyStoneType intensifyStoneType =
-                    context.deserialize(
-                            jsonObject.get("intensifyStoneType"), IntensifyStoneType.class);
-            return new MineralDestructionLootCondition(intensifyStoneType);
-        }
     }
 }

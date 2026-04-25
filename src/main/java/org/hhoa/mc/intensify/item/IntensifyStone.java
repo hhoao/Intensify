@@ -161,12 +161,11 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
-import org.jetbrains.annotations.Nullable;
 
 public abstract class IntensifyStone extends Item {
     public IntensifyStone(Properties properties) {
@@ -186,7 +185,7 @@ public abstract class IntensifyStone extends Item {
     @Override
     public void appendHoverText(
             ItemStack itemStack,
-            @Nullable Level level,
+            TooltipContext tooltipContext,
             List<Component> components,
             TooltipFlag tooltipFlag) {
         Component component = components.get(0);
@@ -206,7 +205,7 @@ public abstract class IntensifyStone extends Item {
             }
         }
         components.add(TranslatableTexts.INTENSIFY_ITEM_TIP.component());
-        super.appendHoverText(itemStack, level, components, tooltipFlag);
+        super.appendHoverText(itemStack, tooltipContext, components, tooltipFlag);
     }
 
     public abstract ChatFormatting getNameColor();

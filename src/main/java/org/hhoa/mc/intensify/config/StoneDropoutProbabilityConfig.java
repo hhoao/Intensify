@@ -158,13 +158,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
@@ -172,24 +172,24 @@ import org.hhoa.mc.intensify.registry.ItemRegistry;
 import org.jetbrains.annotations.NotNull;
 
 public class StoneDropoutProbabilityConfig {
-    private final HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> stoneRate;
+    private final HashMap<IntensifyStoneType, ModConfigSpec.ConfigValue<Double>> stoneRate;
 
-    private final HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> defaultProbabilities;
+    private final HashMap<DropTypeEnum, ModConfigSpec.ConfigValue<Double>> defaultProbabilities;
 
-    private final ForgeConfigSpec.ConfigValue<Double> totalRate;
+    private final ModConfigSpec.ConfigValue<Double> totalRate;
 
-    private final Map<DropTypeEnum, Map<String, ForgeConfigSpec.ConfigValue<Double>>>
+    private final Map<DropTypeEnum, Map<String, ModConfigSpec.ConfigValue<Double>>>
             stoneDropProbability;
 
-    public static Pair<ForgeConfigSpec, StoneDropoutProbabilityConfig> create() {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+    public static Pair<ModConfigSpec, StoneDropoutProbabilityConfig> create() {
+        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         StoneDropoutProbabilityConfig stoneDropoutProbabilityConfig =
                 new StoneDropoutProbabilityConfig(builder);
-        ForgeConfigSpec build = builder.build();
+        ModConfigSpec build = builder.build();
         return Pair.of(build, stoneDropoutProbabilityConfig);
     }
 
-    public ForgeConfigSpec.ConfigValue<Double> getTotalRate() {
+    public ModConfigSpec.ConfigValue<Double> getTotalRate() {
         return totalRate;
     }
 
@@ -202,13 +202,13 @@ public class StoneDropoutProbabilityConfig {
         double v = ThreadLocalRandom.current().nextDouble();
         if (v <= probability) {
             double totalValue = 0;
-            for (Map.Entry<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> entry :
+            for (Map.Entry<IntensifyStoneType, ModConfigSpec.ConfigValue<Double>> entry :
                     stoneRate.entrySet()) {
-                ForgeConfigSpec.ConfigValue<Double> value = entry.getValue();
+                ModConfigSpec.ConfigValue<Double> value = entry.getValue();
                 totalValue += value.get();
             }
             double v1 = probability / totalValue;
-            for (Map.Entry<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> entry :
+            for (Map.Entry<IntensifyStoneType, ModConfigSpec.ConfigValue<Double>> entry :
                     stoneRate.entrySet()) {
                 if (v <= v1 * entry.getValue().get()) {
                     IntensifyStoneType key1 = entry.getKey();
@@ -239,20 +239,20 @@ public class StoneDropoutProbabilityConfig {
     }
 
     private Map<?, Double> getEntityStoneDropOutProbabilities(DropTypeEnum dropTypeEnum) {
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> mineralBlocksProbability =
+        Map<String, ModConfigSpec.ConfigValue<Double>> mineralBlocksProbability =
                 stoneDropProbability.get(dropTypeEnum);
         Map<Object, Double> stoneDropoutProbability = new HashMap<>();
-        for (Map.Entry<String, ForgeConfigSpec.ConfigValue<Double>> blockNameWithProbability :
+        for (Map.Entry<String, ModConfigSpec.ConfigValue<Double>> blockNameWithProbability :
                 mineralBlocksProbability.entrySet()) {
             ResourceLocation resourceLocation =
-                    new ResourceLocation(blockNameWithProbability.getKey());
+                    ResourceLocation.parse(blockNameWithProbability.getKey());
             Object value;
             if (dropTypeEnum == DropTypeEnum.MINERAL_BLOCK_DESTROYED) {
-                value = ForgeRegistries.BLOCKS.getValue(resourceLocation);
+                value = BuiltInRegistries.BLOCK.get(resourceLocation);
             } else if (dropTypeEnum == DropTypeEnum.FISHING) {
-                value = ForgeRegistries.ITEMS.getValue(resourceLocation);
+                value = BuiltInRegistries.ITEM.get(resourceLocation);
             } else if (dropTypeEnum == DropTypeEnum.MOB_KILLED) {
-                value = ForgeRegistries.ENTITY_TYPES.getValue(resourceLocation);
+                value = BuiltInRegistries.ENTITY_TYPE.get(resourceLocation);
             } else {
                 throw new RuntimeException("No such drop type");
             }
@@ -261,7 +261,7 @@ public class StoneDropoutProbabilityConfig {
         return stoneDropoutProbability;
     }
 
-    private StoneDropoutProbabilityConfig(ForgeConfigSpec.Builder builder) {
+    private StoneDropoutProbabilityConfig(ModConfigSpec.Builder builder) {
         builder.push("probabilities");
 
         // 矿石概率配置
@@ -279,9 +279,9 @@ public class StoneDropoutProbabilityConfig {
         stoneRate = configureStone(builder);
     }
 
-    private @NotNull HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>>
-            configureStone(ForgeConfigSpec.Builder builder) {
-        final HashMap<IntensifyStoneType, ForgeConfigSpec.ConfigValue<Double>> stoneRate;
+    private @NotNull HashMap<IntensifyStoneType, ModConfigSpec.ConfigValue<Double>>
+            configureStone(ModConfigSpec.Builder builder) {
+        final HashMap<IntensifyStoneType, ModConfigSpec.ConfigValue<Double>> stoneRate;
         builder.push("stone_rate");
         stoneRate = new HashMap<>();
         stoneRate.put(
@@ -300,16 +300,16 @@ public class StoneDropoutProbabilityConfig {
         return stoneRate;
     }
 
-    private @NotNull HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> configureDefault(
-            ForgeConfigSpec.Builder builder) {
-        final HashMap<DropTypeEnum, ForgeConfigSpec.ConfigValue<Double>> defaultProbabilities;
+    private @NotNull HashMap<DropTypeEnum, ModConfigSpec.ConfigValue<Double>> configureDefault(
+            ModConfigSpec.Builder builder) {
+        final HashMap<DropTypeEnum, ModConfigSpec.ConfigValue<Double>> defaultProbabilities;
         builder.push("defaults");
         defaultProbabilities = new HashMap<>();
-        ForgeConfigSpec.ConfigValue<Double> defaultFishing =
+        ModConfigSpec.ConfigValue<Double> defaultFishing =
                 builder.define(DropTypeEnum.FISHING.getIdentify(), 0.045);
-        ForgeConfigSpec.ConfigValue<Double> defaultMineralBlockDestroyed =
+        ModConfigSpec.ConfigValue<Double> defaultMineralBlockDestroyed =
                 builder.define(DropTypeEnum.MINERAL_BLOCK_DESTROYED.getIdentify(), 0.0);
-        ForgeConfigSpec.ConfigValue<Double> defaultMobKilled =
+        ModConfigSpec.ConfigValue<Double> defaultMobKilled =
                 builder.define(DropTypeEnum.MOB_KILLED.getIdentify(), 0.015);
 
         defaultProbabilities.put(DropTypeEnum.FISHING, defaultFishing);
@@ -321,7 +321,7 @@ public class StoneDropoutProbabilityConfig {
         return defaultProbabilities;
     }
 
-    private void configureMob(ForgeConfigSpec.Builder builder) {
+    private void configureMob(ModConfigSpec.Builder builder) {
         builder.push(DropTypeEnum.MOB_KILLED.getIdentify());
         HashMap<String, Double> mobsProbability = new HashMap<>();
         mobsProbability.put(getRegistryName(EntityType.WITHER), 10.0);
@@ -339,15 +339,15 @@ public class StoneDropoutProbabilityConfig {
         mobsProbability.put(getRegistryName(EntityType.ALLAY), 0.05);
         mobsProbability.put(getRegistryName(EntityType.SLIME), 0.02);
         mobsProbability.put(getRegistryName(EntityType.WARDEN), 0.4);
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> mobProbability =
+        Map<String, ModConfigSpec.ConfigValue<Double>> mobProbability =
                 createProbabilityConfig(builder, mobsProbability);
         stoneDropProbability.put(DropTypeEnum.MOB_KILLED, mobProbability);
         builder.pop();
     }
 
-    private void configureFishing(ForgeConfigSpec.Builder builder) {
+    private void configureFishing(ModConfigSpec.Builder builder) {
         builder.push(DropTypeEnum.FISHING.getIdentify());
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> fishProbability =
+        Map<String, ModConfigSpec.ConfigValue<Double>> fishProbability =
                 createProbabilityConfig(
                         builder,
                         Map.of(
@@ -359,7 +359,7 @@ public class StoneDropoutProbabilityConfig {
         builder.pop();
     }
 
-    private void configureMineProbability(ForgeConfigSpec.Builder builder) {
+    private void configureMineProbability(ModConfigSpec.Builder builder) {
         builder.push(DropTypeEnum.MINERAL_BLOCK_DESTROYED.getIdentify());
 
         HashMap<String, Double> blocksProbability = new HashMap<>();
@@ -392,15 +392,15 @@ public class StoneDropoutProbabilityConfig {
 
         blocksProbability.put(getRegistryName(Blocks.ANCIENT_DEBRIS), 0.2);
 
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> mineralBlocksProbability =
+        Map<String, ModConfigSpec.ConfigValue<Double>> mineralBlocksProbability =
                 createProbabilityConfig(builder, blocksProbability);
         stoneDropProbability.put(DropTypeEnum.MINERAL_BLOCK_DESTROYED, mineralBlocksProbability);
         builder.pop();
     }
 
-    private Map<String, ForgeConfigSpec.ConfigValue<Double>> createProbabilityConfig(
-            ForgeConfigSpec.Builder builder, Map<String, Double> defaults) {
-        Map<String, ForgeConfigSpec.ConfigValue<Double>> configMap = new HashMap<>();
+    private Map<String, ModConfigSpec.ConfigValue<Double>> createProbabilityConfig(
+            ModConfigSpec.Builder builder, Map<String, Double> defaults) {
+        Map<String, ModConfigSpec.ConfigValue<Double>> configMap = new HashMap<>();
         for (Map.Entry<String, Double> entry : defaults.entrySet()) {
             configMap.put(
                     entry.getKey(),
@@ -412,11 +412,11 @@ public class StoneDropoutProbabilityConfig {
 
     private static String getRegistryName(Object registryObject) {
         if (registryObject instanceof net.minecraft.world.level.block.Block block) {
-            return ForgeRegistries.BLOCKS.getKey(block).toString();
+            return BuiltInRegistries.BLOCK.getKey(block).toString();
         } else if (registryObject instanceof net.minecraft.world.item.Item item) {
-            return ForgeRegistries.ITEMS.getKey(item).toString();
+            return BuiltInRegistries.ITEM.getKey(item).toString();
         } else if (registryObject instanceof net.minecraft.world.entity.EntityType<?> entityType) {
-            return ForgeRegistries.ENTITY_TYPES.getKey(entityType).toString();
+            return BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString();
         }
         throw new IllegalArgumentException("Unsupported registry object: " + registryObject);
     }

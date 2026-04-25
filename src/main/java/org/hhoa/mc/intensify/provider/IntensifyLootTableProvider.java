@@ -156,10 +156,14 @@ package org.hhoa.mc.intensify.provider;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.loot.LootTableSubProvider;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -171,30 +175,42 @@ import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class IntensifyLootTableProvider extends LootTableProvider {
-    public static final ResourceLocation ENENG_STONE_LOOT_TABLE_ID =
-            new ResourceLocation(Intensify.MODID, IntensifyStoneType.ENENG_STONE.getIdentifier());
-    ;
-    public static final ResourceLocation STRENGTHENING_STONE_LOOT_TABLE_ID =
-            new ResourceLocation(
-                    Intensify.MODID, IntensifyStoneType.STRENGTHENING_STONE.getIdentifier());
-    ;
-    public static final ResourceLocation PROTECTION_STONE_LOOT_TABLE_ID =
-            new ResourceLocation(
-                    Intensify.MODID, IntensifyStoneType.PROTECTION_STONE.getIdentifier());
-    ;
-    public static final ResourceLocation ETERNAL_STONE_LOOT_TABLE_ID =
-            new ResourceLocation(Intensify.MODID, IntensifyStoneType.ETERNAL_STONE.getIdentifier());
+    public static final ResourceKey<LootTable> ENENG_STONE_LOOT_TABLE_ID =
+            ResourceKey.create(
+                    Registries.LOOT_TABLE,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Intensify.MODID, IntensifyStoneType.ENENG_STONE.getIdentifier()));
+    public static final ResourceKey<LootTable> STRENGTHENING_STONE_LOOT_TABLE_ID =
+            ResourceKey.create(
+                    Registries.LOOT_TABLE,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Intensify.MODID,
+                            IntensifyStoneType.STRENGTHENING_STONE.getIdentifier()));
+    public static final ResourceKey<LootTable> PROTECTION_STONE_LOOT_TABLE_ID =
+            ResourceKey.create(
+                    Registries.LOOT_TABLE,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Intensify.MODID, IntensifyStoneType.PROTECTION_STONE.getIdentifier()));
+    public static final ResourceKey<LootTable> ETERNAL_STONE_LOOT_TABLE_ID =
+            ResourceKey.create(
+                    Registries.LOOT_TABLE,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Intensify.MODID, IntensifyStoneType.ETERNAL_STONE.getIdentifier()));
 
-    public IntensifyLootTableProvider(PackOutput output) {
+    public IntensifyLootTableProvider(
+            PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(
                 output,
                 Set.of(),
-                List.of(new SubProviderEntry(ItemLootTables::new, LootContextParamSets.GIFT)));
+                List.of(
+                        new SubProviderEntry(
+                                provider -> new ItemLootTables(), LootContextParamSets.GIFT)),
+                registries);
     }
 
     public static class ItemLootTables implements LootTableSubProvider {
         @Override
-        public void generate(BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
+        public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
             LootTable.Builder strengtheningTable =
                     LootTable.lootTable()
                             .withPool(

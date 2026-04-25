@@ -159,17 +159,18 @@ import static org.hhoa.mc.intensify.Intensify.MODID;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import java.util.List;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
+import org.hhoa.mc.intensify.gametest.FurnaceGameTests;
 import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
 import org.hhoa.mc.intensify.provider.IntensifyItemModelProvider;
 import org.hhoa.mc.intensify.provider.IntensifyLootModifierProvider;
 import org.hhoa.mc.intensify.provider.IntensifyLootTableProvider;
-import org.hhoa.mc.intensify.provider.IntensifyStoneRecipeProvider;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class IntensifyModEventHandler {
@@ -180,8 +181,10 @@ public class IntensifyModEventHandler {
 
     @SubscribeEvent
     public void onConfigLoad(ModConfigEvent event) {
-        CommentedConfig configData = event.getConfig().getConfigData();
-        System.out.println(configData);
+        if (event.getConfig().getLoadedConfig() != null) {
+            CommentedConfig configData = event.getConfig().getLoadedConfig().config();
+            System.out.println(configData);
+        }
     }
 
     @SubscribeEvent
@@ -190,7 +193,9 @@ public class IntensifyModEventHandler {
                 .addProvider(
                         event.includeServer(),
                         new IntensifyLootModifierProvider(
-                                event.getGenerator().getPackOutput(), MODID));
+                                event.getGenerator().getPackOutput(),
+                                event.getLookupProvider(),
+                                MODID));
         event.getGenerator()
                 .addProvider(
                         event.includeServer(),
@@ -198,11 +203,6 @@ public class IntensifyModEventHandler {
                                 event.getGenerator().getPackOutput(),
                                 MODID,
                                 event.getExistingFileHelper()));
-        event.getGenerator()
-                .addProvider(
-                        event.includeServer(),
-                        new IntensifyStoneRecipeProvider(event.getGenerator().getPackOutput()));
-
         event.getGenerator()
                 .addProvider(
                         true,
@@ -215,16 +215,24 @@ public class IntensifyModEventHandler {
                                                 .ModAdvancementGenerator())));
         event.getGenerator()
                 .addProvider(
-                        true, new IntensifyLootTableProvider(event.getGenerator().getPackOutput()));
+                        true,
+                        new IntensifyLootTableProvider(
+                                event.getGenerator().getPackOutput(),
+                                event.getLookupProvider()));
     }
 
     @SubscribeEvent
     public void onRegisterCreativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(ItemRegistry.STRENGTHENING_STONE);
-            event.accept(ItemRegistry.ENENG_STONE);
-            event.accept(ItemRegistry.PROTECTION_STONE);
-            event.accept(ItemRegistry.ETERNAL_STONE);
+            event.accept(ItemRegistry.STRENGTHENING_STONE.get());
+            event.accept(ItemRegistry.ENENG_STONE.get());
+            event.accept(ItemRegistry.PROTECTION_STONE.get());
+            event.accept(ItemRegistry.ETERNAL_STONE.get());
         }
+    }
+
+    @SubscribeEvent
+    public void registerGameTests(RegisterGameTestsEvent event) {
+        event.register(FurnaceGameTests.class);
     }
 }

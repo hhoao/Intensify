@@ -156,23 +156,25 @@ package org.hhoa.mc.intensify.registry;
 
 import static org.hhoa.mc.intensify.Intensify.MODID;
 
-import com.mojang.serialization.Codec;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import com.mojang.serialization.MapCodec;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.loot.IntensifyStoneLootModifier;
 
 public class LootRegistry {
-    private static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLM =
-            DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
+    private static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> GLM =
+            DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
 
-    public static final RegistryObject<Codec<IntensifyStoneLootModifier>> INTENSIFY_STONE_LOOT =
+    public static final DeferredHolder<
+                    MapCodec<? extends IGlobalLootModifier>, MapCodec<IntensifyStoneLootModifier>>
+            INTENSIFY_STONE_LOOT =
             GLM.register(
                     IntensifyStoneType.INTENSIFY_STONE.getIdentifier(),
-                    IntensifyStoneLootModifier.CODEC);
+                    () -> IntensifyStoneLootModifier.CODEC);
 
     public static void initialize(IEventBus iEventBus) {
         GLM.register(iEventBus);

@@ -159,41 +159,65 @@ import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.toml.TomlParser;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.ModList;
+import org.hhoa.mc.intensify.Intensify;
 
 public class ConfigLoader {
     public static List<ToolIntensifyConfig> loadToolIntensifyConfigFromDir(String dir) {
         TomlParser tomlParser = new TomlParser();
-        Map<ResourceLocation, Resource> resourceLocationResourceMap =
-                Minecraft.getInstance()
-                        .getResourceManager()
-                        .listResources(dir, (resourceLocation) -> true);
         List<ToolIntensifyConfig> toolIntensifyConfigs = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, Resource> resourceLocationResourceEntry :
-                resourceLocationResourceMap.entrySet()) {
-            Resource resource = resourceLocationResourceEntry.getValue();
-            try (BufferedReader bufferedReader = resource.openAsReader()) {
-                CommentedConfig tomlConfig = tomlParser.parse(bufferedReader);
+        Path configDir = resolveConfigDirectory(dir);
+        if (Files.notExists(configDir)) {
+            return toolIntensifyConfigs;
+        }
 
-                Map<String, Object> toolConfig = tomlConfig.valueMap();
-                Set<Map.Entry<String, Object>> entries = toolConfig.entrySet();
-                for (Map.Entry<String, Object> entry : entries) {
-                    toolIntensifyConfigs.add(loadToolIntensifyConfig(tomlConfig, entry.getKey()));
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        try (var configFiles = Files.walk(configDir, 1)) {
+            configFiles
+                    .filter(Files::isRegularFile)
+                    .sorted()
+                    .forEach(
+                            path -> {
+                                try (BufferedReader bufferedReader = Files.newBufferedReader(path)) {
+                                    CommentedConfig tomlConfig = tomlParser.parse(bufferedReader);
+
+                                    Set<String> entries = tomlConfig.valueMap().keySet();
+                                    for (String entry : entries) {
+                                        toolIntensifyConfigs.add(
+                                                loadToolIntensifyConfig(tomlConfig, entry));
+                                    }
+                                } catch (IOException e) {
+                                    throw new UncheckedIOException(
+                                            "Failed to load config " + path, e);
+                                }
+                            });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read config directory " + configDir, e);
+        } catch (UncheckedIOException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
         }
 
         return toolIntensifyConfigs;
+    }
+
+    private static Path resolveConfigDirectory(String dir) {
+        var modList = ModList.get();
+        if (modList == null) {
+            throw new IllegalStateException("Mod list is not available while loading Intensify configs");
+        }
+        var modFileInfo = modList.getModFileById(Intensify.MODID);
+        if (modFileInfo == null) {
+            throw new IllegalStateException("Unable to resolve mod file for " + Intensify.MODID);
+        }
+        return modFileInfo.getFile().findResource("assets", Intensify.MODID, dir);
     }
 
     private static ToolIntensifyConfig loadToolIntensifyConfig(
@@ -252,11 +276,11 @@ public class ConfigLoader {
         if (type == null) {
             throw new RuntimeException(String.format("Attribute type %s not set", type));
         }
-        ResourceLocation resourceLocation = new ResourceLocation(type);
-        Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(resourceLocation);
+        ResourceLocation resourceLocation = ResourceLocation.parse(type);
+        Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(resourceLocation);
         if (attribute == null) {
-            resourceLocation = new ResourceLocation("attributeslib", type);
-            attribute = ForgeRegistries.ATTRIBUTES.getValue(resourceLocation);
+            resourceLocation = ResourceLocation.fromNamespaceAndPath("attributeslib", type);
+            attribute = BuiltInRegistries.ATTRIBUTE.get(resourceLocation);
         }
         if (attribute == null) {
             throw new RuntimeException(String.format("Attribute type %s not register", type));

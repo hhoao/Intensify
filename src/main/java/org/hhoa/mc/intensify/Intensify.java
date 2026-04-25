@@ -156,11 +156,11 @@ package org.hhoa.mc.intensify;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import org.hhoa.mc.intensify.registry.AttachmentRegistry;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 import org.hhoa.mc.intensify.registry.LootConditionsRegistry;
@@ -175,23 +175,19 @@ public class Intensify {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static ResourceLocation location(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
     public static String locationStr(String path) {
-        return new ResourceLocation(MODID, path).toString();
+        return location(path).toString();
     }
 
-    public Intensify() {
-        FMLJavaModLoadingContext fmlJavaModLoadingContext = FMLJavaModLoadingContext.get();
-        ModLoadingContext modLoadingContext = ModLoadingContext.get();
+    public Intensify(IEventBus modEventBus, ModContainer modContainer) {
         LOGGER.info("Intensify enable");
-        IEventBus modEventBus = fmlJavaModLoadingContext.getModEventBus();
-        IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
-
         modEventBus.register(new IntensifyModEventHandler());
-        forgeEventBus.register(new IntensifyForgeEventHandler());
-        ConfigRegistry.initialize(modLoadingContext);
+        NeoForge.EVENT_BUS.register(new IntensifyForgeEventHandler());
+        ConfigRegistry.initialize(modContainer);
+        AttachmentRegistry.initialize(modEventBus);
         ItemRegistry.initialize(modEventBus);
         RecipeRegistry.initialize(modEventBus);
         LootRegistry.initialize(modEventBus);

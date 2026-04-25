@@ -53,11 +53,19 @@ That is how bugs like "close and reopen the furnace to make it start" appeared.
 
 3. Incorrect architectural boundary
 
-In `1.20.1`, the recipe itself encoded whether a furnace cycle may start and whether it may continue.
+In `1.20.1`, the furnace flow was effectively controlled from furnace-aware recipe logic.
 
 In the current 1.21 port, recipe matching is only part of the truth, while event-side tracking tries to reconstruct furnace intent afterward.
 
 That is backwards. The furnace should know whether a cycle is valid by asking the recipe, not by waiting for global event logic to reinterpret what just happened.
+
+There is an important 1.21-specific constraint: furnace recipe matching now receives only `SingleRecipeInput`, not the whole furnace container. That means the old `1.20.1` implementation cannot be ported literally by changing `IntensifyRecipe.matches(...)` alone, because recipe code no longer has direct access to:
+
+- the fuel slot
+- furnace persistent data
+- the furnace block entity itself
+
+Therefore, the redesign must patch the furnace internals at the point where vanilla still has both the furnace block entity and the active recipe context.
 
 ## Design Goals
 
@@ -83,13 +91,14 @@ If a recent helper only exists to prop up the tracking architecture, it should b
 
 ## Recommended Approach
 
-Use the `1.20.1` recipe-driven state model as the canonical design.
+Use the `1.20.1` recipe-driven state model as the canonical design, but reintroduce it in NeoForge 1.21 by patching furnace internals with Mixin.
 
 This means:
 
-- `IntensifyRecipe.matches(...)` becomes the single gate for starting and continuing a furnace cycle
+- a Mixin patch into `AbstractFurnaceBlockEntity` becomes the control point for start/continue/complete decisions
 - furnace persistent data stores the active recipe identity using `LAST_RECIPE`
-- recipe completion applies the actual intensify effect
+- `IntensifyRecipe` continues to define the intensify business meaning of each recipe
+- recipe completion or furnace-completion integration applies the actual intensify effect exactly once
 - event handlers no longer drive furnace progression
 
 This is preferred over keeping a reduced tracking framework because a reduced tracking framework still leaves two competing sources of truth:
@@ -99,14 +108,16 @@ This is preferred over keeping a reduced tracking framework because a reduced tr
 
 The redesign should collapse those back into one.
 
+This is also preferred over launch-plugin/coremod bytecode transformation because Mixin is already proven to work in this codebase family via `AttributesLib` on NeoForge 1.21, while a custom launch plugin would be heavier to maintain.
+
 ## Target Flow
 
 ### 1. Before ignition
 
 When furnace `litTime <= 0`:
 
-- the recipe checks whether the input item is intensifiable
-- the recipe checks whether the current fuel item is the correct intensify stone for that input state
+- the furnace patch checks whether the input item is intensifiable
+- the furnace patch checks whether the current fuel item is the correct intensify stone for that input state
 - if valid, the furnace stores `LAST_RECIPE = this recipe id`
 - if invalid, `LAST_RECIPE` is removed
 
@@ -116,8 +127,8 @@ At this stage, the furnace is deciding whether a new cycle is allowed to begin.
 
 When furnace `litTime > 0`:
 
-- the recipe does not try to infer a new operation from current external state
-- the recipe only checks whether `LAST_RECIPE` matches this recipe id
+- the furnace patch does not try to infer a new operation from external tracking state
+- it only allows continuation when `LAST_RECIPE` matches the active intensify recipe id
 - if it matches, the cycle may continue
 - if it does not match, this recipe does not participate
 
@@ -127,7 +138,7 @@ This preserves the original rule: once a cycle has started, continuation is boun
 
 When the furnace reaches the actual completion boundary:
 
-- the recipe creates the final output item
+- the furnace patch and recipe integration create the final output item
 - the intensify effect is applied exactly once
 - the output is the authoritative final result
 
@@ -159,24 +170,35 @@ The following should be removed from the furnace control path:
 
 ### Re-center
 
-The main furnace logic should move back into:
+The main furnace logic should move into:
 
-- `IntensifyRecipe.matches(...)`
-- `IntensifyRecipe.assemble(...)`
+- a dedicated furnace Mixin package patching `AbstractFurnaceBlockEntity`
+- `IntensifyRecipe` for business-specific intensify semantics
 - minimal furnace state helpers where needed
 
 ## Expected Code Movement
 
-### `IntensifyRecipe`
+### `AbstractFurnaceBlockEntity` Mixin
 
-This class becomes the core state machine again.
+This becomes the true control point for the furnace intensify cycle.
 
 It should:
 
-- distinguish between pre-ignition and active-burn behavior
+- inspect both input and fuel before ignition
+- decide whether an intensify cycle may start
 - write or clear `LAST_RECIPE`
-- gate continuation based on `LAST_RECIPE`
-- own final intensify application at completion time
+- decide whether a burning cycle may continue based on `LAST_RECIPE`
+- hand off completion to the intensify recipe logic exactly once
+
+### `IntensifyRecipe`
+
+This class becomes the business-rule carrier again, but not the only control point.
+
+It should:
+
+- expose recipe-specific intensify meaning
+- provide final effect application for eneng / strengthening / eternal
+- participate in completion without needing direct access to the fuel slot or furnace container from `matches(...)`
 
 ### `IntensifyForgeEventHandler`
 
@@ -240,11 +262,12 @@ Required cases:
 Implementation should happen in this order:
 
 1. Add or adjust regression tests to lock the intended `1.20.1` semantics.
-2. Rebuild `IntensifyRecipe` around `LAST_RECIPE`.
-3. Move final effect application back into recipe completion.
-4. Remove event-side furnace progression logic.
-5. Delete obsolete tracking helpers and constants.
-6. Run full verification.
+2. Add Mixin support to `Intensify` following the working `AttributesLib` pattern.
+3. Patch furnace internals to restore `LAST_RECIPE`-driven start/continue semantics.
+4. Integrate completion-time intensify application exactly once.
+5. Remove event-side furnace progression logic.
+6. Delete obsolete tracking helpers and constants.
+7. Run full verification.
 
 This order ensures we do not reintroduce the same bugs while deleting the current workaround system.
 
@@ -264,6 +287,17 @@ This is why the redesign must fully remove event-side completion handling instea
 
 ### Persistence edge cases
 
+### Injection-point stability risk
+
+Because this design uses Mixins, the chosen injection points in `AbstractFurnaceBlockEntity` must be narrow and well-tested.
+
+The implementation should prefer:
+
+- small redirects or injects at stable decision points
+- explicit tests that prove start/continue/complete behavior
+
+over broad overwrites of the entire furnace tick logic.
+
 `LAST_RECIPE` must be treated as the authoritative cycle identity during burning, and it must be cleared when a new cycle is not valid.
 
 Any ambiguity here will recreate white-burning under a different name.
@@ -273,6 +307,7 @@ Any ambiguity here will recreate white-burning under a different name.
 The redesign is complete when all of the following are true:
 
 - furnace intensify behavior no longer depends on a tracked-furnace map
+- furnace intensify behavior is driven from patched furnace internals, not event-side tracking
 - opening and closing the GUI does not change whether a valid cycle starts
 - eneng, strengthening, and eternal flows follow correct recipe semantics
 - wrong fuel does not start or hijack a cycle
@@ -282,4 +317,4 @@ The redesign is complete when all of the following are true:
 
 ## Decision
 
-Proceed with a full migration from the current tracking-driven furnace flow to the `1.20.1`-style recipe-driven flow centered on `LAST_RECIPE`.
+Proceed with a full migration from the current tracking-driven furnace flow to a `1.20.1`-style `LAST_RECIPE` flow implemented by a minimal Mixin patch to furnace internals on NeoForge 1.21.

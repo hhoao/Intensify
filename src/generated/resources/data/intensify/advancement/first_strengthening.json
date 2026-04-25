@@ -5,19 +5,16 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
     "background": "minecraft:textures/block/furnace.png",
     "description": {
-      "translate": "advancement.intensify.intensify.description"
+      "translate": "advancement.intensify.first_strengthening.description"
     },
-    "frame": "task",
-    "hidden": false,
     "icon": {
-      "item": "minecraft:furnace"
+      "count": 1,
+      "id": "minecraft:furnace"
     },
-    "show_toast": true,
     "title": {
-      "translate": "advancement.intensify.intensify.title"
+      "translate": "advancement.intensify.first_strengthening.title"
     }
   },
   "requirements": [
@@ -27,7 +24,7 @@
   ],
   "rewards": {
     "loot": [
-      "intensify:eneng_stone"
+      "intensify:protection_stone"
     ]
   },
   "sends_telemetry_event": true

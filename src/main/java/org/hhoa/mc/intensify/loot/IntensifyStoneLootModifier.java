@@ -154,39 +154,34 @@
 
 package org.hhoa.mc.intensify.loot;
 
-import com.google.common.base.Suppliers;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.function.Supplier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
-import net.minecraftforge.common.loot.LootModifier;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
+import net.neoforged.neoforge.common.loot.LootModifier;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
 import org.hhoa.mc.intensify.registry.ItemRegistry;
 
 public class IntensifyStoneLootModifier extends LootModifier {
-    public static final Supplier<Codec<IntensifyStoneLootModifier>> CODEC =
-            Suppliers.memoize(
-                    () ->
-                            RecordCodecBuilder.create(
-                                    inst ->
-                                            codecStart(inst)
-                                                    .and(
-                                                            ExtraCodecs.NON_EMPTY_STRING
-                                                                    .optionalFieldOf(
-                                                                            "intensifyItemStoneType",
-                                                                            IntensifyStoneType
-                                                                                    .STRENGTHENING_STONE
-                                                                                    .getIdentifier())
-                                                                    .forGetter(
-                                                                            m ->
-                                                                                    m.intensifyItemStoneType))
-                                                    .apply(inst, IntensifyStoneLootModifier::new)));
+    public static final MapCodec<IntensifyStoneLootModifier> CODEC =
+            RecordCodecBuilder.mapCodec(
+                    inst ->
+                            codecStart(inst)
+                                    .and(
+                                            ExtraCodecs.NON_EMPTY_STRING
+                                                    .optionalFieldOf(
+                                                            "intensifyItemStoneType",
+                                                            IntensifyStoneType.STRENGTHENING_STONE
+                                                                    .getIdentifier())
+                                                    .forGetter(
+                                                            modifier ->
+                                                                    modifier.intensifyItemStoneType))
+                                    .apply(inst, IntensifyStoneLootModifier::new));
     private final String intensifyItemStoneType;
     private final Item intensifyStone;
 
@@ -200,7 +195,7 @@ public class IntensifyStoneLootModifier extends LootModifier {
         super(conditionsIn);
         this.intensifyItemStoneType = intensifyItemStoneType;
         Item intensifyStone;
-        switch (IntensifyStoneType.valueOf(intensifyItemStoneType.toUpperCase())) {
+        switch (IntensifyStoneType.fromIdentifier(intensifyItemStoneType)) {
             case STRENGTHENING_STONE:
                 {
                     intensifyStone = ItemRegistry.STRENGTHENING_STONE.get();
@@ -238,7 +233,7 @@ public class IntensifyStoneLootModifier extends LootModifier {
     }
 
     @Override
-    public Codec<? extends IGlobalLootModifier> codec() {
-        return CODEC.get();
+    public MapCodec<? extends IGlobalLootModifier> codec() {
+        return CODEC;
     }
 }

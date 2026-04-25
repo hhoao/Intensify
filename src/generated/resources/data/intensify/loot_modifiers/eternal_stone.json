@@ -3,7 +3,7 @@
   "conditions": [
     {
       "condition": "intensify:mineral_destruction",
-      "intensifyStoneType": "ETERNAL_STONE"
+      "intensifyStoneType": "eternal_stone"
     }
   ],
   "intensifyItemStoneType": "eternal_stone"

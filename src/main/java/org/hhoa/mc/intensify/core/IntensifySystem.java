@@ -154,6 +154,11 @@
 
 package org.hhoa.mc.intensify.core;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Equipable;
+import net.minecraft.world.item.Item;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.ItemStack;
@@ -163,11 +168,23 @@ import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 public interface IntensifySystem {
     void intensify(ServerPlayer player, ItemStack item, ToolIntensifyConfig intensifyConfig);
 
-    default String getAttributeModifierName(Attribute attribute) {
-        return Intensify.MODID + ".intensify.attribute." + attribute.getDescriptionId();
+    default ResourceLocation getAttributeModifierId(Attribute attribute) {
+        ResourceLocation attributeKey = BuiltInRegistries.ATTRIBUTE.getKey(attribute);
+        String normalizedAttributeId =
+                attributeKey != null ? attributeKey.toString() : attribute.getDescriptionId();
+        return ResourceLocation.fromNamespaceAndPath(
+                Intensify.MODID, AttributeModifierIds.buildPath(normalizedAttributeId));
     }
 
     default String getTagId(String id) {
         return Intensify.MODID + ".intensify.tag." + id;
+    }
+
+    default EquipmentSlot getEquipmentSlotForItem(ItemStack itemStack) {
+        Item item = itemStack.getItem();
+        if (item instanceof Equipable equipable) {
+            return equipable.getEquipmentSlot();
+        }
+        return EquipmentSlot.MAINHAND;
     }
 }

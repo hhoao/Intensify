@@ -154,70 +154,119 @@
 
 package org.hhoa.mc.intensify.util;
 
-import com.google.common.collect.Multimap;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class ItemModifierHelper {
-    public static void initAttributeModifiers(ItemStack itemStack, EquipmentSlot equipmentSlot) {
-        if (!itemStack.hasTag() || !itemStack.getTag().contains("AttributeModifiers", 9)) {
-            Multimap<Attribute, AttributeModifier> attributeModifiers =
-                    itemStack.getAttributeModifiers(equipmentSlot);
-            for (Map.Entry<Attribute, Collection<AttributeModifier>> attributeCollectionEntry :
-                    attributeModifiers.asMap().entrySet()) {
-                for (AttributeModifier attributeModifier : attributeCollectionEntry.getValue()) {
-                    itemStack.addAttributeModifier(
-                            attributeCollectionEntry.getKey(), attributeModifier, equipmentSlot);
-                }
+    public static void initAttributeModifiers(ItemStack itemStack) {
+        ItemAttributeModifiers modifiers =
+                itemStack.getOrDefault(
+                        DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
+        if (modifiers.modifiers().isEmpty()) {
+            ItemAttributeModifiers defaultModifiers = itemStack.getItem().getDefaultAttributeModifiers();
+            if (!defaultModifiers.modifiers().isEmpty()) {
+                itemStack.set(DataComponents.ATTRIBUTE_MODIFIERS, defaultModifiers);
             }
         }
     }
 
-    public static void replaceAttributeModifier(
-            ItemStack stack, UUID modifierId, CompoundTag newModifierData) {
-        if (stack.hasTag()) {
-            CompoundTag tag = stack.getTag();
-            if (tag != null && tag.contains("AttributeModifiers", Tag.TAG_LIST)) {
-                ListTag modifiers = tag.getList("AttributeModifiers", Tag.TAG_COMPOUND);
+    public static void setAttributeModifier(
+            ItemStack stack,
+            Attribute attribute,
+            AttributeModifier newModifier,
+            EquipmentSlot equipmentSlot) {
+        initAttributeModifiers(stack);
+        Holder<Attribute> attributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
 
-                for (int i = 0; i < modifiers.size(); i++) {
-                    CompoundTag modifierTag = modifiers.getCompound(i);
-
-                    if (UUID.fromString(modifierTag.getString("UUID")).equals(modifierId)) {
-                        modifiers.set(i, newModifierData); // 替换指定的 AttributeModifier
-                        break;
-                    }
-                }
+        for (ItemAttributeModifiers.Entry entry : getCurrentAttributeModifiers(stack).modifiers()) {
+            if (!(entry.attribute().equals(attributeHolder)
+                    && entry.modifier().id().equals(newModifier.id()))) {
+                builder.add(entry.attribute(), entry.modifier(), entry.slot());
             }
         }
+
+        builder.add(attributeHolder, newModifier, EquipmentSlotGroup.bySlot(equipmentSlot));
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
     }
 
-    public static void removeAttributeModifier(ItemStack stack, UUID modifierId) {
-        if (stack.hasTag()) {
-            CompoundTag tag = stack.getTag();
-            if (tag != null && tag.contains("AttributeModifiers", Tag.TAG_LIST)) {
-                ListTag modifiers = tag.getList("AttributeModifiers", Tag.TAG_COMPOUND);
+    public static List<AttributeModifier> getAttributeModifiers(
+            ItemStack stack,
+            Attribute attribute,
+            EquipmentSlot equipmentSlot,
+            ResourceLocation modifierId) {
+        Holder<Attribute> attributeHolder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);
+        List<AttributeModifier> modifiers = new ArrayList<>();
 
-                // 遍历寻找需要移除的 AttributeModifier
-                modifiers.removeIf(
-                        modifier -> {
-                            CompoundTag modifierTag = (CompoundTag) modifier;
-                            return modifierTag.getUUID("UUID").equals(modifierId);
+        getCurrentAttributeModifiers(stack)
+                .forEach(
+                        equipmentSlot,
+                        (holder, modifier) -> {
+                            if (holder.equals(attributeHolder) && modifier.id().equals(modifierId)) {
+                                modifiers.add(modifier);
+                            }
                         });
+        return modifiers;
+    }
 
-                // 如果列表为空，移除整个标签
-                if (modifiers.isEmpty()) {
-                    tag.remove("AttributeModifiers");
-                }
-            }
+    public static boolean getBooleanTag(ItemStack stack, String key) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                .copyTag()
+                .getBoolean(key);
+    }
+
+    public static int getIntTag(ItemStack stack, String key) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getInt(key);
+    }
+
+    public static String getStringTag(ItemStack stack, String key) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                .copyTag()
+                .getString(key);
+    }
+
+    public static void putBooleanTag(ItemStack stack, String key, boolean value) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean(key, value));
+    }
+
+    public static void putIntTag(ItemStack stack, String key, int value) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt(key, value));
+    }
+
+    public static void putStringTag(ItemStack stack, String key, String value) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putString(key, value));
+    }
+
+    public static void removeTag(ItemStack stack, String key) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.remove(key));
+    }
+
+    private static ItemAttributeModifiers getCurrentAttributeModifiers(ItemStack stack) {
+        ItemAttributeModifiers modifiers =
+                stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
+        if (modifiers.modifiers().isEmpty()) {
+            return stack.getItem().getDefaultAttributeModifiers();
         }
+        return modifiers;
+    }
+
+    public static void updateCustomData(ItemStack stack, java.util.function.Consumer<CompoundTag> updater) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, updater);
+    }
+
+    public static CompoundTag getCustomData(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
     }
 }

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "intensify:protection_stone"
+          "name": "intensify:eternal_stone"
         }
       ],
       "rolls": 1.0

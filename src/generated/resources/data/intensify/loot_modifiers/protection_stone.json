@@ -3,7 +3,7 @@
   "conditions": [
     {
       "condition": "intensify:mineral_destruction",
-      "intensifyStoneType": "PROTECTION_STONE"
+      "intensifyStoneType": "protection_stone"
     }
   ],
   "intensifyItemStoneType": "protection_stone"

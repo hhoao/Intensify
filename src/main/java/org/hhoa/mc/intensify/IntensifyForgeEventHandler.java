@@ -158,14 +158,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.CriterionProgress;
-import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
@@ -176,6 +171,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -186,43 +183,29 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.player.ItemFishedEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.hhoa.mc.intensify.capabilities.FirstLoginCapabilityProvider;
-import org.hhoa.mc.intensify.capabilities.IFirstLoginCapability;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.hhoa.mc.intensify.config.IntensifyConfig;
 import org.hhoa.mc.intensify.config.IntensifyConstants;
 import org.hhoa.mc.intensify.config.ToolIntensifyConfig;
 import org.hhoa.mc.intensify.config.TranslatableTexts;
 import org.hhoa.mc.intensify.enums.DropTypeEnum;
 import org.hhoa.mc.intensify.item.IntensifyStoneType;
-import org.hhoa.mc.intensify.provider.CustomTriggerInstance;
 import org.hhoa.mc.intensify.provider.IntensifyAdvancementProvider;
-import org.hhoa.mc.intensify.provider.IntensifyStoneRecipeProvider;
+import org.hhoa.mc.intensify.registry.AttachmentRegistry;
 import org.hhoa.mc.intensify.registry.ConfigRegistry;
 import org.hhoa.mc.intensify.util.PlayerUtils;
 
 public class IntensifyForgeEventHandler {
-    public static final Capability<IFirstLoginCapability> FIRST_LOGIN_CAPABILITY =
-            CapabilityManager.get(new CapabilityToken<>() {});
-    public static final ResourceLocation FIRST_LOGIN_CAP =
-            Intensify.location("first_login_capability");
-
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getPos());
-        if (blockEntity instanceof FurnaceBlockEntity) {
+        if (blockEntity instanceof FurnaceBlockEntity && !event.getLevel().isClientSide) {
             CompoundTag persistentData = blockEntity.getPersistentData();
             Player player = event.getEntity();
             persistentData.putString(
@@ -236,55 +219,13 @@ public class IntensifyForgeEventHandler {
 
         if (!level.isClientSide) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
-            LazyOptional<IFirstLoginCapability> capability =
-                    player.getCapability(FIRST_LOGIN_CAPABILITY);
-
-            capability.ifPresent(
-                    cap -> {
-                        if (!cap.hasLoggedIn()) {
-                            completeAdvancement(
-                                    player.getAdvancements(),
-                                    player.getServer(),
-                                    IntensifyAdvancementProvider.INTENSIFY_ADVANCEMENT_ID);
-                            cap.setHasLoggedIn(true);
-                        }
-                    });
-        }
-    }
-
-    private static void addAdvancementListener(ServerPlayer player, IntensifyStoneType type) {
-        Advancement advancement =
-                player.getServer()
-                        .getAdvancements()
-                        .getAdvancement(Intensify.location("recipes/" + type.getIdentifier()));
-        if (advancement != null) {
-            CriterionProgress criterion =
-                    player.getAdvancements()
-                            .getOrStartProgress(advancement)
-                            .getCriterion(IntensifyStoneRecipeProvider.HAS_STONE);
-            if (criterion != null && !criterion.isDone()) {
-                AtomicReference<CriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>>
-                        listenerAtomicReference = new AtomicReference<>();
-                CustomTriggerInstance customTriggerInstance =
-                        new CustomTriggerInstance(
-                                player.getAdvancements(), criterion, listenerAtomicReference);
-                CriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>
-                        customTriggerInstanceListener =
-                                new CriterionTrigger.Listener<>(
-                                        customTriggerInstance,
-                                        advancement,
-                                        IntensifyStoneRecipeProvider.HAS_TOOL);
-                listenerAtomicReference.set(customTriggerInstanceListener);
-                CriteriaTriggers.INVENTORY_CHANGED.addPlayerListener(
-                        player.getAdvancements(), customTriggerInstanceListener);
+            if (!player.getData(AttachmentRegistry.FIRST_LOGIN)) {
+                completeAdvancement(
+                        player.getAdvancements(),
+                        player.getServer(),
+                        IntensifyAdvancementProvider.INTENSIFY_ADVANCEMENT_ID);
+                player.setData(AttachmentRegistry.FIRST_LOGIN, true);
             }
-        }
-    }
-
-    @SubscribeEvent
-    public void attachCapability(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof ServerPlayer) {
-            event.addCapability(FIRST_LOGIN_CAP, new FirstLoginCapabilityProvider());
         }
     }
 
@@ -400,7 +341,8 @@ public class IntensifyForgeEventHandler {
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event) {
         ResourceLocation registryName =
-                ForgeRegistries.ITEMS.getKey(event.getItemStack().getItem());
+                net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(
+                        event.getItemStack().getItem());
         List<Component> toolTip = event.getToolTip();
         if (registryName != null) {
             ItemStack itemStack = event.getItemStack();
@@ -499,7 +441,7 @@ public class IntensifyForgeEventHandler {
             PlayerAdvancements advancements,
             MinecraftServer server,
             ResourceLocation advancementId) {
-        Advancement advancement = server.getAdvancements().getAdvancement(advancementId);
+        AdvancementHolder advancement = server.getAdvancements().get(advancementId);
         if (advancement != null) {
             AdvancementProgress progress = advancements.getOrStartProgress(advancement);
             if (!progress.isDone()) {
@@ -509,4 +451,5 @@ public class IntensifyForgeEventHandler {
             }
         }
     }
+
 }
