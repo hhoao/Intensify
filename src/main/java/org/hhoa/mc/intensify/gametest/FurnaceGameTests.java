@@ -270,6 +270,7 @@ public final class FurnaceGameTests {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.getInventory().add(new ItemStack(Items.DIAMOND_SWORD));
         player.getInventory().add(ItemRegistry.ENENG_STONE.get().getDefaultInstance());
+        int stoneCountBeforePlacement = player.getInventory().countItem(ItemRegistry.ENENG_STONE.get());
 
         FurnaceMenu menu =
                 new FurnaceMenu(0, player.getInventory(), furnace, new SimpleContainerData(4));
@@ -294,6 +295,14 @@ public final class FurnaceGameTests {
             helper.fail(
                     Component.literal(
                             "display recipe placement should put the intensify stone in the fuel slot"));
+            return;
+        }
+
+        int stoneCountAfterPlacement = player.getInventory().countItem(ItemRegistry.ENENG_STONE.get());
+        if (stoneCountAfterPlacement != stoneCountBeforePlacement - 1) {
+            helper.fail(
+                    Component.literal(
+                            "non-creative display placement should consume exactly one intensify stone"));
             return;
         }
 
