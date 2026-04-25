@@ -23,8 +23,9 @@ sourceSets.main.resources {
 }
 
 repositories {
+    def repoBaseDir = rootDir.parentFile.name == '.worktrees' ? rootDir.parentFile.parentFile : rootDir
     mavenCentral()
-    maven { url = uri('../AttributesLib/repo') }
+    maven { url = repoBaseDir.toPath().resolveSibling('AttributesLib').resolve('repo').toUri() }
     mavenLocal()
 }
 
