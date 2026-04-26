@@ -31,7 +31,7 @@ class FurnaceRecipeBookDisplayResourceTest {
     }
 
     @Test
-    void recipeBookDisplayResourcesExistOnClasspathWithDiamondSwordStoneExamples()
+    void recipeBookDisplayResourcesExistOnClasspathWithStoneFirstExamples()
             throws IOException {
         assertDisplayRecipe(
                 "data/intensify/recipe/recipe_book_display/eneng_stone.json",
@@ -44,7 +44,7 @@ class FurnaceRecipeBookDisplayResourceTest {
                 "intensify:eternal_stone");
     }
 
-    private static void assertDisplayRecipe(String resourcePath, String expectedFuelItem)
+    private static void assertDisplayRecipe(String resourcePath, String expectedStoneItem)
             throws IOException {
         try (InputStream inputStream =
                 FurnaceRecipeBookDisplayResourceTest.class
@@ -57,17 +57,17 @@ class FurnaceRecipeBookDisplayResourceTest {
                     new Yaml().load(new String(inputStream.readAllBytes(), StandardCharsets.UTF_8));
 
             assertEquals(
-                    "minecraft:diamond_sword",
+                    expectedStoneItem,
                     requiredItemId(json, "input", resourcePath),
-                    resourcePath + " should use diamond_sword as the display input");
+                    resourcePath + " should use the corresponding stone as the display input");
             assertEquals(
-                    expectedFuelItem,
+                    expectedStoneItem,
                     requiredItemId(json, "fuel", resourcePath),
                     resourcePath + " should use the expected stone as the display fuel");
             assertEquals(
-                    "minecraft:diamond_sword",
+                    expectedStoneItem,
                     requiredItemId(json, "result", resourcePath),
-                    resourcePath + " should use diamond_sword as the display result");
+                    resourcePath + " should use the corresponding stone as the display result");
         }
     }
 

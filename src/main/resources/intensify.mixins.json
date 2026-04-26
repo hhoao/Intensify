@@ -8,7 +8,8 @@
     "AbstractFurnaceMenuMixin"
   ],
   "client": [
-    "FurnaceRecipeBookComponentMixin"
+    "FurnaceRecipeBookComponentMixin",
+    "RecipeBookComponentAccessor"
   ],
   "minVersion": "0.8"
 }
