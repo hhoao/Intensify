@@ -24,8 +24,6 @@ sourceSets.main.resources {
 
 repositories {
     mavenCentral()
-    maven { url = uri('../AttributesLib/repo') }
-    mavenLocal()
 }
 
 neoForge {
@@ -71,7 +69,7 @@ neoForge {
 }
 
 dependencies {
-    implementation "dev.shadowsoffire:attributeslib:${attributeslib_version}"
+    implementation "io.github.hhoao:attributeslib-neoforge:${attributeslib_version}"
     implementation 'org.apache.commons:commons-lang3:3.14.0'
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
