@@ -22,45 +22,8 @@ sourceSets.main.resources {
     srcDir('src/generated/resources')
 }
 
-def resolveSharedCheckoutRoot(File projectRoot) {
-    def gitMetadata = new File(projectRoot, '.git')
-    if (gitMetadata.isDirectory()) {
-        return projectRoot
-    }
-
-    if (!gitMetadata.isFile()) {
-        return projectRoot
-    }
-
-    // Linked worktrees store a .git file pointing at the shared repository metadata.
-    def gitDirLine = gitMetadata.text.readLines().find { it.startsWith('gitdir:') }
-    if (gitDirLine == null) {
-        return projectRoot
-    }
-
-    def gitDirPath = gitDirLine.substring('gitdir:'.length()).trim()
-    def gitDir = new File(gitDirPath)
-    if (!gitDir.isAbsolute()) {
-        gitDir = new File(projectRoot, gitDirPath)
-    }
-
-    if (!gitDir.exists()) {
-        return projectRoot
-    }
-
-    def normalizedGitDir = gitDir.canonicalFile
-    def commonGitDir = normalizedGitDir.parentFile?.name == 'worktrees'
-            ? normalizedGitDir.parentFile.parentFile
-            : normalizedGitDir
-
-    return commonGitDir.parentFile?.canonicalFile ?: projectRoot
-}
-
 repositories {
-    def repoBaseDir = resolveSharedCheckoutRoot(rootDir)
     mavenCentral()
-    maven { url = repoBaseDir.toPath().resolveSibling('AttributesLib').resolve('repo').toUri() }
-    mavenLocal()
 }
 
 neoForge {
@@ -106,7 +69,7 @@ neoForge {
 }
 
 dependencies {
-    implementation "dev.shadowsoffire:attributeslib:${attributeslib_version}"
+    implementation "io.github.hhoao:attributeslib-neoforge:${attributeslib_version}"
     implementation 'org.apache.commons:commons-lang3:3.14.0'
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
