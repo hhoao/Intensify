@@ -40,7 +40,14 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     }
 
     public IntensifyRecipe(ResourceLocation resourceLocation, float experience, int cookingTime) {
-        this(resourceLocation, null, null, null, null, experience, cookingTime);
+        this(
+                resourceLocation,
+                "",
+                CookingBookCategory.MISC,
+                Ingredient.of(Items.FURNACE),
+                new ItemStack(Items.FURNACE),
+                experience,
+                cookingTime);
     }
 
     public abstract boolean matchesInternal(Container container, Level level);
@@ -143,5 +150,10 @@ public abstract class IntensifyRecipe extends SmeltingRecipe {
     @Override
     public RecipeSerializer<?> getSerializer() {
         return getSerializerInternal();
+    }
+
+    @Override
+    public boolean isSpecial() {
+        return true;
     }
 }

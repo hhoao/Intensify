@@ -1,0 +1,12 @@
+{
+  "type": "intensify:furnace_recipe_book_display",
+  "input": {
+    "item": "intensify:eternal_stone"
+  },
+  "fuel": {
+    "item": "intensify:eternal_stone"
+  },
+  "result": {
+    "item": "intensify:eternal_stone"
+  }
+}

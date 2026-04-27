@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "org.hhoa.mc.intensify.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "intensify.refmap.json",
+  "mixins": [
+    "AbstractFurnaceMenuMixin"
+  ],
+  "client": [
+    "FurnaceRecipeBookComponentMixin",
+    "RecipeBookComponentAccessor"
+  ],
+  "minVersion": "0.8"
+}

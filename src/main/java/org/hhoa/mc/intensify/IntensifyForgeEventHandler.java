@@ -2,6 +2,7 @@ package org.hhoa.mc.intensify;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -64,6 +65,18 @@ public class IntensifyForgeEventHandler {
             CapabilityManager.get(new CapabilityToken<>() {});
     public static final ResourceLocation FIRST_LOGIN_CAP =
             Intensify.location("first_login_capability");
+    private static final ResourceLocation[] DISPLAY_RECIPE_KEYS =
+            new ResourceLocation[] {
+                recipeKey("recipe_book_display/eneng_stone"),
+                recipeKey("recipe_book_display/strengthening_stone"),
+                recipeKey("recipe_book_display/eternal_stone")
+            };
+    private static final ResourceLocation[] LEGACY_RECIPE_KEYS =
+            new ResourceLocation[] {
+                recipeKey("eneng_stone"),
+                recipeKey("strengthening_stone"),
+                recipeKey("intensify_stone")
+            };
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -95,6 +108,7 @@ public class IntensifyForgeEventHandler {
                             cap.setHasLoggedIn(true);
                         }
                     });
+            syncRecipeBookDisplayRecipes(player);
         }
     }
 
@@ -354,5 +368,22 @@ public class IntensifyForgeEventHandler {
                 }
             }
         }
+    }
+
+    private static void syncRecipeBookDisplayRecipes(ServerPlayer player) {
+        player.awardRecipesByKey(DISPLAY_RECIPE_KEYS);
+
+        List<net.minecraft.world.item.crafting.Recipe<?>> legacyRecipes = new ArrayList<>();
+        for (ResourceLocation recipeKey : LEGACY_RECIPE_KEYS) {
+            player.getServer().getRecipeManager().byKey(recipeKey).ifPresent(legacyRecipes::add);
+        }
+
+        if (!legacyRecipes.isEmpty()) {
+            player.resetRecipes(legacyRecipes);
+        }
+    }
+
+    private static ResourceLocation recipeKey(String path) {
+        return Intensify.location(path);
     }
 }
