@@ -1,0 +1,12 @@
+{
+  "type": "intensify:furnace_recipe_book_display",
+  "input": {
+    "item": "intensify:eneng_stone"
+  },
+  "fuel": {
+    "item": "intensify:eneng_stone"
+  },
+  "result": {
+    "item": "intensify:eneng_stone"
+  }
+}

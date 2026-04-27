@@ -147,4 +147,9 @@ public abstract class IntensifyRecipe extends FurnaceRecipe implements ComplexRe
     public IRecipeSerializer<?> getSerializer() {
         return getSerializerInternal();
     }
+
+    @Override
+    public boolean isDynamic() {
+        return true;
+    }
 }

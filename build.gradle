@@ -211,7 +211,8 @@ tasks.named('processResources', ProcessResources).configure {
         def mixinFiles = []
         def clientMixinFiles = []
 
-        def path = "${project.projectDir}/src/main/java/${mod_group_id}/${mod_id}/mixin".replaceAll('\\.', '/')
+        def packagePath = "${mod_group_id}/${mod_id}/mixin".replaceAll('\\.', '/')
+        def path = "${project.projectDir}/src/main/java/${packagePath}"
         fileTree(path).visit { FileVisitDetails details ->
             def name = details.file.path.replace('\\', '/')
             name = name.substring(name.indexOf('mixin/') + 'mixin/'.length(), name.length())

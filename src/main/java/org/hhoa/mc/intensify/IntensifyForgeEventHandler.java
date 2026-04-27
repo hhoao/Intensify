@@ -5,6 +5,7 @@ import static org.hhoa.mc.intensify.config.IntensifyConstants.LIMITED_REPLACED_B
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.Advancement;
@@ -61,6 +62,18 @@ import org.hhoa.mc.intensify.util.PlayerUtils;
 public class IntensifyForgeEventHandler {
     public static final ResourceLocation FIRST_LOGIN_CAP =
             Intensify.location("first_login_capability");
+    private static final ResourceLocation[] DISPLAY_RECIPE_KEYS =
+            new ResourceLocation[] {
+                recipeKey("recipe_book_display/eneng_stone"),
+                recipeKey("recipe_book_display/strengthening_stone"),
+                recipeKey("recipe_book_display/eternal_stone")
+            };
+    private static final ResourceLocation[] LEGACY_RECIPE_KEYS =
+            new ResourceLocation[] {
+                recipeKey("eneng_stone"),
+                recipeKey("strengthening_stone"),
+                recipeKey("intensify_stone")
+            };
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -119,6 +132,7 @@ public class IntensifyForgeEventHandler {
                             cap.setHasLoggedIn(true);
                         }
                     });
+            syncRecipeBookDisplayRecipes(serverPlayer);
         }
     }
 
@@ -346,5 +360,22 @@ public class IntensifyForgeEventHandler {
                 }
             }
         }
+    }
+
+    private static void syncRecipeBookDisplayRecipes(ServerPlayerEntity player) {
+        player.unlockRecipes(DISPLAY_RECIPE_KEYS);
+
+        List<net.minecraft.item.crafting.IRecipe<?>> legacyRecipes = new ArrayList<>();
+        for (ResourceLocation recipeKey : LEGACY_RECIPE_KEYS) {
+            player.getServer().getRecipeManager().getRecipe(recipeKey).ifPresent(legacyRecipes::add);
+        }
+
+        if (!legacyRecipes.isEmpty()) {
+            player.resetRecipes(legacyRecipes);
+        }
+    }
+
+    private static ResourceLocation recipeKey(String path) {
+        return Intensify.location(path);
     }
 }
