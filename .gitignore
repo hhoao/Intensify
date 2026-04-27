@@ -61,3 +61,10 @@ gradle-app.setting
 
 # User-specific stuff
 .idea/
+
+logs/
+
+docs/superpowers
+bin/
+.eclipse
+.worktrees
